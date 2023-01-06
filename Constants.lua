@@ -292,6 +292,23 @@ EZquip.invTypeToInvSlot = { --format: {INVTYPE_CHEST = INVSLOT_CHEST,}
     ["INVTYPE_QUIVER"] = "INVSLOT_BAG1",
 }
 
+EZquip.armorTypeByClass = {
+  ["WARRIOR"] = "PLATE",
+  ["PALADIN"] = "PLATE",
+  ["HUNTER"] = "MAIL",
+  ["ROGUE"] = "LEATHER",
+  ["PRIEST"] = "CLOTH",
+  ["DEATHKNIGHT"] = "PLATE",
+  ["SHAMAN"] = "MAIL",
+  ["MAGE"] = "CLOTH",
+  ["WARLOCK"] = "CLOTH",
+  ["MONK"] = "LEATHER",
+  ["DRUID"] = "LEATHER",
+  ["DEMONHUNTER"] = "LEATHER",
+  ["EVOKER"] = "MAIL"
+}
+-- local _, playerClass = UnitClass("player")
+-- local armorType = EZquip.armorTypeByClass[playerClass]
 
 --[[ function EZquip:GetInventoryTypes(itemloc,itemId)
     -- local itemId = C_Item.GetItemID(itemLoc)
@@ -307,3 +324,26 @@ EZquip.invTypeToInvSlot = { --format: {INVTYPE_CHEST = INVSLOT_CHEST,}
     return invTypeId, invTypeConst, invslotName, invSlotConst, slotId
 end ]]
 
+EZquip.ItemWeaponSubclass = { --derived from Enum.ItemWeaponSubclass
+    [0] = "One-Handed Axes",
+    [1] = "Two-Handed Axes",
+    [2] = "Bows",
+    [3] = "Guns",
+    [4] = "One-Handed Maces",
+    [5] = "Two-Handed Maces",
+    [6] = "Polearms",
+    [7] = "One-Handed Swords",
+    [8] = "Two-Handed Swords",
+    [9] = "Warglaives",
+    [10] = "Staves",
+    [11] = "Bear Claws",
+    [12] = "CatClaws",
+    [13] = "Fist Weapons",
+    [14] = "Miscellaneous",
+    [15] = "Daggers",
+    [16] = "Thrown", --classic
+    [17] = "Spears",
+    [18] = "Crossbows",
+    [19] = "Wands",
+    [20] = "Fishing Poles",
+}
