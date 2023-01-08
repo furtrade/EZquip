@@ -222,8 +222,9 @@ ENSEMBLE_TRINKETS = true;
 local function SelectBestWeaponConfig(configurations)
   local highestTotalScore = 0
   local highestConfig
+  local highestConfigName
 
-  for _, config in pairs(configurations) do
+  for name, config in pairs(configurations) do
     local totalScore = 0
     for _, item in pairs(config) do
       totalScore = totalScore + item.score
@@ -231,9 +232,10 @@ local function SelectBestWeaponConfig(configurations)
     if totalScore > highestTotalScore then
       highestTotalScore = totalScore
       highestConfig = config
+      highestConfigName = name
     end
   end
-  print("Highest total score: " .. highestTotalScore)
+  print("Highest total score: " .. highestConfigName, highestTotalScore)
   return highestConfig
 end
 
