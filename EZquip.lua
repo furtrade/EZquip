@@ -214,7 +214,7 @@ function EZquip:UpdateArmory()
   end
 end
 
-ENSEMBLE_WEAPONS = false;
+ENSEMBLE_WEAPONS = true;
 ENSEMBLE_ARMOR = true;
 ENSEMBLE_RINGS = true;
 ENSEMBLE_TRINKETS = true;
@@ -226,8 +226,6 @@ function EZquip:TheorizeSet(armory)
   local trinketSet = {};
 
   -- if (ENSEMBLE_WEAPONS) then
-  --   local weaponType = armory[16].invTypeConst
-  --   local weapons = armory[16]
   --   --configurations
   --   local configurations = {
   --     twoHandWeapon = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
@@ -238,33 +236,108 @@ function EZquip:TheorizeSet(armory)
   --   local dualWielding = configurations.dualWielding
   --   local mainAndOffHand = configurations.mainAndOffHand
 
-  --   for i=16, 17 do
+  --   for k, v in pairs(armory) do
+  --     if k == 16 then
+  --       local _twohanders = {}
+  --       local _oneHanders = {}
+  --       for i, j in pairs(v) do
+  --         if j.invTypeConst == "INVTYPE_2HANDWEAPON" then
+  --           table.insert(_twohanders, i, j)
+  --         else
+  --           table.insert(_oneHanders, i, j)
+  --         end
+  --       end
 
-  --     --TwoHandWeapon Configuration
-  --     if weaponType == "INVTYPE_2HWEAPON" then
-  --       table.insert(twoHandWeapon, 1, weapons[1])
-  --       table.remove(weapons, 1)
-  --       -- if (HasIgnoreDualWieldWeapon()) then
-  --       --   table.insert(twoHandWeapon, 2, weapons[1])
-  --       --   table.remove(weapons, 1)
-  --       -- end
-  --     end
-      
-  --     --DualWielding Configuration
-  --     -- if (CanDualWield()) and weaponType ~= "INVTYPE_2HWEAPON" then
-  --     --   table.insert(dualWielding, 1, weapons[1])
-  --     --   table.insert(mainAndOffHand, 1, weapons[1])
-  --     --   table.remove(weapons, 1)
+  --       --TwoHandWeapon Configuration
+  --       if _twohanders then
+  --         table.insert(twoHandWeapon, 1, _twohanders[1])
+  --         -- if (HasIgnoreDualWieldWeapon()) then
+  --         --   table.insert(twoHandWeapon, 2, _twohanders[2])
+  --         -- end
+  --         print("   -> " .. twoHandWeapon[1].link .. " added to twoHandConfig")
+  --       end
+  --       if _oneHanders then
 
-  --     --   table.insert(dualWielding, 2, weapons[1])
-  --     --   table.remove(weapons, 1)
-  --     -- end
-  --     --MainAndOffHand Configuration
+  --         -- DualWielding Configuration
+  --         if (CanDualWield()) then
+  --           print("can dualWield")
+  --           table.insert(dualWielding, 1, _oneHanders[1])
+  --           print("   -> " .. dualWielding[1].link .. " added to dualWieldConfig 1")
+
+  --           table.insert(dualWielding, 2, _oneHanders[2])
+  --           print("   -> " .. dualWielding[2].link .. " added to dualWieldConfig 2")
+  --         end
+
+  --         --MainAndOffHand Configuration
+  --         table.insert(mainAndOffHand, 1, _oneHanders[1])
+  --         print("   -> " .. mainAndOffHand[1].link .. " added to mainAndOffHand 1")
+  --       end
   --     end
+  --     if k == 17 then
+  --       print("k:" .. k, v.link, v.invTypeConst)
+  --       table.insert(mainAndOffHand, 2, offHands[1])
+  --       print("   -> " .. mainAndOffHand[2].link .. " added to mainAndOffHand 2")
+
+  --     end
+  --   end
   -- end
 
+  if (ENSEMBLE_WEAPONS) then
+    --configurations
+    local configurations = {
+      twoHandWeapon = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
+      dualWielding = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
+      mainAndOffHand = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } }
+    }
+    local twoHandWeapon = configurations.twoHandWeapon
+    local dualWielding = configurations.dualWielding
+    local mainAndOffHand = configurations.mainAndOffHand
+
+    local _twohanders = {}
+    local _oneHanders = {}
+    if (armory[16]) then
+      local a, b = 0, 0
+      for _, j in pairs(armory[16]) do
+        if (j.invTypeConst == "INVTYPE_2HWEAPON") then
+          a = a + 1
+          table.insert(_twohanders, a, j)
+          -- print(a, j.link, j.score, j.invTypeConst)
+        else
+          b = b + 1
+          table.insert(_oneHanders, b, j)
+          -- print(b, j.link, j.score, j.invTypeConst)
+        end
+      end
+    end
+
+    --TwoHandWeapon Configuration
+    if (_twohanders) then
+      table.insert(twoHandWeapon, 1, _twohanders[1]);
+      print("   -> " .. twoHandWeapon[1].link .. " added to twoHandConfig")
+    end
+    if (_oneHanders) then
+      -- DualWielding Configuration
+      -- if (CanDualWield()) then
+      --   table.insert(dualWielding, 1, _oneHanders[1])
+      --   print("   -> " .. dualWielding[1].link .. " added to dualWieldConfig 1")
+
+      --   table.insert(dualWielding, 2, _oneHanders[2])
+      --   print("   -> " .. dualWielding[2].link .. " added to dualWieldConfig 2")
+      -- end
+
+      --MainAndOffHand Configuration
+      table.insert(mainAndOffHand, 1, _oneHanders[1])
+      print("   -> " .. mainAndOffHand[1].link .. " added to mainAndOffHand 1")
+    end
+    if (armory[17]) then
+      table.insert(mainAndOffHand, 2, armory[17][1])
+      print("   -> " .. mainAndOffHand[2].link .. " added to mainAndOffHand 2")
+    end
+    
+  end
+
   if (ENSEMBLE_ARMOR) then
-    for i=1, 15 do
+    for i = 1, 15 do
       local armor = armory[i]
       if i <= 10 and (i ~= 2 and i ~= 4) then
         table.insert(armorSet, i, armor[1])
@@ -298,7 +371,7 @@ function EZquip:TheorizeSet(armory)
   end
 
   return weaponSet, armorSet, ringSet, trinketSet
-end
+  end
 
 ------------------------------------------------------------------------------------------------
 -- Equipping items
@@ -650,7 +723,7 @@ end
 
 function EZquip:PutTheseOn(theoreticalSet)
   for _, item in pairs(theoreticalSet) do
-    print(item.canEzquip,item.link, item.slotId)
+    -- print(item.canEzquip,item.link, item.slotId)
 
     local hex = item.hex
     local slotId = item.slotId
