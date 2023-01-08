@@ -219,68 +219,29 @@ ENSEMBLE_ARMOR = true;
 ENSEMBLE_RINGS = true;
 ENSEMBLE_TRINKETS = true;
 
+local function SelectBestWeaponConfig(configurations)
+  local highestTotalScore = 0
+  local highestConfig
+
+  for _, config in pairs(configurations) do
+    local totalScore = 0
+    for _, item in pairs(config) do
+      totalScore = totalScore + item.score
+    end
+    if totalScore > highestTotalScore then
+      highestTotalScore = totalScore
+      highestConfig = config
+    end
+  end
+  print("Highest total score: " .. highestTotalScore)
+  return highestConfig
+end
+
 function EZquip:TheorizeSet(armory)
   local weaponSet = {};
   local armorSet = {};
   local ringSet = {};
   local trinketSet = {};
-
-  -- if (ENSEMBLE_WEAPONS) then
-  --   --configurations
-  --   local configurations = {
-  --     twoHandWeapon = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
-  --     dualWielding = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
-  --     mainAndOffHand = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } }
-  --   }
-  --   local twoHandWeapon = configurations.twoHandWeapon
-  --   local dualWielding = configurations.dualWielding
-  --   local mainAndOffHand = configurations.mainAndOffHand
-
-  --   for k, v in pairs(armory) do
-  --     if k == 16 then
-  --       local _twohanders = {}
-  --       local _oneHanders = {}
-  --       for i, j in pairs(v) do
-  --         if j.invTypeConst == "INVTYPE_2HANDWEAPON" then
-  --           table.insert(_twohanders, i, j)
-  --         else
-  --           table.insert(_oneHanders, i, j)
-  --         end
-  --       end
-
-  --       --TwoHandWeapon Configuration
-  --       if _twohanders then
-  --         table.insert(twoHandWeapon, 1, _twohanders[1])
-  --         -- if (HasIgnoreDualWieldWeapon()) then
-  --         --   table.insert(twoHandWeapon, 2, _twohanders[2])
-  --         -- end
-  --         print("   -> " .. twoHandWeapon[1].link .. " added to twoHandConfig")
-  --       end
-  --       if _oneHanders then
-
-  --         -- DualWielding Configuration
-  --         if (CanDualWield()) then
-  --           print("can dualWield")
-  --           table.insert(dualWielding, 1, _oneHanders[1])
-  --           print("   -> " .. dualWielding[1].link .. " added to dualWieldConfig 1")
-
-  --           table.insert(dualWielding, 2, _oneHanders[2])
-  --           print("   -> " .. dualWielding[2].link .. " added to dualWieldConfig 2")
-  --         end
-
-  --         --MainAndOffHand Configuration
-  --         table.insert(mainAndOffHand, 1, _oneHanders[1])
-  --         print("   -> " .. mainAndOffHand[1].link .. " added to mainAndOffHand 1")
-  --       end
-  --     end
-  --     if k == 17 then
-  --       print("k:" .. k, v.link, v.invTypeConst)
-  --       table.insert(mainAndOffHand, 2, offHands[1])
-  --       print("   -> " .. mainAndOffHand[2].link .. " added to mainAndOffHand 2")
-
-  --     end
-  --   end
-  -- end
 
   if (ENSEMBLE_WEAPONS) then
     --configurations
@@ -290,7 +251,7 @@ function EZquip:TheorizeSet(armory)
       mainAndOffHand = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } }
     }
     local twoHandWeapon = configurations.twoHandWeapon
-    local dualWielding = configurations.dualWielding
+    -- local dualWielding = configurations.dualWielding
     local mainAndOffHand = configurations.mainAndOffHand
 
     local _twohanders = {}
@@ -309,14 +270,13 @@ function EZquip:TheorizeSet(armory)
         end
       end
     end
-
     --TwoHandWeapon Configuration
     if (_twohanders) then
       table.insert(twoHandWeapon, 1, _twohanders[1]);
       print("   -> " .. twoHandWeapon[1].link .. " added to twoHandConfig")
     end
     if (_oneHanders) then
-      -- DualWielding Configuration
+      -- TODO DualWielding Configuration
       -- if (CanDualWield()) then
       --   table.insert(dualWielding, 1, _oneHanders[1])
       --   print("   -> " .. dualWielding[1].link .. " added to dualWieldConfig 1")
@@ -333,7 +293,8 @@ function EZquip:TheorizeSet(armory)
       table.insert(mainAndOffHand, 2, armory[17][1])
       print("   -> " .. mainAndOffHand[2].link .. " added to mainAndOffHand 2")
     end
-    
+
+    weaponSet = SelectBestWeaponConfig(configurations)
   end
 
   if (ENSEMBLE_ARMOR) then
@@ -749,14 +710,8 @@ function EZquip:AdornSet()
 
   local weapons, armor, rings, trinkets = EZquip:TheorizeSet(myArmory);
 
-  --* local theorizedRings = EZquip:TheorizeRings(myArmory);
-  --* local theorizedTrinkets = EZquip:TheorizeTrinkets(myArmory);
-  --* local theorizedArmor = EZquip:TheorizeArmor(myArmory);
-
   print("\n=========Looping over Set Items=========\n")
-  if (ENSEMBLE_WEAPONS) then
-    EZquip:PutTheseOn(weapons)
-  end
+  
   if (ENSEMBLE_ARMOR) then
     EZquip:PutTheseOn(armor)
   end
@@ -766,6 +721,8 @@ function EZquip:AdornSet()
   if (ENSEMBLE_TRINKETS) then
     EZquip:PutTheseOn(trinkets)
   end
-
+  if (ENSEMBLE_WEAPONS) then
+    EZquip:PutTheseOn(weapons)
+  end
 
 end
