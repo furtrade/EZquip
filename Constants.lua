@@ -347,3 +347,62 @@ EZquip.ItemWeaponSubclass = { --derived from Enum.ItemWeaponSubclass
     [19] = "Wands",
     [20] = "Fishing Poles",
 }
+
+--borrowed from amr 😉
+EZquip.SpecIds = {
+    [250] = 1, -- DeathKnightBlood
+    [251] = 2, -- DeathKnightFrost
+    [252] = 3, -- DeathKnightUnholy
+    [577] = 4, -- DemonHunterHavoc
+    [581] = 5, -- DemonHunterVengeance
+    [102] = 6, -- DruidBalance
+    [103] = 7, -- DruidFeral
+    [104] = 8, -- DruidGuardian
+    [105] = 9, -- DruidRestoration
+    [1467] = 10, -- EvokerDevastation
+    [1468] = 11, -- EvokerPreservation
+    [253] = 12, -- HunterBeastMastery
+    [254] = 13, -- HunterMarksmanship
+    [255] = 14, -- HunterSurvival
+    [62] = 15, -- MageArcane
+    [63] = 16, -- MageFire
+    [64] = 17, -- MageFrost
+    [268] = 18, -- MonkBrewmaster
+    [270] = 19, -- MonkMistweaver
+    [269] = 20, -- MonkWindwalker
+    [65] = 21, -- PaladinHoly
+    [66] = 22, -- PaladinProtection
+    [70] = 23, -- PaladinRetribution
+    [256] = 24, -- PriestDiscipline
+    [257] = 25, -- PriestHoly
+    [258] = 26, -- PriestShadow
+    [259] = 27, -- RogueAssassination
+    [260] = 28, -- RogueOutlaw
+    [261] = 29, -- RogueSubtlety
+    [262] = 30, -- ShamanElemental
+    [263] = 31, -- ShamanEnhancement
+    [264] = 32, -- ShamanRestoration
+    [265] = 33, -- WarlockAffliction
+    [266] = 34, -- WarlockDemonology
+    [267] = 35, -- WarlockDestruction
+    [71] = 36, -- WarriorArms
+    [72] = 37, -- WarriorFury
+    [73] = 38 -- WarriorProtection
+}
+
+EZquip.ClassIds = {
+    ["NONE"] = 0,
+    ["DEATHKNIGHT"] = 1,
+    ["DEMONHUNTER"] = 2,
+    ["DRUID"] = 3,
+    ["HUNTER"] = 4,
+    ["MAGE"] = 5,
+    ["MONK"] = 6,
+    ["PALADIN"] = 7,
+    ["PRIEST"] = 8,
+    ["ROGUE"] = 9,
+    ["SHAMAN"] = 10,
+    ["WARLOCK"] = 11,
+    ["WARRIOR"] = 12,
+    ["EVOKER"] = 13,
+}

@@ -30,6 +30,8 @@ function EZquip:OnInitialize()
   self.optionsFrame = AceConfigDialog:AddToBlizOptions("EZquip_Options", "EZquip")
 
   self:RegisterChatCommand("EZquip", "SlashCommand")
+
+  
 end
 
 function EZquip:SlashCommand(input, editbox)
@@ -86,25 +88,19 @@ function EZquip:HexItem(bagOrSlotIndex, slotIndex)
 end
 
 function EZquip:ScoreItem(itemStats,itemLink)
-  -- print("itemLink: "..itemLink)
   local scalesTable = EZquip.db.profile.scalesTable
   local score = 0
 
   if not itemStats then
-    -- print("itemStats is nil")
     return score
   end
 
-  -- print("itemStats")
   for mod, value in pairs(itemStats) do --ITEM_MOD_INTELLECT_SHORT
-    -- print(mod,value)
     local stat = EZquip.itemModConversions[mod] --"Intellect"
 
     if (mod and not stat) then
-      -- print("mod not found in itemModConversions: "..mod)
       score = score + 0
     elseif (stat and not scalesTable[stat]) then
-      -- print("stat not found in scalesTable: "..stat)
       score = score + 0
     else
       score = score + value * scalesTable[stat]
@@ -113,39 +109,63 @@ function EZquip:ScoreItem(itemStats,itemLink)
   return score
 end
 
+--TODO make globalSpecID available to all functions
+-- EZquip.specId = GetSpecialization()
+-- EZquip.globalSpecID = GetSpecializationInfo(EZquip.specId)
+
+--Check whether the current spec can equip the item.
+--This only seems to apply to certain slots. My test results slots {1,3,5,6,7,8,9,10,15}
+-- Perhaps only shows 'true' for armor and back slots? Haven't tried weapons yet.
+function EZquip:EzquippableInSpec(itemId, querySpecId)
+  if not querySpecId then
+    return false
+  else
+    local t = GetItemSpecInfo(itemId)
+    if t ~= nil then
+      for _, v in pairs(t) do
+        if v == querySpecId then
+          return true
+        end
+      end
+    end
+  end
+end
+
 function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
-  local location = slotIndex and ItemLocation:CreateFromBagAndSlot(bagOrSlotIndex, slotIndex) or
-      ItemLocation:CreateFromEquipmentSlot(bagOrSlotIndex)
+  local location = slotIndex and ItemLocation:CreateFromBagAndSlot(bagOrSlotIndex, slotIndex) or ItemLocation:CreateFromEquipmentSlot(bagOrSlotIndex)
 
   if location:IsValid() then
     local itemId = C_Item.GetItemID(location)
-    local itemName = C_Item.GetItemName(location)
-    local itemLink = C_Item.GetItemLink(location)
-    local invTypeId = C_Item.GetItemInventoryType(location) -- 1
-    local itemType, itemSubType, _, invTypeConst = select(6, GetItemInfo(itemId)) -- INVTYPE_HEAD
-    local invslotName = _G[invTypeConst] -- Head
-    local invSlotConst = EZquip.invTypeToInvSlot[invTypeConst] -- INVSLOT_HEAD
-    local slotId = _G[invSlotConst] -- 1
-
-    if slotId then
+    if (IsEquippableItem(itemId)) then
+      -- local itemName = C_Item.GetItemName(location)
+      local itemLink = C_Item.GetItemLink(location)
+      local invTypeId = C_Item.GetItemInventoryType(location) -- 1
+      local itemType, itemSubType, _, invTypeConst = select(6, GetItemInfo(itemId)) -- INVTYPE_HEAD
+      local invslotName = _G[invTypeConst] -- Head
+      local invSlotConst = EZquip.invTypeToInvSlot[invTypeConst] -- INVSLOT_HEAD
+      local slotId = _G[invSlotConst] -- 1
       local itemStats = GetItemStats(itemLink)
-      local score = EZquip:ScoreItem(itemStats,itemLink)
-      local hex = EZquip:HexItem(bagOrSlotIndex, slotIndex)
-      local itemInfo = {
-        id = itemId,
-        name = itemName,
-        link = itemLink,
-        invTypeId = invTypeId,
-        invTypeConst = invTypeConst,
-        invslotName = invslotName,
-        invSlotConst = invSlotConst,
-        slotId = slotId,
-        --stats = itemStats,
-        ensemble = itemType,
-        shape = itemSubType,
-        score = score,
-        hex = hex,
-      }
+
+      -- local score = EZquip:ScoreItem(itemStats,itemLink)
+      -- local hex = EZquip:HexItem(bagOrSlotIndex, slotIndex)
+      -- local canEzquip = EzquippableInCurrentSpec(itemLink)
+
+      local itemInfo = {}
+      -- itemInfo.name = itemName,
+      itemInfo.id = itemId
+      itemInfo.link = itemLink
+      itemInfo.invTypeId = invTypeId
+      itemInfo.invTypeConst = invTypeConst
+      itemInfo.invslotName = invslotName
+      itemInfo.invSlotConst = invSlotConst
+      itemInfo.slotId = slotId
+      itemInfo.ensemble = itemType
+      itemInfo.shape = itemSubType
+      itemInfo.score = EZquip:ScoreItem(itemStats, itemLink)
+      itemInfo.hex = EZquip:HexItem(bagOrSlotIndex, slotIndex)
+      local specId = GetSpecialization()
+      local glovalSpecID = GetSpecializationInfo(specId)
+      itemInfo.canEzquip = EZquip:EzquippableInSpec(itemId, glovalSpecID)
 
       return itemInfo
     end
@@ -153,17 +173,13 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
 end
 
 function EZquip:UpdateArmory()
-  -- print("Initializing Armory")
-  -- EZquip.myArmory = {};
   local myArmory = EZquip.myArmory;
 
   for n = 1,19 do
     myArmory[n] = {}
-    --print("myArmory[" .. invType .. "]")
   end
 
   --Bags
-  -- print("\nIterating over bag slots")
   for bagOrSlotIndex = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
     local numSlots = C_Container.GetContainerNumSlots(bagOrSlotIndex);
     if numSlots > 0 then
@@ -174,14 +190,12 @@ function EZquip:UpdateArmory()
           local slotId = itemInfo.slotId
           -- local invTypeConst = itemInfo.invTypeConst
           table.insert(myArmory[slotId], itemInfo);
-          --print(itemInfo.slotId, itemInfo.score, " Inserting item into myArmory[" .. invType .. "]")
         end
       end
     end
   end
 
   --Inventory
-  -- print("\nIterating over Inventory slots")
   for bagOrSlotIndex = 1, 19 do
     local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex);
 
@@ -189,145 +203,101 @@ function EZquip:UpdateArmory()
       local slotId = itemInfo.slotId
       -- local invType = itemInfo.invTypeConst
       table.insert(myArmory[slotId], itemInfo);
-      -- print(itemInfo.slotId, itemInfo.score, " Inserting item into myArmory[" .. invType .. "]")
     end
+  end
+
+  local function sortByScore(a, b)
+    return a.score > b.score
+  end
+  for k, v in pairs(myArmory) do
+    table.sort(v, sortByScore)
   end
 end
 
-------------------------------------------------------------------------------------------------
---Theorise Set of best in bag items to be equipped
-------------------------------------------------------------------------------------------------
-function EZquip:GetBestItem(v, ...)
-  local ensemble, shape = ...;
-  local bestItem = nil
-  local bestScore = 0
-  local secondBestItem = nil
+ENSEMBLE_WEAPONS = false;
+ENSEMBLE_ARMOR = true;
+ENSEMBLE_RINGS = true;
+ENSEMBLE_TRINKETS = true;
 
-  --weapon
-  if (ensemble == "weapon") then
-    for _, j in pairs(v) do
-      if j.score ~= nil then
-        if j.score > bestScore then
-          bestItem = j
-          bestScore = j.score
-        end
+function EZquip:TheorizeSet(armory)
+  local weaponSet = {};
+  local armorSet = {};
+  local ringSet = {};
+  local trinketSet = {};
+
+  -- if (ENSEMBLE_WEAPONS) then
+  --   local weaponType = armory[16].invTypeConst
+  --   local weapons = armory[16]
+  --   --configurations
+  --   local configurations = {
+  --     twoHandWeapon = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
+  --     dualWielding = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
+  --     mainAndOffHand = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } }
+  --   }
+  --   local twoHandWeapon = configurations.twoHandWeapon
+  --   local dualWielding = configurations.dualWielding
+  --   local mainAndOffHand = configurations.mainAndOffHand
+
+  --   for i=16, 17 do
+
+  --     --TwoHandWeapon Configuration
+  --     if weaponType == "INVTYPE_2HWEAPON" then
+  --       table.insert(twoHandWeapon, 1, weapons[1])
+  --       table.remove(weapons, 1)
+  --       -- if (HasIgnoreDualWieldWeapon()) then
+  --       --   table.insert(twoHandWeapon, 2, weapons[1])
+  --       --   table.remove(weapons, 1)
+  --       -- end
+  --     end
+      
+  --     --DualWielding Configuration
+  --     -- if (CanDualWield()) and weaponType ~= "INVTYPE_2HWEAPON" then
+  --     --   table.insert(dualWielding, 1, weapons[1])
+  --     --   table.insert(mainAndOffHand, 1, weapons[1])
+  --     --   table.remove(weapons, 1)
+
+  --     --   table.insert(dualWielding, 2, weapons[1])
+  --     --   table.remove(weapons, 1)
+  --     -- end
+  --     --MainAndOffHand Configuration
+  --     end
+  -- end
+
+  if (ENSEMBLE_ARMOR) then
+    for i=1, 15 do
+      local armor = armory[i]
+      if i <= 10 and (i ~= 2 and i ~= 4) then
+        table.insert(armorSet, i, armor[1])
       end
-    end
-    return mainHand, offHand
-  end
-
-  --armor
-  if (ensemble == "armor") then
-    for _, j in pairs(v) do
-      --Check if the armor piece is cloth,leather,mail, or plate
-      if j.shape ~= nil and string.upper(j.shape) == shape then
-        if j.score ~= nil then
-          if j.score > bestScore then
-            bestItem = j
-            bestScore = j.score
-          end
-        end
-      end
-    end
-    return bestItem
-  end
-
-  --normal
-  for _, j in pairs(v) do
-    if j.score ~= nil then
-      if j.score > bestScore then
-        if bestScore ~= nil then
-          secondBestItem = bestItem
-        end
-        bestItem = j
-        bestScore = j.score
-      end
-    end
-  end
-  return bestItem, secondBestItem
-end
-
-function EZquip:TheorizeArmor(armory)
-  local theoreticalSet = {};
-
-  local _, playerClass = UnitClass("player")
-  local shape = EZquip.armorTypeByClass[playerClass]
-
-  --Armor
-  for n = 1, 10 do
-    if n ~= 4 or n ~= 2 then --neck and shirt
-      for k, v in pairs(armory) do
-        if k == n then
-          local bestItem = EZquip:GetBestItem(v, "armor", shape)
-
-          if bestItem then
-            -- print(k, bestItem.link)
-            theoreticalSet[k] = bestItem
-          end
-        end
+      if i == 2 or i == 15 then
+        table.insert(armorSet, i, armor[1])
       end
     end
   end
 
-  --Neck and Back
-  for k, v in pairs(armory) do
-    if k == 15 or k == 2 then
-      local bestItem = EZquip:GetBestItem(v)
+  if (ENSEMBLE_RINGS) then
+    local rings = armory[11]
+    -- Insert the highest scoring item into table2
+    table.insert(ringSet, 11, rings[1])
+    table.remove(rings, 1)
 
-      if bestItem then
-        -- print(k, bestItem.link)
-        theoreticalSet[k] = bestItem
-      end
-    end
+    table.insert(ringSet, 12, rings[1])
+    table.remove(rings, 1)
+    ringSet[12].slotId = 12;
   end
 
-  return theoreticalSet
-end
+  if (ENSEMBLE_TRINKETS) then
+    local trinkets = armory[13]
+    -- Insert the highest scoring item into table2
+    table.insert(trinketSet, 13, trinkets[1])
+    table.remove(trinkets, 1)
 
-function EZquip:TheorizeRings(armory)
-  local theoreticalRings = {};
-
-  -- print("\nLooping over myArmory to get best item for theorizedSet\n")
-  for k, v in pairs(armory) do
-    if k == 11 then
-      local bestItem, secondBestItem = EZquip:GetBestItem(v)
-
-      if bestItem then
-        -- print(k,bestItem.link)
-        bestItem.slotId = 11
-        theoreticalRings[k] = bestItem
-      end
-      if secondBestItem then
-        -- print(k,secondBestItem.link)
-        bestItem.slotId = 12
-        theoreticalRings[k+1] = secondBestItem
-      end
-    end
+    table.insert(trinketSet, 14, trinkets[1])
+    table.remove(trinkets, 1)
+    trinketSet[14].slotId = 14;
   end
-  return theoreticalRings
-end
 
-function EZquip:TheorizeTrinkets(armory)
-  local theoreticalRings = {};
-
-  -- print("\nLooping over myArmory to get best item for theorizedSet\n")
-  for k, v in pairs(armory) do
-    if k == 13 then
-      local bestItem, secondBestItem = EZquip:GetBestItem(v)
-
-      if bestItem then
-        -- print(k,bestItem.link)
-        bestItem.slotId = 13
-        theoreticalRings[k] = bestItem
-      end
-      if secondBestItem then
-        -- print(k,secondBestItem.link)
-        bestItem.slotId = 14
-        theoreticalRings[k+1] = secondBestItem
-      end
-    end
-  end
-  return theoreticalRings
+  return weaponSet, armorSet, ringSet, trinketSet
 end
 
 ------------------------------------------------------------------------------------------------
@@ -339,8 +309,8 @@ function EZquip:UpdateFreeBagSpace()
   local bagSlots = EZquip.bagSlots;
 
   for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS + GetNumBankSlots() do
-    local _, bagType = C_Container.GetContainerNumFreeSlots(i); --print(bagType);
-    local freeSlots = C_Container.GetContainerFreeSlots(i); --print(freeSlots);
+    local _, bagType = C_Container.GetContainerNumFreeSlots(i);
+    local freeSlots = C_Container.GetContainerFreeSlots(i);
     if (freeSlots) then
       if (not bagSlots[i]) then -- This bag is new, initialize it.
         bagSlots[i] = {}; -- Initialize the bag
@@ -433,7 +403,6 @@ end
 
 function EZquip:SetupEquipAction(hex, slotId) -- This is like the function that gets called when you click on an item in the equipment manager.
   local player, bank, bags, _, slot, bag = EZquip:DispelHex(hex);
--- print("slot= "..slot.." slotId= "..slotId)
 	ClearCursor();
 
 	if (not bags and slot == slotId) then --We're trying to reequip an equipped item in the same spot, ignore it.
@@ -451,7 +420,6 @@ function EZquip:SetupEquipAction(hex, slotId) -- This is like the function that 
 	action.slot = slot; --slotIndex within the bag containing the item we're trying to equip.
 	action.bag = bag; --bagIndex of the bag containing the item we're trying to equip.
   
-  -- print(player, bank, bags, _, slot, bag);
 	return action;
 end
 
@@ -679,17 +647,17 @@ function EZquip:RunAction(action)
 	end
 end
 -- ------------------------------------------------------------------------------------------------
+
 function EZquip:PutTheseOn(theoreticalSet)
   for _, item in pairs(theoreticalSet) do
+    print(item.canEzquip,item.link, item.slotId)
+
     local hex = item.hex
     local slotId = item.slotId
-    -- print(item.link)
 
-    -- print("\nPreparing Action for " .. slotId)
     local action = EZquip:SetupEquipAction(hex, slotId)
 
     if action then
-      -- print("action prepared for " .. slotId)
       EZquip:RunAction(action)
 
       --RunAction will call the following functions:
@@ -702,21 +670,29 @@ function EZquip:PutTheseOn(theoreticalSet)
 end
 
 function EZquip:AdornSet()
-  -- print("\nAdornSet() initiated...\n")
   EZquip.myArmory = {};
   local myArmory = EZquip.myArmory
   EZquip:UpdateArmory();
 
-  local theorizedRings = EZquip:TheorizeRings(myArmory);
-  local theorizedTrinkets = EZquip:TheorizeTrinkets(myArmory);
-  local theorizedArmor = EZquip:TheorizeArmor(myArmory);
+  local weapons, armor, rings, trinkets = EZquip:TheorizeSet(myArmory);
 
-  -- local theoreticalSet = EZquip:TheorizeSet(myArmory); --for k,v in pairs(theoreticalSet) do print(k,v) end;
-  -- print("theoretical Set done\n")
+  --* local theorizedRings = EZquip:TheorizeRings(myArmory);
+  --* local theorizedTrinkets = EZquip:TheorizeTrinkets(myArmory);
+  --* local theorizedArmor = EZquip:TheorizeArmor(myArmory);
 
-  -- print("\n=========Looping over Set Items=========\n")
-  EZquip:PutTheseOn(theorizedRings)
-  EZquip:PutTheseOn(theorizedTrinkets)
-  EZquip:PutTheseOn(theorizedArmor)
+  print("\n=========Looping over Set Items=========\n")
+  if (ENSEMBLE_WEAPONS) then
+    EZquip:PutTheseOn(weapons)
+  end
+  if (ENSEMBLE_ARMOR) then
+    EZquip:PutTheseOn(armor)
+  end
+  if (ENSEMBLE_RINGS) then
+    EZquip:PutTheseOn(rings)
+  end
+  if (ENSEMBLE_TRINKETS) then
+    EZquip:PutTheseOn(trinkets)
+  end
+
 
 end
