@@ -5,8 +5,8 @@
     <img src="https://cf.way2muchnoise.eu/versions/699660_latest.svg">
     <img src="https://img.shields.io/github/v/release/axc450/pbs">   -->
 </p>
-
 <hr>
+<span style="color:gold">This addon is an early alpha. Feedback and suggestion is appreciated</span>
 
 💥EZquip (auto equip gear) 
 
