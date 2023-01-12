@@ -30,9 +30,20 @@ function EZquip:OnInitialize()
   self.optionsFrame = AceConfigDialog:AddToBlizOptions("EZquip_Options", "EZquip")
 
   self:RegisterChatCommand("EZquip", "SlashCommand")
+  self:RegisterChatCommand("EZ", "SlashCommand")
 
-  
+  self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", "AdornSet")
+  --PLAYER_SPECIALIZATION_CHANGED
+  --PLAYER_EQUIPMENT_CHANGED
+  --EQUIP_BIND_CONFIRM
+  --EQUIP_BIND_TRADEABLE_CONFIRM
+  --EQUIP_BIND_REFUNDABLE_CONFIRM
+  --USE_BIND_CONFIRM
+  ------------------------------------------------------
 end
+
+-- function EZquip:OnEnable()
+-- end
 
 function EZquip:SlashCommand(input, editbox)
   if input == "enable" then
@@ -192,8 +203,9 @@ function EZquip:UpdateArmory()
 
         if itemInfo ~= nil then
           local slotId = itemInfo.slotId
-          -- local invTypeConst = itemInfo.invTypeConst
+          if slotId then          
           table.insert(myArmory[slotId], itemInfo);
+          end
         end
       end
     end
@@ -268,7 +280,7 @@ function EZquip:TheorizeSet(armory)
       mainAndOffHand = {},
     }
     local twoHandWeapon = configurations.twoHandWeapon
-    -- local dualWielding = configurations.dualWielding
+    local dualWielding = configurations.dualWielding
     local mainAndOffHand = configurations.mainAndOffHand
 
     local twoHanders = {}
@@ -298,13 +310,13 @@ function EZquip:TheorizeSet(armory)
       end
       if (oneHanders[1] ~= nil) then
         -- TODO DualWielding Configuration
-        -- if (CanDualWield()) then
-        --   table.insert(dualWielding, 1, oneHanders[1])
-        --   print("   -> " .. dualWielding[1].link .. " added to dualWieldConfig 1")
+        if (CanDualWield()) then
+          table.insert(dualWielding, 1, oneHanders[1])
+          print("   -> " .. dualWielding[1].link .. " added to dualWieldConfig 1")
 
-        --   table.insert(dualWielding, 2, oneHanders[2])
-        --   print("   -> " .. dualWielding[2].link .. " added to dualWieldConfig 2")
-        -- end
+          table.insert(dualWielding, 2, oneHanders[2])
+          print("   -> " .. dualWielding[2].link .. " added to dualWieldConfig 2")
+        end
 
         --MainAndOffHand Configuration
         table.insert(mainAndOffHand, 1, oneHanders[1])
@@ -343,73 +355,6 @@ function EZquip:TheorizeSet(armory)
     
     weaponSet = SelectBestWeaponConfig(configurations)
   end
-
-  -- if (ENSEMBLE_WEAPONS) then
-  --   --configurations
-  --   local configurations = {
-  --     twoHandWeapon = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
-  --     dualWielding = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } },
-  --     mainAndOffHand = { [1] = { item = nil, score = 0 }, [2] = { item = nil, score = 0 } }
-  --   }
-  --   local twoHandWeapon = configurations.twoHandWeapon
-  --   -- local dualWielding = configurations.dualWielding
-  --   local mainAndOffHand = configurations.mainAndOffHand
-  --   local twoHanders = {}
-  --   local oneHanders = {}
-  --   local offHanders = {}
-  --   if (armory[16]) then
-  --     local a, b = 0, 0
-  --     for _, j in pairs(armory[16]) do
-  --       if (j.weaponPref) then
-  --         if (j.invTypeConst == "INVTYPE_2HWEAPON") then
-  --           a = a + 1
-  --           table.insert(twoHanders, a, j)
-  --           print(a, j.link, j.score, j.invTypeConst)
-  --         else
-  --           b = b + 1
-  --           table.insert(oneHanders, b, j)
-  --           print(b, j.link, j.score, j.invTypeConst)
-  --         end
-  --       end
-  --     end
-  --   end
-  --   if (armory[17]) then
-  --     local a = 0
-  --     for _, j in pairs(armory[17]) do
-  --       if (j.canEzquip) then
-  --         a = a + 1
-  --         table.insert(offHanders, a, j)
-  --         print(a, j.link, j.score, j.invTypeConst)
-  --       end
-  --     end
-  --   end
-  --   --TwoHandWeapon Configuration
-  --   if (twoHanders[1] ~= nil) then
-  --     table.insert(twoHandWeapon, 1, twoHanders[1]);
-  --     print("   -> " .. twoHandWeapon[1].link .. " added to twoHandConfig")
-  --   end
-  --   print("here we are")
-  --   if (oneHanders[1] ~= nil) then
-  --     -- TODO DualWielding Configuration
-  --     -- if (CanDualWield()) then
-  --     --   table.insert(dualWielding, 1, oneHanders[1])
-  --     --   print("   -> " .. dualWielding[1].link .. " added to dualWieldConfig 1")
-
-  --     --   table.insert(dualWielding, 2, oneHanders[2])
-  --     --   print("   -> " .. dualWielding[2].link .. " added to dualWieldConfig 2")
-  --     -- end
-
-  --     --MainAndOffHand Configuration
-  --     table.insert(mainAndOffHand, 1, oneHanders[1])
-  --     print("   -> " .. mainAndOffHand[1].link .. " added to mainAndOffHand 1")
-  --   end
-  --   if (offHanders[1] ~= nil) then
-  --     table.insert(mainAndOffHand, 2, offHanders[1])
-  --     print("   -> " .. mainAndOffHand[2].link .. " added to mainAndOffHand 2")
-  --   end
-
-  --   weaponSet = SelectBestWeaponConfig(configurations)
-  -- end
 
   if (ENSEMBLE_ARMOR) then
     for i = 1, 15 do
@@ -576,6 +521,7 @@ function EZquip:EquipInventoryItem(action)
 		return false;
 	end
 	PickupInventoryItem(action.slotId);
+
 	EZquip.invSlots[action.slot] = SLOT_LOCKED;
 	EZquip.invSlots[action.slotId] = SLOT_LOCKED;
 
