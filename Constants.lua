@@ -7,93 +7,92 @@ BANK_CONTAINER = Enum.BagIndex.Bank;
 NUM_TOTAL_EQUIPPED_BAG_SLOTS = NUM_BAG_SLOTS + NUM_REAGENTBAG_SLOTS;
 
 EZquip.itemModConversions = {
-    ["RESISTANCE0_NAME"] = "Resistance0",
 
     --itemModBase
     --agility
+    ["ITEM_MOD_AGILITY_SHORT"] = "Agility",
     -- ["ITEM_MOD_AGILITY"] = "%c%s Agility",
     -- ["ITEM_MOD_AGILITY_OR_INTELLECT_SHORT"] = "Agility" or "Intellect",
     -- ["ITEM_MOD_AGILITY_OR_STRENGTH_OR_INTELLECT_SHORT"] = "Agility" or "Strength" or "Intellect",
     -- ["ITEM_MOD_AGILITY_OR_STRENGTH_SHORT"] = "Agility" or "Strength",
-    ["ITEM_MOD_AGILITY_SHORT"] = "Agility",
 
     --intellect
-    -- ["ITEM_MOD_INTELLECT"] = "%c%s Intellect",
     ["ITEM_MOD_INTELLECT_SHORT"] = "Intellect",
+    -- ["ITEM_MOD_INTELLECT"] = "%c%s Intellect",
     -- ["ITEM_MOD_STRENGTH_OR_INTELLECT_SHORT"] = "Strength" or "Intellect",
 
     --stamina
-    -- ["ITEM_MOD_STAMINA"] = "%c%s Stamina",
     ["ITEM_MOD_STAMINA_SHORT"] = "Stamina",
+    -- ["ITEM_MOD_STAMINA"] = "%c%s Stamina",
 
     --strength
-    -- ["ITEM_MOD_STRENGTH"] = "%c%s Strength",
     ["ITEM_MOD_STRENGTH_SHORT"] = "Strength",
+    -- ["ITEM_MOD_STRENGTH"] = "%c%s Strength",
 
     --health
-    -- ["ITEM_MOD_HEALTH"] = "%c%s Health",
-    ["ITEM_MOD_HEALTH_REGEN"] = "Restores %s health per 5 sec.",
-    ["ITEM_MOD_HEALTH_REGENERATION"] = "Restores %s health per 5 sec.",
-    ["ITEM_MOD_HEALTH_REGENERATION_SHORT"] = "Health Regeneration",
-    ["ITEM_MOD_HEALTH_REGEN_SHORT"] = "Health Per 5 Sec.",
     ["ITEM_MOD_HEALTH_SHORT"] = "Health",
+    ["ITEM_MOD_HEALTH_REGENERATION_SHORT"] = "HealthRegeneration",
+    ["ITEM_MOD_HEALTH_REGEN_SHORT"] = "HealthPer5.",
+    -- ["ITEM_MOD_HEALTH"] = "%c%s Health",
+    -- ["ITEM_MOD_HEALTH_REGEN"] = "Restores %s healthPer5",
+    -- ["ITEM_MOD_HEALTH_REGENERATION"] = "Restores %s healthPer5",
 
     --mana
-    -- ["ITEM_MOD_MANA"] = "%c%s Mana",
-    ["ITEM_MOD_MANA_REGENERATION"] = "Restores %s mana per 5 sec.",
-    ["ITEM_MOD_MANA_REGENERATION_SHORT"] = "Mana Regeneration",
     ["ITEM_MOD_MANA_SHORT"] = "Mana",
+    ["ITEM_MOD_MANA_REGENERATION_SHORT"] = "ManaRegeneration",
+    -- ["ITEM_MOD_MANA"] = "%c%s Mana",
+    -- ["ITEM_MOD_MANA_REGENERATION"] = "Restores %s manaPer5",
 
     --mastery
-    ["ITEM_MOD_MASTERY_RATING"] = "Increases your mastery by %s.",
     ["ITEM_MOD_MASTERY_RATING_SHORT"] = "MasteryRating",
+    -- ["ITEM_MOD_MASTERY_RATING"] = "Increases your mastery by %s.",
     -- ["ITEM_MOD_MASTERY_RATING_SPELL"] = "(%s)",
     -- ["ITEM_MOD_MASTERY_RATING_TWO_SPELLS"] = "(%s/%s)",
 
     --spirit
-    -- ["ITEM_MOD_SPIRIT"] = "%c%s Spirit",
     ["ITEM_MOD_SPIRIT_SHORT"] = "Spirit",
+    -- ["ITEM_MOD_SPIRIT"] = "%c%s Spirit",
 
 
-    --itemModTertiary"] = {
+    --itemModTertiary
     --avoidance
-    ["ITEM_MOD_CRIT_TAKEN_MELEE_RATING"] = "Improves melee critical avoidance by %s.",
-    ["ITEM_MOD_CRIT_TAKEN_MELEE_RATING_SHORT"] = "Critical Strike Avoidance (Melee)",
-    ["ITEM_MOD_CRIT_TAKEN_RANGED_RATING"] = "Improves ranged critical avoidance by %s.",
-    ["ITEM_MOD_CRIT_TAKEN_RANGED_RATING_SHORT"] = "Critical Strike Avoidance (Ranged)",
-    ["ITEM_MOD_CRIT_TAKEN_RATING"] = "Improves critical avoidance by %s.",
-    ["ITEM_MOD_CRIT_TAKEN_RATING_SHORT"] = "Critical Strike Avoidance",
-    ["ITEM_MOD_CRIT_TAKEN_SPELL_RATING"] = "Improves spell critical avoidance by %s.",
-    ["ITEM_MOD_CRIT_TAKEN_SPELL_RATING_SHORT"] = "Critical Strike Avoidance (Spell)",
     ["ITEM_MOD_CR_AVOIDANCE_SHORT"] = "Avoidance",
     ["ITEM_MOD_CR_UNUSED_5_SHORT"] = "Avoidance",
+    -- ["ITEM_MOD_CRIT_TAKEN_RATING_SHORT"] = "CriticalStrikeAvoidance",
+    -- ["ITEM_MOD_CRIT_TAKEN_MELEE_RATING_SHORT"] = "CriticalStrikeAvoidanceMelee",
+    -- ["ITEM_MOD_CRIT_TAKEN_RANGED_RATING_SHORT"] = "CriticalStrikeAvoidanceRanged",
+    -- ["ITEM_MOD_CRIT_TAKEN_SPELL_RATING_SHORT"] = "Critical Strike Avoidance (Spell)",
+    -- ["ITEM_MOD_CRIT_TAKEN_MELEE_RATING"] = "Improves melee critical avoidance by %s.",
+    -- ["ITEM_MOD_CRIT_TAKEN_RANGED_RATING"] = "Improves ranged critical avoidance by %s.",
+    -- ["ITEM_MOD_CRIT_TAKEN_RATING"] = "Improves critical avoidance by %s.",
+    -- ["ITEM_MOD_CRIT_TAKEN_SPELL_RATING"] = "Improves spell critical avoidance by %s.",
 
-    ["ITEM_MOD_HIT_TAKEN_MELEE_RATING"] = "Improves melee hit avoidance by %s.",
-    ["ITEM_MOD_HIT_TAKEN_MELEE_RATING_SHORT"] = "Hit Avoidance (Melee)",
-    ["ITEM_MOD_HIT_TAKEN_RANGED_RATING"] = "Improves ranged hit avoidance by %s.",
-    ["ITEM_MOD_HIT_TAKEN_RANGED_RATING_SHORT"] = "Hit Avoidance (Ranged)",
-    ["ITEM_MOD_HIT_TAKEN_RATING"] = "Improves hit avoidance by %s.",
-    ["ITEM_MOD_HIT_TAKEN_RATING_SHORT"] = "Hit Avoidance",
-    ["ITEM_MOD_HIT_TAKEN_SPELL_RATING"] = "Improves spell hit avoidance by %s.",
-    ["ITEM_MOD_HIT_TAKEN_SPELL_RATING_SHORT"] = "Hit Avoidance (Spell)",
+    -- ["ITEM_MOD_HIT_TAKEN_MELEE_RATING"] = "Improves melee hit avoidance by %s.",
+    -- ["ITEM_MOD_HIT_TAKEN_MELEE_RATING_SHORT"] = "Hit Avoidance (Melee)",
+    -- ["ITEM_MOD_HIT_TAKEN_RANGED_RATING"] = "Improves ranged hit avoidance by %s.",
+    -- ["ITEM_MOD_HIT_TAKEN_RANGED_RATING_SHORT"] = "Hit Avoidance (Ranged)",
+    -- ["ITEM_MOD_HIT_TAKEN_RATING"] = "Improves hit avoidance by %s.",
+    -- ["ITEM_MOD_HIT_TAKEN_RATING_SHORT"] = "Hit Avoidance",
+    -- ["ITEM_MOD_HIT_TAKEN_SPELL_RATING"] = "Improves spell hit avoidance by %s.",
+    -- ["ITEM_MOD_HIT_TAKEN_SPELL_RATING_SHORT"] = "Hit Avoidance (Spell)",
 
     --block
-    ["ITEM_MOD_BLOCK_RATING"] = "Increases your shield block by %s.",
     ["ITEM_MOD_BLOCK_RATING_SHORT"] = "Block",
-    ["ITEM_MOD_BLOCK_VALUE"] = "Increases the block value of your shield by %s.",
-    ["ITEM_MOD_BLOCK_VALUE_SHORT"] = "Block Value",
+    ["ITEM_MOD_BLOCK_VALUE_SHORT"] = "BlockValue",
+    -- ["ITEM_MOD_BLOCK_RATING"] = "Increases your shield block by %s.",
+    -- ["ITEM_MOD_BLOCK_VALUE"] = "Increases the block value of your shield by %s.",
 
     --corruption
-    -- ["ITEM_MOD_CORRUPTION"] = "Corruption",
-    -- ["ITEM_MOD_CORRUPTION_RESISTANCE"] = "Corruption Resistance",
+    ["ITEM_MOD_CORRUPTION"] = "Corruption",
+    ["ITEM_MOD_CORRUPTION_RESISTANCE"] = "CorruptionResistance",
 
     --defense
-    ["ITEM_MOD_DEFENSE_SKILL_RATING"] = "Increases defense by %s.",
     ["ITEM_MOD_DEFENSE_SKILL_RATING_SHORT"] = "Defense",
+    -- ["ITEM_MOD_DEFENSE_SKILL_RATING"] = "Increases defense by %s.",
 
     --healing done
-    ["ITEM_MOD_SPELL_HEALING_DONE"] = "Increases healing done by magical spells and effects by up to %s.",
-    ["ITEM_MOD_SPELL_HEALING_DONE_SHORT"] = "Bonus Healing",
+    ["ITEM_MOD_SPELL_HEALING_DONE_SHORT"] = "HealingDone",
+    -- ["ITEM_MOD_SPELL_HEALING_DONE"] = "Increases healing done by magical spells and effects by up to %s.",
 
     --indestructible
     ["ITEM_MOD_CR_STURDINESS_SHORT"] = "Indestructible",
@@ -104,110 +103,114 @@ EZquip.itemModConversions = {
     ["ITEM_MOD_CR_UNUSED_4_SHORT"] = "Leech",
 
     --power regen
-    ["ITEM_MOD_POWER_REGEN0_SHORT"] = "Mana Per 5 Sec.",
-    ["ITEM_MOD_POWER_REGEN1_SHORT"] = "Rage Per 5 Sec.",
-    ["ITEM_MOD_POWER_REGEN2_SHORT"] = "Focus Per 5 Sec.",
-    ["ITEM_MOD_POWER_REGEN3_SHORT"] = "Energy Per 5 Sec.",
-    ["ITEM_MOD_POWER_REGEN4_SHORT"] = "Happiness Per 5 Sec.",
-    ["ITEM_MOD_POWER_REGEN5_SHORT"] = "Runes Per 5 Sec.",
-    ["ITEM_MOD_POWER_REGEN6_SHORT"] = "Runic Power Per 5 Sec.",
+    ["ITEM_MOD_POWER_REGEN0_SHORT"] = "ManaPer5",
+    ["ITEM_MOD_POWER_REGEN1_SHORT"] = "RagePer5",
+    ["ITEM_MOD_POWER_REGEN2_SHORT"] = "FocusPer5",
+    ["ITEM_MOD_POWER_REGEN3_SHORT"] = "EnergyPer5",
+    ["ITEM_MOD_POWER_REGEN4_SHORT"] = "HappinessPer5",
+    ["ITEM_MOD_POWER_REGEN5_SHORT"] = "RunesPer5",
+    ["ITEM_MOD_POWER_REGEN6_SHORT"] = "RunicPowerPer5",
 
     --speed
-    ["ITEM_MOD_CRAFTING_SPEED_SHORT"] = "Crafting Speed",
     ["ITEM_MOD_CR_SPEED_SHORT"] = "Speed",
     ["ITEM_MOD_CR_UNUSED_3_SHORT"] = "Speed",
 
-
-    --itemModDefensive"] = {
+    --itemModDefensive
+    ["RESISTANCE0_NAME"] = "Armor",
+    ["RESISTANCE1_NAME"] = "ResistHoly",
+    ["RESISTANCE2_NAME"] = "ResistFire",
+    ["RESISTANCE3_NAME"] = "ResistNature",
+    ["RESISTANCE4_NAME"] = "ResistFrost",
+    ["RESISTANCE5_NAME"] = "ResistShadow",
+    ["RESISTANCE6_NAME"] = "ResistArcane",
     --armor
-    ["ITEM_MOD_ARMOR_PENETRATION_RATING"] = "Increases your armor penetration by %s.",
-    ["ITEM_MOD_ARMOR_PENETRATION_RATING_SHORT"] = "Armor Penetration",
-    ["ITEM_MOD_EXTRA_ARMOR"] = "Increases your armor by %s.",
-    ["ITEM_MOD_EXTRA_ARMOR_SHORT"] = "Bonus Armor",
+    ["ITEM_MOD_EXTRA_ARMOR_SHORT"] = "BonusArmor",
+    ["ITEM_MOD_ARMOR_PENETRATION_RATING_SHORT"] = "ArmorPenetration",
+    -- ["ITEM_MOD_ARMOR_PENETRATION_RATING"] = "Increases your armor penetration by %s.",
+    -- ["ITEM_MOD_EXTRA_ARMOR"] = "Increases your armor by %s.",
 
     --dodge
-    ["ITEM_MOD_DODGE_RATING"] = "Increases your dodge by %s.",
     ["ITEM_MOD_DODGE_RATING_SHORT"] = "Dodge",
+    -- ["ITEM_MOD_DODGE_RATING"] = "Increases your dodge by %s.",
 
     --parry
-    ["ITEM_MOD_PARRY_RATING"] = "Increases your parry by %s.",
     ["ITEM_MOD_PARRY_RATING_SHORT"] = "Parry",
+    -- ["ITEM_MOD_PARRY_RATING"] = "Increases your parry by %s.",
 
     --pvp resilience
-    ["ITEM_MOD_RESILIENCE_RATING"] = "Increases your PvP resilience by %s.",
-    ["ITEM_MOD_RESILIENCE_RATING_SHORT"] = "PvP Resilience",
+    ["ITEM_MOD_RESILIENCE_RATING_SHORT"] = "pvpResilience",
+    -- ["ITEM_MOD_RESILIENCE_RATING"] = "Increases your PvP resilience by %s.",
 
     --pvp power
-    ["ITEM_MOD_PVP_POWER"] = "Increases your PvP power by %s.",
-    ["ITEM_MOD_PVP_POWER_SHORT"] = "PvP Power",
-    ["ITEM_MOD_PVP_PRIMARY_STAT_SHORT"] = "PvP Power",
+    ["ITEM_MOD_PVP_POWER_SHORT"] = "pvpPower",
+    ["ITEM_MOD_PVP_PRIMARY_STAT_SHORT"] = "pvpPower",
+    -- ["ITEM_MOD_PVP_POWER"] = "Increases your PvP power by %s.",
 
 
     --itemModOffensive"] = {
     --attack power
-    ["ITEM_MOD_ATTACK_POWER"] = "Increases attack power by %s.",
-    ["ITEM_MOD_ATTACK_POWER_SHORT"] = "Attack Power",
-    ["ITEM_MOD_FERAL_ATTACK_POWER"] = "Increases attack power by %s in Cat, Bear, Dire Bear, and Moonkin forms only.",
-    ["ITEM_MOD_FERAL_ATTACK_POWER_SHORT"] = "Attack Power In Forms",
-    ["ITEM_MOD_MELEE_ATTACK_POWER_SHORT"] = "Melee Attack Power",
-    ["ITEM_MOD_RANGED_ATTACK_POWER"] = "Increases ranged attack power by %s.",
-    ["ITEM_MOD_RANGED_ATTACK_POWER_SHORT"] = "Ranged Attack Power",
+    ["ITEM_MOD_ATTACK_POWER_SHORT"] = "AttackPower",
+    ["ITEM_MOD_MELEE_ATTACK_POWER_SHORT"] = "AttackPower", --Melee
+    ["ITEM_MOD_RANGED_ATTACK_POWER_SHORT"] = "AttackPower", --Ranged
+    -- ["ITEM_MOD_ATTACK_POWER"] = "Increases attack power by %s.",
+    -- ["ITEM_MOD_FERAL_ATTACK_POWER"] = "Increases attack power by %s in Cat, Bear, Dire Bear, and Moonkin forms only.",
+    -- ["ITEM_MOD_FERAL_ATTACK_POWER_SHORT"] = "Attack Power In Forms",
+    -- ["ITEM_MOD_RANGED_ATTACK_POWER"] = "Increases ranged attack power by %s.",
 
     --damage done
-    ["ITEM_MOD_SPELL_DAMAGE_DONE"] = "Increases damage done by magical spells and effects by up to %s.",
-    ["ITEM_MOD_SPELL_DAMAGE_DONE_SHORT"] = "Bonus Damage",
+    ["ITEM_MOD_SPELL_DAMAGE_DONE_SHORT"] = "BonusDamage",
+    -- ["ITEM_MOD_SPELL_DAMAGE_DONE"] = "Increases damage done by magical spells and effects by up to %s.",
 
     --expertise
-    ["ITEM_MOD_EXPERTISE_RATING"] = "Increases your expertise by %s.",
     ["ITEM_MOD_EXPERTISE_RATING_SHORT"] = "Expertise",
+    -- ["ITEM_MOD_EXPERTISE_RATING"] = "Increases your expertise by %s.",
 
     --hit rating
-    ["ITEM_MOD_HIT_MELEE_RATING"] = "Improves melee hit by %s.",
-    ["ITEM_MOD_HIT_MELEE_RATING_SHORT"] = "Hit (Melee)",
-    ["ITEM_MOD_HIT_RANGED_RATING"] = "Improves ranged hit by %s.",
-    ["ITEM_MOD_HIT_RANGED_RATING_SHORT"] = "Hit (Ranged)",
-    ["ITEM_MOD_HIT_RATING"] = "Increases your hit by %s.",
-    ["ITEM_MOD_HIT_RATING_SHORT"] = "Hit",
-    ["ITEM_MOD_HIT_SPELL_RATING"] = "Improves spell hit by %s.",
-    ["ITEM_MOD_HIT_SPELL_RATING_SHORT"] = "Hit (Spell)",
-    ["ITEM_MOD_DEFTNESS_SHORT"] = "Deftness",
+    -- ["ITEM_MOD_HIT_RATING_SHORT"] = "Hit",
+    -- ["ITEM_MOD_HIT_MELEE_RATING"] = "Improves melee hit by %s.",
+    -- ["ITEM_MOD_HIT_MELEE_RATING_SHORT"] = "Hit (Melee)",
+    -- ["ITEM_MOD_HIT_RANGED_RATING"] = "Improves ranged hit by %s.",
+    -- ["ITEM_MOD_HIT_RANGED_RATING_SHORT"] = "Hit (Ranged)",
+    -- ["ITEM_MOD_HIT_RATING"] = "Increases your hit by %s.",
+    -- ["ITEM_MOD_HIT_SPELL_RATING"] = "Improves spell hit by %s.",
+    -- ["ITEM_MOD_HIT_SPELL_RATING_SHORT"] = "Hit (Spell)",
+    -- ["ITEM_MOD_DEFTNESS_SHORT"] = "Deftness",
 
     --critical strike
-    ["ITEM_MOD_CRIT_MELEE_RATING"] = "Improves melee critical strike by %s.",
-    ["ITEM_MOD_CRIT_MELEE_RATING_SHORT"] = "Critical Strike (Melee)",
-    ["ITEM_MOD_CRIT_RANGED_RATING"] = "Improves ranged critical strike by %s.",
-    ["ITEM_MOD_CRIT_RANGED_RATING_SHORT"] = "Critical Strike (Ranged)",
-    ["ITEM_MOD_CRIT_RATING"] = "Increases your critical strike by %s.",
-    ["ITEM_MOD_CRIT_RATING_SHORT"] = "Critical Strike",
-    ["ITEM_MOD_CRIT_SPELL_RATING"] = "Improves spell critical strike by %s.",
-    ["ITEM_MOD_CRIT_SPELL_RATING_SHORT"] = "Critical Strike (Spell)",
-    ["ITEM_MOD_FINESSE_SHORT"] = "Finesse",
+    ["ITEM_MOD_CRIT_RATING_SHORT"] = "CriticalStrike",
+    ["ITEM_MOD_CRIT_RANGED_RATING_SHORT"] = "CriticalStrike", --Ranged
+    ["ITEM_MOD_CRIT_SPELL_RATING_SHORT"] = "CriticalStrike", --Spell
+    ["ITEM_MOD_CRIT_MELEE_RATING_SHORT"] = "CriticalStrike", --Melee
+    ["ITEM_MOD_FINESSE_SHORT"] = "CriticalStrike", --Finesse
+    -- ["ITEM_MOD_CRIT_MELEE_RATING"] = "Improves melee critical strike by %s.",
+    -- ["ITEM_MOD_CRIT_RANGED_RATING"] = "Improves ranged critical strike by %s.",
+    -- ["ITEM_MOD_CRIT_RATING"] = "Increases your criticalstrike by %s.",
+    -- ["ITEM_MOD_CRIT_SPELL_RATING"] = "Improves spell critical strike by %s.",
 
     --haste
-    ["ITEM_MOD_HASTE_RATING"] = "Increases your haste by %s.",
     ["ITEM_MOD_HASTE_RATING_SHORT"] = "HasteRating",
+    -- ["ITEM_MOD_HASTE_RATING"] = "Increases your haste by %s.",
 
     --multistrike
     ["ITEM_MOD_CR_MULTISTRIKE_SHORT"] = "Multistrike",
     ["ITEM_MOD_CR_UNUSED_1_SHORT"] = "Multistrike", --Multi-Strike
-    ["ITEM_MOD_MULTICRAFT_SHORT"] = "Multicraft",
 
     --spell penatration
-    ["ITEM_MOD_SPELL_PENETRATION"] = "Increases spell penetration by %s.",
-    ["ITEM_MOD_SPELL_PENETRATION_SHORT"] = "Spell Penetration",
+    ["ITEM_MOD_SPELL_PENETRATION_SHORT"] = "SpellPenetration",
+    -- ["ITEM_MOD_SPELL_PENETRATION"] = "Increases spell penetration by %s.",
 
     --spell power
-    ["ITEM_MOD_SPELL_POWER"] = "Increases spell power by %s.",
-    ["ITEM_MOD_SPELL_POWER_SHORT"] = "Spell Power",
+    ["ITEM_MOD_SPELL_POWER_SHORT"] = "SpellPower",
+    -- ["ITEM_MOD_SPELL_POWER"] = "Increases spell power by %s.",
 
     --versatility
     ["ITEM_MOD_CR_UNUSED_9_SHORT"] = "Versatility",
     ["ITEM_MOD_VERSATILITY"] = "Versatility",
 
 
-    --itemModWeapon"] = {
+    --itemModWeapon
     --damage per second
-    ["ITEM_MOD_DAMAGE_PER_SECOND_SHORT"] = "Damage Per Second",
+    ["ITEM_MOD_DAMAGE_PER_SECOND_SHORT"] = "DamagePerSecond",
 
     --damage type
     --minimum damage
@@ -222,12 +225,13 @@ EZquip.itemModConversions = {
     --ranged maximum damage
     --ranged speed
 
-
     --itemModMisc"] = { -- https://www.townlong-yak.com/framexml/live/GlobalStrings.lua#8782
-    ["ITEM_UPGRADE"] = "Item Upgrade",
-    ["ITEM_UNIQUE_EQUIPPABLE"] = "Unique Equipped",
+    ["ITEM_UPGRADE"] = "ItemUpgrade",
+    ["ITEM_UNIQUE_EQUIPPABLE"] = "UniqueEquipped",
 
     --professions
+    ["ITEM_MOD_CRAFTING_SPEED_SHORT"] = "CraftingSpeed",
+    ["ITEM_MOD_MULTICRAFT_SHORT"] = "Multicraft",
     ["ITEM_MOD_INSPIRATION_SHORT"] = "Inspiration",
     -- ["ITEM_MOD_MODIFIED_CRAFTING_STAT_1"] = "Random Stat 1",
     -- ["ITEM_MOD_MODIFIED_CRAFTING_STAT_2"] = "Random Stat 2",
@@ -406,3 +410,58 @@ EZquip.ClassIds = {
     ["WARRIOR"] = 12,
     ["EVOKER"] = 13,
 }
+
+--Binary representation of weapon types preferences for each specId.
+EZquip.SpecIdWeaponPrefs = {
+    [250] = "000110110001100111110011", --DeathKnightBlood
+    [251] = "001110110001100111110011", --DeathKnightFrost
+    [252] = "000110110001100111110011", --DeathKnightUnholy
+    [577] = "001110110011101010000001", --DemonHunterHavoc
+    [581] = "001110110011101010000001", --[DemonHunterVengeance
+    [102] = "000110111011110011100000", --DruidBalance
+    [103] = "000110111011110011100000", --DruidFeral
+    [104] = "000110111011110011100000", --DruidGuardian
+    [105] = "000110111011110011100000", --DruidRestoration
+    [1467] = "000110111011110110110011", --EvokerDevastation
+    [1468] = "000110111011110110110011", --EvokerPreservation
+    [253] = "000001000000000000001100", --HunterBeastMastery
+    [254] = "000001000000000000001100", --HunterMarksmanship
+    [255] = "001110111011110111000011", --HunterSurvival
+    [62] = "000110111001110010000000", --MageArcane
+    [63] = "000110111001110010000000", --MageFire
+    [64] = "000110111001110010000000", --MageFrost
+    [268] = "001110110011110011010001", --MonkBrewmaster
+    [270] = "001110110011110011010001", --MonkMistweaver
+    [269] = "000110110011110011010001", --MonkWindwalker
+    [65] = "010110110001100111110011", --PaladinHoly
+    [66] = "010110110001100111110011", --PaladinProtection
+    [70] = "000110110001100111110011", --PaladinRetribution
+    [256] = "000110111001110000010000", --PriestDiscipline
+    [257] = "000110111001110000010000", --PriestHoly
+    [258] = "000110111001110000010000", --PriestShadow
+    [259] = "001110111011100010010001", --RogueAssassination
+    [260] = "001110111011100010010001", --RogueOutlaw
+    [261] = "001110111011100010010001", --RogueSubtlety
+    [262] = "010110111011110000110011", --ShamanElemental
+    [263] = "001110111011110000110011", --ShamanEnhancement
+    [264] = "010110111011110000110011", --[264] = 32, -- ShamanRestoration
+    [265] = "000110111001110010000000", --[265] = 33, -- WarlockAffliction
+    [266] = "000110111001110010000000", --[266] = 34, -- WarlockDemonology
+    [267] = "000110111001110010000000", --[267] = 35, -- WarlockDestruction
+    [71] = "011110111011110111110011", --[71] = 36, -- WarriorArms
+    [72] = "011110111011110111110011", --[72] = 37, -- WarriorFury
+    [73] = "011110111011110111110011", --[73] = 38 -- WarriorProtection
+}
+
+--Function to lookup the weapon preference for a given specId and itemId.
+function EZquip:WeaponPrefLookup(specId, itemId)
+    local subType = select(13, GetItemInfo(itemId)) --integer
+
+    local bin = EZquip.SpecIdWeaponPrefs[specId]; --binary
+    local bin_num = tonumber(bin, 2) --decimal
+    local mask = bit.lshift(1, subType);
+
+    local value = (bit.band(bin_num, mask) ~= 0); --This is the value we want
+
+    return value;
+end
