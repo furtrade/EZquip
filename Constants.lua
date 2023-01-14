@@ -30,18 +30,18 @@ EZquip.itemModConversions = {
     -- ["ITEM_MOD_STRENGTH"] = "%c%s Strength",
 
     --health
-    ["ITEM_MOD_HEALTH_SHORT"] = "Health",
-    ["ITEM_MOD_HEALTH_REGENERATION_SHORT"] = "HealthRegeneration",
-    ["ITEM_MOD_HEALTH_REGEN_SHORT"] = "HealthPer5.",
-    -- ["ITEM_MOD_HEALTH"] = "%c%s Health",
+    ["ITEM_MOD_HEALTH_REGEN_SHORT"] = "HealthRegeneration.", --HealthPer5
+    ["ITEM_MOD_HEALTH_REGENERATION_SHORT"] = "HealthRegeneration", --HealthRegeneration
     -- ["ITEM_MOD_HEALTH_REGEN"] = "Restores %s healthPer5",
     -- ["ITEM_MOD_HEALTH_REGENERATION"] = "Restores %s healthPer5",
+    -- ["ITEM_MOD_HEALTH_SHORT"] = "Health",
+    -- ["ITEM_MOD_HEALTH"] = "%c%s Health",
 
     --mana
-    ["ITEM_MOD_MANA_SHORT"] = "Mana",
     ["ITEM_MOD_MANA_REGENERATION_SHORT"] = "ManaRegeneration",
+    ["ITEM_MOD_MANA_REGENERATION"] = "ManaRegeneration", --Restores %s manaPer5
+    -- ["ITEM_MOD_MANA_SHORT"] = "Mana",
     -- ["ITEM_MOD_MANA"] = "%c%s Mana",
-    -- ["ITEM_MOD_MANA_REGENERATION"] = "Restores %s manaPer5",
 
     --mastery
     ["ITEM_MOD_MASTERY_RATING_SHORT"] = "MasteryRating",
@@ -78,7 +78,7 @@ EZquip.itemModConversions = {
 
     --block
     ["ITEM_MOD_BLOCK_RATING_SHORT"] = "Block",
-    ["ITEM_MOD_BLOCK_VALUE_SHORT"] = "BlockValue",
+    -- ["ITEM_MOD_BLOCK_VALUE_SHORT"] = "BlockValue",
     -- ["ITEM_MOD_BLOCK_RATING"] = "Increases your shield block by %s.",
     -- ["ITEM_MOD_BLOCK_VALUE"] = "Increases the block value of your shield by %s.",
 
