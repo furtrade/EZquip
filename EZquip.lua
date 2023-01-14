@@ -29,6 +29,8 @@ function EZquip:OnInitialize()
   AceConfig:RegisterOptionsTable("EZquip_Options", self.options)
   self.optionsFrame = AceConfigDialog:AddToBlizOptions("EZquip_Options", "EZquip")
 
+  self:GetCharacterInfo()
+
   self:RegisterChatCommand("EZquip", "SlashCommand")
   self:RegisterChatCommand("EZ", "SlashCommand")
 
@@ -44,6 +46,16 @@ end
 
 -- function EZquip:OnEnable()
 -- end
+
+function EZquip:GetCharacterInfo()
+  -- stores character-specific data
+  self.db.char.level = UnitLevel("player")
+  self.db.char.classId = select(3, UnitClass("player"))
+  local spec = GetSpecialization()
+  if spec then
+    self.db.char.globalSpecID = GetSpecializationInfo(spec)
+  end
+end
 
 function EZquip:SlashCommand(input, editbox)
   if input == "enable" then
@@ -147,8 +159,9 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
 
   if location:IsValid() then
     local itemId = C_Item.GetItemID(location)
-    if (IsEquippableItem(itemId)) then
-      -- local itemName = C_Item.GetItemName(location)
+    if (not IsEquippableItem(itemId)) then
+      return
+    else
       local itemLink = C_Item.GetItemLink(location)
       local invTypeId = C_Item.GetItemInventoryType(location) -- 1
       local reqLvl,itemType,itemSubType,_,invTypeConst = select(5, GetItemInfo(itemId))
@@ -178,8 +191,9 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
       local specId = GetSpecialization()
       local globalSpecID = GetSpecializationInfo(specId)
       itemInfo.canEzquip = EZquip:EzquippableInSpec(itemId, globalSpecID)
-      if itemType == "Weapon" then
-        itemInfo.weaponPref = EZquip:WeaponPrefLookup(globalSpecID, itemId)
+      itemInfo.prefered = EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
+      if (itemInfo.prefered ~= true) then
+        return
       end
 
       return itemInfo
@@ -187,13 +201,37 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
   end
 end
 
+local function sortTableByScore(items)
+  table.sort(items, function(a, b)
+    if a.score and b.score then
+      return a.score > b.score
+    elseif a.score then
+      return true
+    elseif b.score then
+      return false
+    else
+      return false
+    end
+  end)
+end
+
 function EZquip:UpdateArmory()
   local myArmory = EZquip.myArmory;
-
   for n = 1,19 do
     myArmory[n] = {}
   end
 
+  --Inventory
+  for bagOrSlotIndex = 1, 19 do
+    local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex);
+
+    if itemInfo ~= nil then
+      local slotId = itemInfo.slotId
+      if slotId then
+        table.insert(myArmory[slotId], itemInfo);
+      end
+    end
+  end
   --Bags
   for bagOrSlotIndex = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
     local numSlots = C_Container.GetContainerNumSlots(bagOrSlotIndex);
@@ -211,22 +249,8 @@ function EZquip:UpdateArmory()
     end
   end
 
-  --Inventory
-  for bagOrSlotIndex = 1, 19 do
-    local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex);
-
-    if itemInfo ~= nil then
-      local slotId = itemInfo.slotId
-      -- local invType = itemInfo.invTypeConst
-      table.insert(myArmory[slotId], itemInfo);
-    end
-  end
-
-  local function sortByScore(a, b)
-    return a.score > b.score
-  end
   for k, v in pairs(myArmory) do
-    table.sort(v, sortByScore)
+    sortTableByScore(v)
   end
 end
 
@@ -244,7 +268,6 @@ local function SelectBestWeaponConfig(configurations)
     local totalScore = 0
     for _, item in ipairs(config) do
       if item.score > 0 then
-        print(name, item.link)
         totalScore = totalScore + item.score
       else
         totalScore = totalScore
@@ -261,7 +284,28 @@ local function SelectBestWeaponConfig(configurations)
     return nil
   else
     print("Highest total score: " .. highestConfigName, highestTotalScore)
+    for k,v in pairs(highestConfig) do
+      print(v.slotId,v.link,v.score)
+    end
     return highestConfig
+  end
+end
+
+local function CheckUniqueness(table1, table2)
+  for i = 1, #table1 do
+    if (table1[i].name == table2[1].name) then
+      table1[i].unque = C_Item.GetItemUniquenessByID(table1[i].id)
+      if table1[i].unique == false then
+        table.insert(table2, 2, table1[i])
+        table2[2].slotId = 12;
+        break;
+      end
+    end
+    if (table1[i].name ~= table2[1].name) then
+      table.insert(table2, 2, table1[i])
+      table2[2].slotId = table2[1].slotId + 1;
+      break;
+    end
   end
 end
 
@@ -273,98 +317,81 @@ function EZquip:TheorizeSet(armory)
   local trinketSet = {};
 
   if (ENSEMBLE_WEAPONS) then
-    --configurations
-    local configurations = {
-      twoHandWeapon = {},
-      dualWielding = {},
-      mainAndOffHand = {},
-    }
-    local twoHandWeapon = configurations.twoHandWeapon
-    local dualWielding = configurations.dualWielding
-    local mainAndOffHand = configurations.mainAndOffHand
+      local twoHanders = {}
+      local oneHanders = {}
+      local offHanders = {}
 
-    local twoHanders = {}
-    local oneHanders = {}
-    local offHanders = {}
-    if (armory[16]) then
-      local a, b = 0, 0
-      for _, j in pairs(armory[16]) do
-        print(j.link.." is being considered.")
-        if (j.weaponPref) then
-          if (j.invTypeConst == "INVTYPE_2HWEAPON") then
-            a = a + 1
-            table.insert(twoHanders, a, j)
-            print(a, j.link, j.score, j.invTypeConst)
-          else
-            b = b + 1
-            table.insert(oneHanders, b, j)
-            print(b, j.link, j.score, j.invTypeConst)
+      --sorting weapons by handedness for weapon configs
+      for k = 16, 18 do
+        for _, j in pairs(armory[k]) do
+            if k == 16 and (j.invTypeConst == "INVTYPE_2HWEAPON") then
+              table.insert(twoHanders, j)
+            elseif k == 16 and (j.invTypeConst ~= "INVTYPE_2HWEAPON") then
+              table.insert(oneHanders, j)
+            elseif k == 17 and (j.canEzquip) then
+              table.insert(offHanders, j)
+            elseif k == 18 then
+              if (EZquip.db.char.classId == 3) then
+                table.insert(twoHanders, j)
+              else
+                table.insert(oneHanders, j)
+              end
+            end
+        end
+      end
+
+      sortTableByScore(twoHanders)
+      sortTableByScore(oneHanders)
+      sortTableByScore(offHanders)
+
+      --configurations
+      local configurations = {
+        twoHandWeapon = {},
+        dualWielding = {},
+        mainAndOffHand = {},
+      }
+      local twoHandWeapon = configurations.twoHandWeapon
+      local dualWielding = configurations.dualWielding
+      local mainAndOffHand = configurations.mainAndOffHand
+
+      --two hand weapon config
+      table.insert(twoHandWeapon, 1, twoHanders[1])
+
+      --dual wielding config
+      table.insert(dualWielding, 1, oneHanders[1])
+      table.insert(dualWielding, 2, oneHanders[2])
+      
+      --main and off hand config
+      table.insert(mainAndOffHand, 1, oneHanders[1])
+      table.insert(mainAndOffHand, 2, offHanders[1])
+
+      --select the best configuration
+      weaponSet = SelectBestWeaponConfig(configurations)
+      if weaponSet ~= nil then
+      for i = 1, #weaponSet do
+          -- local setting = weaponSet[i]
+          if i==1 then
+            weaponSet[1].slotId = 16
+          end
+          if i==2 then
+            weaponSet[2].slotId = 17
           end
         end
       end
-
-      --TwoHandWeapon Configuration
-      if (twoHanders[1] ~= nil) then
-        table.insert(twoHandWeapon, 1, twoHanders[1]);
-        print("   -> " .. twoHandWeapon[1].link .. " added to twoHandConfig")
-      end
-      if (oneHanders[1] ~= nil) then
-        -- TODO DualWielding Configuration
-        if (CanDualWield()) then
-          table.insert(dualWielding, 1, oneHanders[1])
-          print("   -> " .. dualWielding[1].link .. " added to dualWieldConfig 1")
-
-          table.insert(dualWielding, 2, oneHanders[2])
-          print("   -> " .. dualWielding[2].link .. " added to dualWieldConfig 2")
-        end
-
-        --MainAndOffHand Configuration
-        table.insert(mainAndOffHand, 1, oneHanders[1])
-        print("   -> " .. mainAndOffHand[1].link .. " added to mainAndOffHand 1")
-      end
-    end
-    if (armory[17]) then
-      local a = 0
-      for _, j in pairs(armory[17]) do
-        if (j.canEzquip) then
-          a = a + 1
-          table.insert(offHanders, a, j)
-          print(a, j.link, j.score, j.invTypeConst)
-        end
-      end
-      if (offHanders[1] ~= nil) then
-        table.insert(mainAndOffHand, 2, offHanders[1])
-        print("   -> " .. mainAndOffHand[2].link .. " added to mainAndOffHand 2")
-      end
-    end
-    if (armory[18]) then
-      local a = 0
-      for _, j in pairs(armory[18]) do
-        if (j.weaponPref) then
-          a = a + 1
-          table.insert(twoHanders, a, j)
-          print(a, j.link, j.score, j.invTypeConst)
-        end
-      end
-      if (twoHanders[1] ~= nil) then
-        twoHanders[1].slotId = 16
-        table.insert(twoHandWeapon, 1, twoHanders[1])
-        print("   -> " .. twoHandWeapon[1].link .. " added to Ranged")
-      end
-    end
-    
-    weaponSet = SelectBestWeaponConfig(configurations)
+    -- if dualWielding[2] then
+    --   dualWielding[2].slotId = 17;
+    -- end
   end
 
   if (ENSEMBLE_ARMOR) then
     for i = 1, 15 do
       local armor = armory[i]
-      if i <= 10 and (i ~= 2 and i ~= 4) then
+        if i <= 10 and i ~= 4 then
+          table.insert(armorSet, i, armor[1])
+        end
+        if i == 15 then
         table.insert(armorSet, i, armor[1])
-      end
-      if i == 2 or i == 15 then
-        table.insert(armorSet, i, armor[1])
-      end
+        end
     end
   end
 
@@ -372,15 +399,15 @@ function EZquip:TheorizeSet(armory)
     local rings = armory[11]
     -- Insert the highest scoring item into table2
     table.insert(ringSet, 1, rings[1])
-    -- table.remove(rings, 1)
 
-    for k, ring in ipairs(rings) do
-      if (ring.name ~= ringSet[1].name) then
-        table.insert(ringSet, 2, ring)
-        ringSet[2].slotId = 12;
-        break;
-      end
-    end
+    CheckUniqueness(rings, ringSet)
+    -- for i=1, #rings do
+    --   if (rings[i].name ~= ringSet[1].name) then
+    --     table.insert(ringSet, 2, rings[i])
+    --     ringSet[2].slotId = 12;
+    --     break;
+    --   end
+    -- end
   end
 
   if (ENSEMBLE_TRINKETS) then
@@ -388,13 +415,7 @@ function EZquip:TheorizeSet(armory)
     -- Insert the highest scoring item into table2
     table.insert(trinketSet, 1, trinkets[1])
 
-    for k, trinket in ipairs(trinkets) do
-      if (trinket.name ~= trinketSet[1].name) then
-        table.insert(trinketSet, 2, trinket)
-        trinketSet[2].slotId = 14;
-        break;
-      end
-    end
+    CheckUniqueness(trinkets, trinketSet)
   end
 
   return weaponSet, armorSet, ringSet, trinketSet

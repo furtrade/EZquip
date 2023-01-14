@@ -178,10 +178,10 @@ EZquip.itemModConversions = {
 
     --critical strike
     ["ITEM_MOD_CRIT_RATING_SHORT"] = "CriticalStrike",
-    ["ITEM_MOD_CRIT_RANGED_RATING_SHORT"] = "CriticalStrike", --Ranged
-    ["ITEM_MOD_CRIT_SPELL_RATING_SHORT"] = "CriticalStrike", --Spell
-    ["ITEM_MOD_CRIT_MELEE_RATING_SHORT"] = "CriticalStrike", --Melee
-    ["ITEM_MOD_FINESSE_SHORT"] = "CriticalStrike", --Finesse
+    -- ["ITEM_MOD_CRIT_RANGED_RATING_SHORT"] = "CriticalStrike", --Ranged
+    -- ["ITEM_MOD_CRIT_SPELL_RATING_SHORT"] = "CriticalStrike", --Spell
+    -- ["ITEM_MOD_CRIT_MELEE_RATING_SHORT"] = "CriticalStrike", --Melee
+    -- ["ITEM_MOD_FINESSE_SHORT"] = "CriticalStrike", --Finesse
     -- ["ITEM_MOD_CRIT_MELEE_RATING"] = "Improves melee critical strike by %s.",
     -- ["ITEM_MOD_CRIT_RANGED_RATING"] = "Improves ranged critical strike by %s.",
     -- ["ITEM_MOD_CRIT_RATING"] = "Increases your criticalstrike by %s.",
@@ -412,56 +412,70 @@ EZquip.ClassIds = {
 }
 
 --Binary representation of weapon types preferences for each specId.
-EZquip.SpecIdWeaponPrefs = {
-    [250] = "000110110001100111110011", --DeathKnightBlood
-    [251] = "001110110001100111110011", --DeathKnightFrost
-    [252] = "000110110001100111110011", --DeathKnightUnholy
-    [577] = "001110110011101010000001", --DemonHunterHavoc
-    [581] = "001110110011101010000001", --[DemonHunterVengeance
-    [102] = "000110111011110011100000", --DruidBalance
-    [103] = "000110111011110011100000", --DruidFeral
-    [104] = "000110111011110011100000", --DruidGuardian
-    [105] = "000110111011110011100000", --DruidRestoration
-    [1467] = "000110111011110110110011", --EvokerDevastation
-    [1468] = "000110111011110110110011", --EvokerPreservation
-    [253] = "000001000000000000001100", --HunterBeastMastery
-    [254] = "000001000000000000001100", --HunterMarksmanship
-    [255] = "001110111011110111000011", --HunterSurvival
-    [62] = "000110111001110010000000", --MageArcane
-    [63] = "000110111001110010000000", --MageFire
-    [64] = "000110111001110010000000", --MageFrost
-    [268] = "001110110011110011010001", --MonkBrewmaster
-    [270] = "001110110011110011010001", --MonkMistweaver
-    [269] = "000110110011110011010001", --MonkWindwalker
-    [65] = "010110110001100111110011", --PaladinHoly
-    [66] = "010110110001100111110011", --PaladinProtection
-    [70] = "000110110001100111110011", --PaladinRetribution
-    [256] = "000110111001110000010000", --PriestDiscipline
-    [257] = "000110111001110000010000", --PriestHoly
-    [258] = "000110111001110000010000", --PriestShadow
-    [259] = "001110111011100010010001", --RogueAssassination
-    [260] = "001110111011100010010001", --RogueOutlaw
-    [261] = "001110111011100010010001", --RogueSubtlety
-    [262] = "010110111011110000110011", --ShamanElemental
-    [263] = "001110111011110000110011", --ShamanEnhancement
-    [264] = "010110111011110000110011", --[264] = 32, -- ShamanRestoration
-    [265] = "000110111001110010000000", --[265] = 33, -- WarlockAffliction
-    [266] = "000110111001110010000000", --[266] = 34, -- WarlockDemonology
-    [267] = "000110111001110010000000", --[267] = 35, -- WarlockDestruction
-    [71] = "011110111011110111110011", --[71] = 36, -- WarriorArms
-    [72] = "011110111011110111110011", --[72] = 37, -- WarriorFury
-    [73] = "011110111011110111110011", --[73] = 38 -- WarriorProtection
+EZquip.SpecIdPrefs = {
+    [250] = "1000000110110001100111110011", --	DeathKnightBlood
+    [251] = "1000001110110001100111110011", --	DeathKnightFrost
+    [252] = "1000000110110001100111110011", --	DeathKnightUnholy
+    [577] = "0010001110110011101010000001", --	DemonHunterHavoc
+    [581] = "0010001110110011101010000001", --	[DemonHunterVengeance
+    [102] = "0010000110111011110011100000", --	DruidBalance
+    [103] = "0010000110111011110011100000", --	DruidFeral
+    [104] = "0010000110111011110011100000", --	DruidGuardian
+    [105] = "0010000110111011110011100000", --	DruidRestoration
+    [1467] = "0100000110111011110110110011", --	EvokerDevastation
+    [1468] = "0100000110111011110110110011", --	EvokerPreservation
+    [253] = "0100000001000000000000001100", --	HunterBeastMastery
+    [254] = "0100000001000000000000001100", --	HunterMarksmanship
+    [255] = "0100001110111011110111000011", --	HunterSurvival
+    [62] = "0001000110111001110010000000", --	MageArcane
+    [63] = "0001000110111001110010000000", --	MageFire
+    [64] = "0001000110111001110010000000", --	MageFrost
+    [268] = "0010001110110011110011010001", --	MonkBrewmaster
+    [270] = "0010001110110011110011010001", --	MonkMistweaver
+    [269] = "0010000110110011110011010001", --	MonkWindwalker
+    [65] = "1000010110110001100111110011", --	PaladinHoly
+    [66] = "1000010110110001100111110011", --	PaladinProtection
+    [70] = "1000000110110001100111110011", --	PaladinRetribution
+    [256] = "0001000110111001110000010000", --	PriestDiscipline
+    [257] = "0001000110111001110000010000", --	PriestHoly
+    [258] = "0001000110111001110000010000", --	PriestShadow
+    [259] = "0010001110111011100010010001", --	RogueAssassination
+    [260] = "0010001110111011100010010001", --	RogueOutlaw
+    [261] = "0010001110111011100010010001", --	RogueSubtlety
+    [262] = "0100010110111011110000110011", --	ShamanElemental
+    [263] = "0100001110111011110000110011", --	ShamanEnhancement
+    [264] = "0100010110111011110000110011", --	ShamanRestoration
+    [265] = "0001000110111001110010000000", --	WarlockAffliction
+    [266] = "0001000110111001110010000000", --	WarlockDemonology
+    [267] = "0001000110111001110010000000", --	WarlockDestruction
+    [71] = "1000011110111011110111110011", --	WarriorArms
+    [72] = "1000011110111011110111110011", --	WarriorFury
+    [73] = "1000011110111011110111110011", --	WarriorProtection
 }
 
 --Function to lookup the weapon preference for a given specId and itemId.
-function EZquip:WeaponPrefLookup(specId, itemId)
-    local subType = select(13, GetItemInfo(itemId)) --integer
-
-    local bin = EZquip.SpecIdWeaponPrefs[specId]; --binary
+function EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
+    local classType, subType = select(12, GetItemInfo(itemId)) --integer
+    local bin = EZquip.SpecIdPrefs[globalSpecID]; --binary
     local bin_num = tonumber(bin, 2) --decimal
-    local mask = bit.lshift(1, subType);
+    local mask = 0;
+    if classType == 2 then --weapon
+        mask = bit.lshift(1, subType)
+    elseif classType == 4 then --armor
+        if (subType == 0) or (slotId == 15) then
+            return true
+        elseif (subType >=1) and (subType <= 4) then --cloth,leather,mail,plate
+            mask = bit.lshift(1, (subType + 23))
+        elseif slotId == 17 then  --offhand
+            if subType == 6 then --shield
+                mask = bit.lshift(1, 22)
+            else
+                mask = bit.lshift(1, (subType + 23))
+            end
+        end
+    end
+    if not mask then return false end
 
-    local value = (bit.band(bin_num, mask) ~= 0); --This is the value we want
-
-    return value;
+    local prefered = (bit.band(bin_num, mask) ~= 0); --This is the value we want
+    return prefered;
 end
