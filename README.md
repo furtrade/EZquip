@@ -27,7 +27,7 @@ To use this addon, you will want some stat weights⚖️for your character. `Sta
 - [GitHub](https://github.com/furtrade/EZquip/releases)
 
 ## Known Issues
-- Items that are BoE or still considered 'Tradeable'
+- Items that are BoE or still considered 'Tradeable' will fail to equip.
 - 🐇Needs testing. Due to currently unknown circumstances, the addon may fail to ezquip a group of items but not others. 
 
 <!-- ## Screenshots
