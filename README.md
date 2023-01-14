@@ -28,7 +28,8 @@ To use this addon, you will want some stat weights⚖️for your character. `Sta
 
 ## Known Issues
 - Items that are BoE or still considered 'Tradeable' will fail to equip.
-- 🐇Needs testing. Due to currently unknown circumstances, the addon may fail to ezquip a group of items but not others. 
+- Some stat weights might be missing, while others might not be applicable to _retail.
+
 
 <!-- ## Screenshots
 <img src="https://i.imgur.com/CZBE9dZ.jpg"> -->

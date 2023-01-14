@@ -177,7 +177,7 @@ EZquip.itemModConversions = {
     -- ["ITEM_MOD_DEFTNESS_SHORT"] = "Deftness",
 
     --critical strike
-    ["ITEM_MOD_CRIT_RATING_SHORT"] = "CriticalStrike",
+    ["ITEM_MOD_CRIT_RATING_SHORT"] = "CritRating",
     -- ["ITEM_MOD_CRIT_RANGED_RATING_SHORT"] = "CriticalStrike", --Ranged
     -- ["ITEM_MOD_CRIT_SPELL_RATING_SHORT"] = "CriticalStrike", --Spell
     -- ["ITEM_MOD_CRIT_MELEE_RATING_SHORT"] = "CriticalStrike", --Melee
