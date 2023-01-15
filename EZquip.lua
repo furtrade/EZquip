@@ -1,4 +1,4 @@
-EZquip = LibStub("AceAddon-3.0"):NewAddon("EZquip", "AceEvent-3.0", "AceConsole-3.0")
+EZquip = LibStub("AceAddon-3.0"):NewAddon("EZquip", "AceEvent-3.0", "AceConsole-3.0", "AceHook-3.0")
 -- local EZ = EZquip
 
 EZquip.myArmory = {};
@@ -12,6 +12,7 @@ local SLOT_EMPTY = -2;
 local ITEM_EQUIP = 1;
 local ITEM_UNEQUIP = 2;
 local ITEM_SWAPBLAST = 3;
+-- EZquip.AutoBind = false;
 
 for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
   EZquip.bagSlots[i] = {};
@@ -34,17 +35,36 @@ function EZquip:OnInitialize()
   self:RegisterChatCommand("EZquip", "SlashCommand")
   self:RegisterChatCommand("EZ", "SlashCommand")
 
-  self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", "AdornSet")
-  --PLAYER_SPECIALIZATION_CHANGED
-  --PLAYER_EQUIPMENT_CHANGED
-  --EQUIP_BIND_CONFIRM
-  --EQUIP_BIND_TRADEABLE_CONFIRM
-  --EQUIP_BIND_REFUNDABLE_CONFIRM
-  --USE_BIND_CONFIRM
-  ------------------------------------------------------
 end
 
+
+-- function EZquip:ConfirmEquipBind(event, ...)
+--   -- local bindPermission = ...
+--   -- if bindPermission ~= 4 then
+--   --   return
+--   -- end
+--   if event == "EQUIP_BIND_CONFIRM" then
+--     local button1 = _G["StaticPopup1Button1"]
+--     if button1 then
+--       button1:Click()
+--     end
+--   end
+-- end
+
 -- function EZquip:OnEnable()
+--   if ITEM_CONFIRM then
+--     self:RegisterEvent("EQUIP_BIND_CONFIRM", "ConfirmEquipBind")
+--   else
+--     self:UnregisterEvent("EQUIP_BIND_CONFIRM")
+--   end
+--   --PLAYER_SPECIALIZATION_CHANGED
+--   --PLAYER_EQUIPMENT_CHANGED
+--   --EQUIP_BIND_CONFIRM            --EQUIP_BIND --EquipPendingItem(slot);
+--   --EQUIP_BIND_TRADEABLE_CONFIRM  --EQUIP_BIND_TRADEABLE --EquipPendingItem(slot);
+--   --EQUIP_BIND_REFUNDABLE_CONFIRM --EQUIP_BIND_REFUNDABLE --EquipPendingItem(slot);
+--   --USE_BIND_CONFIRM              --USE_BIND   --ConfirmBindOnUse();
+--   --END_BOUND_TRADEABLE --EndBoundTradeable(self.data);
+--   ------------------------------------------------------
 -- end
 
 function EZquip:GetCharacterInfo()
@@ -82,6 +102,12 @@ function EZquip:SlashCommand(input, editbox)
 		 ]]
   end
 end
+
+-- function EZquip:GetAutoBindOption()
+--   EZquip.AutoBind = self.db.profile.autoBind
+-- end
+
+-- ITEM_CONFIRM = EZquip:GetAutoBindOption()
 
 ----------------------------------------------------------------------
 -- Scan bags and Score items
@@ -122,9 +148,9 @@ function EZquip:ScoreItem(itemStats,itemLink)
     local stat = EZquip.itemModConversions[mod] --"Intellect"
 
     if (mod and not stat) then
-      score = score + 0
+      score = score + value * 0.01
     elseif (stat and not scalesTable[stat]) then
-      score = score + 0
+      score = score + value * 0.01
     else
       score = score + value * scalesTable[stat]
     end
@@ -358,9 +384,11 @@ function EZquip:TheorizeSet(armory)
       table.insert(twoHandWeapon, 1, twoHanders[1])
 
       --dual wielding config
-      table.insert(dualWielding, 1, oneHanders[1])
-      table.insert(dualWielding, 2, oneHanders[2])
-      
+      if (CanDualWield()) then
+        table.insert(dualWielding, 1, oneHanders[1])
+        table.insert(dualWielding, 2, oneHanders[2])
+      end
+
       --main and off hand config
       table.insert(mainAndOffHand, 1, oneHanders[1])
       table.insert(mainAndOffHand, 2, offHanders[1])
@@ -526,7 +554,15 @@ function EZquip:EquipContainerItem(action)
 	end
 
 	PickupInventoryItem(action.slotId);
-
+  ------------------------------------------
+  local ITEM_CONFIRM = EZquip.db.profile.autoBind;
+  if ITEM_CONFIRM then
+    local button1 = _G["StaticPopup1Button1"]
+    if button1 then
+      button1:Click()
+    end
+  end
+  ------------------------------------------
 	EZquip.bagSlots[action.bag][action.slot] = action.slotId;
 	EZquip.invSlots[action.slotId] = SLOT_LOCKED;
 
@@ -764,8 +800,6 @@ function EZquip:AdornSet()
 
   local weapons, armor, rings, trinkets = EZquip:TheorizeSet(myArmory);
 
-  print("\n=========Looping over Set Items=========\n")
-  
   if (armor) then
     EZquip:PutTheseOn(armor)
   end

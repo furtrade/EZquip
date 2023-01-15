@@ -210,7 +210,7 @@ EZquip.itemModConversions = {
 
     --itemModWeapon
     --damage per second
-    ["ITEM_MOD_DAMAGE_PER_SECOND_SHORT"] = "DamagePerSecond",
+    ["ITEM_MOD_DAMAGE_PER_SECOND_SHORT"] = "Dps",
 
     --damage type
     --minimum damage
