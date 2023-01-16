@@ -12,7 +12,6 @@ local SLOT_EMPTY = -2;
 local ITEM_EQUIP = 1;
 local ITEM_UNEQUIP = 2;
 local ITEM_SWAPBLAST = 3;
--- EZquip.AutoBind = false;
 
 for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
   EZquip.bagSlots[i] = {};
@@ -36,36 +35,6 @@ function EZquip:OnInitialize()
   self:RegisterChatCommand("EZ", "SlashCommand")
 
 end
-
-
--- function EZquip:ConfirmEquipBind(event, ...)
---   -- local bindPermission = ...
---   -- if bindPermission ~= 4 then
---   --   return
---   -- end
---   if event == "EQUIP_BIND_CONFIRM" then
---     local button1 = _G["StaticPopup1Button1"]
---     if button1 then
---       button1:Click()
---     end
---   end
--- end
-
--- function EZquip:OnEnable()
---   if ITEM_CONFIRM then
---     self:RegisterEvent("EQUIP_BIND_CONFIRM", "ConfirmEquipBind")
---   else
---     self:UnregisterEvent("EQUIP_BIND_CONFIRM")
---   end
---   --PLAYER_SPECIALIZATION_CHANGED
---   --PLAYER_EQUIPMENT_CHANGED
---   --EQUIP_BIND_CONFIRM            --EQUIP_BIND --EquipPendingItem(slot);
---   --EQUIP_BIND_TRADEABLE_CONFIRM  --EQUIP_BIND_TRADEABLE --EquipPendingItem(slot);
---   --EQUIP_BIND_REFUNDABLE_CONFIRM --EQUIP_BIND_REFUNDABLE --EquipPendingItem(slot);
---   --USE_BIND_CONFIRM              --USE_BIND   --ConfirmBindOnUse();
---   --END_BOUND_TRADEABLE --EndBoundTradeable(self.data);
---   ------------------------------------------------------
--- end
 
 function EZquip:GetCharacterInfo()
   -- stores character-specific data
@@ -102,12 +71,6 @@ function EZquip:SlashCommand(input, editbox)
 		 ]]
   end
 end
-
--- function EZquip:GetAutoBindOption()
---   EZquip.AutoBind = self.db.profile.autoBind
--- end
-
--- ITEM_CONFIRM = EZquip:GetAutoBindOption()
 
 ----------------------------------------------------------------------
 -- Scan bags and Score items
@@ -199,9 +162,17 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
       local invslotName = _G[invTypeConst] -- Head
       local invSlotConst = EZquip.invTypeToInvSlot[invTypeConst] -- INVSLOT_HEAD
       local slotId = _G[invSlotConst] -- 1
-      local itemStats = GetItemStats(itemLink)
       
       local itemInfo = {}
+      
+      local specId = GetSpecialization()
+      local globalSpecID = GetSpecializationInfo(specId)
+      itemInfo.canEzquip = EZquip:EzquippableInSpec(itemId, globalSpecID)
+      itemInfo.prefered = EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
+      if (itemInfo.prefered ~= true) then
+        return
+      end
+
       itemInfo.name = C_Item.GetItemName(location)
       itemInfo.id = itemId
       itemInfo.link = itemLink
@@ -212,15 +183,9 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
       itemInfo.slotId = slotId
       itemInfo.ensemble = itemType
       itemInfo.shape = itemSubType
+      local itemStats = GetItemStats(itemLink)
       itemInfo.score = EZquip:ScoreItem(itemStats, itemLink)
       itemInfo.hex = EZquip:HexItem(bagOrSlotIndex, slotIndex)
-      local specId = GetSpecialization()
-      local globalSpecID = GetSpecializationInfo(specId)
-      itemInfo.canEzquip = EZquip:EzquippableInSpec(itemId, globalSpecID)
-      itemInfo.prefered = EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
-      if (itemInfo.prefered ~= true) then
-        return
-      end
 
       return itemInfo
     end
