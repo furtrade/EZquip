@@ -99,13 +99,75 @@ function EZquip:HexItem(bagOrSlotIndex, slotIndex)
   end
 end
 
-function EZquip:ScoreItem(itemStats,itemLink)
+local function getBonusIds(chunk, idFirst, idLast)
+  --https://wow.tools/dbc/?dbc=itembonus&build=10.0.5.47621#page=1&colFilter[0]=1488&colFilter[6]=1
+
+  local ids = {}
+  for i = idFirst, idLast do
+    table.insert(ids, tonumber(chunk[i]))
+  end
+  table.sort(ids)
+  return ids
+end
+
+function EZquip.ParseItemLink(itemLink)
+  if not itemLink then return nil end
+
+  local unlinked = string.match(itemLink, "|Hitem:([\-%d:]+)")
+  if not unlinked then return nil end
+
+  --[[ String Payload looks like this...
+        itemID : enchantID : gemID1 : gemID2 : gemID3 : gemID4
+: suffixID : uniqueID : linkLevel : specializationID : modifiersMask : itemContext
+: numBonusIDs[:bonusID1:bonusID2:...] : numModifiers[:modifierType1:modifierValue1:...]
+: relic1NumBonusIDs[:relicBonusID1:relicBonusID2:...] : relic2NumBonusIDs[...] : relic3NumBonusIDs[...] : crafterGUID : extraEnchantID ]]
+
+  local chunk = { strsplit(":", unlinked) }
+
+  -- local link = itemLink
+  -- local id = tonumber(chunk[1]) or 0
+  -- local suffixId = math.abs(tonumber(chunk[7]) or 0)
+  local enchantId = tonumber(chunk[2]) or 0
+  local gemIds = { tonumber(chunk[3]) or 0, tonumber(chunk[4]) or 0, tonumber(chunk[5]) or 0, tonumber(chunk[6]) or 0 }
+
+  local bonusIds = {}
+  local bonusIdCount = tonumber(chunk[13]) or 0
+  local offset = bonusIdCount
+  if bonusIdCount > 0 then
+    bonusIds = getBonusIds(chunk, 14, 13 + bonusIdCount)
+  end
+
+  local upgradeId = 0
+  local level = 0
+  local stat1 = 0
+  local stat2 = 0
+  local craftQuality = 0
+
+  local infoCount = tonumber(chunk[14 + offset]) or 0
+  if infoCount > 0 then
+    for i = 15 + offset, 14 + offset + infoCount * 2, 2 do
+      local info = tonumber(chunk[i]) or 0
+      local value = tonumber(chunk[i + 1]) or 0
+      if info == 9 then
+        level = value
+      elseif info == 29 then
+        stat1 = value
+      elseif info == 30 then
+        stat2 = value
+      elseif info == 38 then
+        craftQuality = value
+      end
+    end
+  end
+
+  return enchantId, gemIds, bonusIds, upgradeId, level, stat1, stat2, craftQuality
+end
+
+function EZquip:ScoreItem(itemStats, itemLink)
   local scalesTable = EZquip.db.profile.scalesTable
   local score = 0
 
-  if not itemStats then
-    return score
-  end
+  if not itemStats then return score end
 
   for mod, value in pairs(itemStats) do --ITEM_MOD_INTELLECT_SHORT
     local stat = EZquip.itemModConversions[mod] --"Intellect"
