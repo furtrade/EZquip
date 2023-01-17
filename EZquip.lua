@@ -62,6 +62,8 @@ function EZquip:SlashCommand(input, editbox)
     -- unregisters all events and calls EZquip:OnDisable() if you defined that
     self:Disable()
     self:Print("Disabled.")
+  elseif input == "run" then
+    self:AdornSet()
   elseif input == "message" then
     print("this is our saved message:", self.db.profile.someInput)
   else

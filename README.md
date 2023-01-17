@@ -6,7 +6,7 @@
     <img src="https://img.shields.io/github/v/release/axc450/pbs">   -->
 </p>
 <hr>
-<span style="color:gold">This addon is an early alpha. Feedback and suggestion is appreciated</span>
+<span style="color:gold">This addon is in development. Feedback and suggestions appreciated</span>
 
 ## 💥EZquip (auto equip gear) 
 
@@ -19,6 +19,8 @@ To use this addon, you will want some stat weights⚖️for your character. `Sta
   /ezquip
   <br>
   /ez
+  <br>
+  /ez run 💥attempt to ezquip
 
 ### Where to download the addon.
 <!-- - [Curse]()
