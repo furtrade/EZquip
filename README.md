@@ -13,7 +13,9 @@
 An addon for World of Warcraft. The addon is meant to allow the player to import a statWeight string which the addon will use to automatically build a set of best in bags items, and equip it!
 
 ## Getting Started
-To use this addon, you will want some stat weights⚖️for your character. `Stat weights` are used to score items in your bags/inventory before being ezquipped. You can enter stat weights manually via the addon options window, or you can import stat weights from a string. You can get a rough and ready import string from [Pawn](https://beta.curseforge.com/wow/addons/pawn), just open the Pawn UI > click 'Scale' > click 'Manual' > select a scale > click 'export'. Alternatively, you can visit [raidbots](https://www.raidbots.com/simbot/quick) and run a quick sim to get your stat weights.
+
+To use this addon, you will need some stat weights⚖️for your character. `Stat weights` are used to score items in your bags/inventory before being ezquipped. You can enter stat weights manually via the options window, or you can import stat weights from a string. You can get a rough and ready import string from [Pawn](https://beta.curseforge.com/wow/addons/pawn), just open the Pawn UI > click 'Scale' > click 'Manual' > select a scale > click 'export'. Alternatively, you can visit [raidbots](https://www.raidbots.com/simbot/quick) and run a quick sim to get your stat weights.
+
 ### Slash Commands
 
   /ezquip
@@ -30,6 +32,14 @@ To use this addon, you will want some stat weights⚖️for your character. `Sta
 
 ## Known Issues
 - Some stat weights might be missing, while others might not be applicable to _retail.
+- Some types of weapons might not be getting scored correctly. This is likely due to an interaction between class and weapon profficiency.
+- Found an issue? Let me know plz. [here](https://github.com/furtrade/EZquip/issues)
+## In Progress
+- Add "contexts" to alter ezquip behavior based on situation. E.g. spec, battleground, raid, etc.
+- Add feature to save sets.
+- Add scoring for gem sockets.
+- Add support for price checks before equipping BoEs.
+- Add ilvl (+mainstat) mode. Attempt to ezquip based solely on ilvl and mainstat.
 
 
 <!-- ## Screenshots
