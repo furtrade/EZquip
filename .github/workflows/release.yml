@@ -10,6 +10,9 @@ name: Package and release
 # other branches or even pullrequests.
 on:
   push:
+    branches:
+      - main
+      
     tags:
       - '**'
 
