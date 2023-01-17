@@ -6,6 +6,26 @@ NUM_REAGENTBAG_SLOTS = Constants.InventoryConstants.NumReagentBagSlots;
 BANK_CONTAINER = Enum.BagIndex.Bank;
 NUM_TOTAL_EQUIPPED_BAG_SLOTS = NUM_BAG_SLOTS + NUM_REAGENTBAG_SLOTS;
 
+EZquip.slotIdEnums = {
+    INVSLOT_HEAD = 1,
+    INVSLOT_NECK = 2,
+    INVSLOT_SHOULDER = 3,
+    INVSLOT_BACK = 15,
+    INVSLOT_CHEST = 5,
+    INVSLOT_WRIST = 6,
+    INVSLOT_HAND = 7,
+    INVSLOT_WAIST = 8,
+    INVSLOT_LEGS = 9,
+    INVSLOT_FEET = 10,
+    INVSLOT_FINGER1 = 11,
+    INVSLOT_FINGER2 = 12,
+    INVSLOT_TRINKET1 = 13,
+    INVSLOT_TRINKET2 = 14,
+    INVSLOT_MAINHAND = 16,
+    INVSLOT_OFFHAND = 17,
+    INVSLOT_RANGED = 18,
+}
+
 EZquip.itemModConversions = {
 
     --itemModBase

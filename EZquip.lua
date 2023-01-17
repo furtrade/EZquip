@@ -29,6 +29,14 @@ function EZquip:OnInitialize()
   AceConfig:RegisterOptionsTable("EZquip_Options", self.options)
   self.optionsFrame = AceConfigDialog:AddToBlizOptions("EZquip_Options", "EZquip")
 
+  -- adds a child options table, in this case our paperDoll panel
+  -- local paperDoll = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.paperDoll)
+  -- AceConfig:RegisterOptionsTable("EZquip_paperDoll", paperDoll)
+  -- AceConfigDialog:AddToBlizOptions("EZquip_paperDoll", "paperDoll", "EZquip")
+
+  AceConfig:RegisterOptionsTable("EZquip_paperDoll", self.paperDoll)
+  AceConfigDialog:AddToBlizOptions("EZquip_paperDoll", "Paper Doll", "EZquip")
+
   self:GetCharacterInfo()
 
   self:RegisterChatCommand("EZquip", "SlashCommand")
@@ -183,10 +191,6 @@ function EZquip:ScoreItem(itemStats, itemLink)
   return score
 end
 
---TODO make globalSpecID available to all functions
--- EZquip.specId = GetSpecialization()
--- EZquip.globalSpecID = GetSpecializationInfo(EZquip.specId)
-
 --Check whether the current spec can equip the item.
 --This only seems to apply to certain slots. My test results slots {1,3,5,6,7,8,9,10,15}
 -- Perhaps only shows 'true' for armor and back slots? Haven't tried weapons yet.
@@ -223,7 +227,8 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
 
       local invslotName = _G[invTypeConst] -- Head
       local invSlotConst = EZquip.invTypeToInvSlot[invTypeConst] -- INVSLOT_HEAD
-      local slotId = _G[invSlotConst] -- 1
+      local slotId = _G[invSlotConst] -- integer
+      local slotEnabled = EZquip.db.profile.paperDoll[invSlotConst] -- boolean
       
       local itemInfo = {}
       
@@ -248,6 +253,7 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
       local itemStats = GetItemStats(itemLink)
       itemInfo.score = EZquip:ScoreItem(itemStats, itemLink)
       itemInfo.hex = EZquip:HexItem(bagOrSlotIndex, slotIndex)
+      itemInfo.slotEnabled = slotEnabled
 
       return itemInfo
     end
@@ -278,9 +284,10 @@ function EZquip:UpdateArmory()
   for bagOrSlotIndex = 1, 19 do
     local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex);
 
-    if itemInfo ~= nil then
+    if itemInfo then
       local slotId = itemInfo.slotId
-      if slotId then
+      local slotEnabled = itemInfo.slotEnabled
+      if slotId and slotEnabled then
         table.insert(myArmory[slotId], itemInfo);
       end
     end
@@ -292,10 +299,11 @@ function EZquip:UpdateArmory()
       for slotIndex = 1, numSlots do
         local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
 
-        if itemInfo ~= nil then
+        if itemInfo then
           local slotId = itemInfo.slotId
-          if slotId then          
-          table.insert(myArmory[slotId], itemInfo);
+          local slotEnabled = itemInfo.slotEnabled
+          if slotId and slotEnabled then
+            table.insert(myArmory[slotId], itemInfo);
           end
         end
       end
@@ -445,7 +453,7 @@ function EZquip:TheorizeSet(armory)
           table.insert(armorSet, i, armor[1])
         end
         if i == 15 then
-        table.insert(armorSet, i, armor[1])
+          table.insert(armorSet, i, armor[1])
         end
     end
   end
@@ -840,4 +848,5 @@ function EZquip:AdornSet()
     EZquip:PutTheseOn(weapons)
   end
 
+  print("EZquipping complete!")
 end

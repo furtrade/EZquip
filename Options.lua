@@ -5,6 +5,25 @@ EZquip.defaults = {
 	profile = {
 		scalesTable = {
 		},
+		paperDoll = {
+			INVSLOT_HEAD = true,
+			INVSLOT_NECK = true,
+			INVSLOT_SHOULDER = true,
+			INVSLOT_BACK = true,
+			INVSLOT_CHEST = true,
+			INVSLOT_WRIST = true,
+			INVSLOT_HAND = true,
+			INVSLOT_WAIST = true,
+			INVSLOT_LEGS = true,
+			INVSLOT_FEET = true,
+			INVSLOT_FINGER1 = true,
+			INVSLOT_FINGER2 = true,
+			INVSLOT_TRINKET1 = true,
+			INVSLOT_TRINKET2 = true,
+			INVSLOT_MAINHAND = true,
+			INVSLOT_OFFHAND = true,
+			INVSLOT_RANGED = true,
+		},
 	},
 }
 
@@ -823,29 +842,169 @@ EZquip.options = {
 		},
 	},
 }
---TODO: Add paperDoll to the options window.
 EZquip.paperDoll = {
 	type = "group",
-	name = "Slot Tracker", -- label 2
-	handler = EZquip,
+	name = "Paper Doll",
 	args = {
-		[1] = {
+		header1 = {
+			type = "header",
+			name = "Armor",
+			order = 1,
+		},
+		INVSLOT_HEAD = {
 			type = "toggle",
 			name = "Head",
 			order = 2.01,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll end,
-			set = function(info, value) EZquip.db.profile.paperDoll = value end,
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_HEAD end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_HEAD = value end,
 		},
-		[2] = {
+		INVSLOT_NECK = {
 			type = "toggle",
 			name = "Neck",
-			order = 2.02,
+			order = 3.051,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll end,
-			set = function(info, value) EZquip.db.profile.paperDoll = value end,
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_NECK end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_NECK = value end,
 		},
-	}
+		INVSLOT_SHOULDER = {
+			type = "toggle",
+			name = "Shoulder",
+			order = 2.03,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_SHOULDER end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_SHOULDER = value end,
+		},
+		INVSLOT_BACK = {
+			type = "toggle",
+			name = "Back",
+			order = 2.04,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_BACK end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_BACK = value end,
+		},
+		INVSLOT_CHEST = {
+			type = "toggle",
+			name = "Chest",
+			order = 2.05,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_CHEST end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_CHEST = value end,
+		},
+		INVSLOT_WRIST = {
+			type = "toggle",
+			name = "Wrist",
+			order = 2.06,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_WRIST end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_WRIST = value end,
+		},
+		INVSLOT_HAND = {
+			type = "toggle",
+			name = "Hands",
+			order = 3.01,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_HAND end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_HAND = value end,
+		},
+		INVSLOT_WAIST = {
+			type = "toggle",
+			name = "Waist",
+			order = 3.02,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_WAIST end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_WAIST = value end,
+		},
+		INVSLOT_LEGS = {
+			type = "toggle",
+			name = "Legs",
+			order = 3.03,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_LEGS end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_LEGS = value end,
+		},
+		INVSLOT_FEET = {
+			type = "toggle",
+			name = "Feet",
+			order = 3.04,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_FEET end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_FEET = value end,
+		},
+		headerR = {
+			type = "header",
+			name = "Jewellery",
+			order = 3.05,
+		},
+		INVSLOT_FINGER1 = {
+			type = "toggle",
+			name = "Rings",
+			order = 3.06,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_FINGER1 end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_FINGER1 = value end,
+		},
+		INVSLOT_FINGER2 = {
+			type = "toggle",
+			hidden = true,
+			name = "Finger2",
+			order = 3.07,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_FINGER2 end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_FINGER2 = value end,
+		},
+		-- headerT = {
+		-- 	type = "header",
+		-- 	name = "Trinkets",
+		-- 	order = 4,
+		-- },
+		INVSLOT_TRINKET1 = {
+			type = "toggle",
+			name = "Trinkets",
+			order = 4.01,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_TRINKET1 end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_TRINKET1 = value end,
+		},
+		INVSLOT_TRINKET2 = {
+			type = "toggle",
+			hidden = true,
+			name = "Trinket2",
+			order = 4.02,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_TRINKET2 end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_TRINKET2 = value end,
+		},
+		headerW = {
+			type = "header",
+			name = "Weapons",
+			order = 5,
+		},
+		INVSLOT_MAINHAND = {
+			type = "toggle",
+			name = "MainHand",
+			order = 5.03,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_MAINHAND end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_MAINHAND = value end,
+		},
+		INVSLOT_OFFHAND = {
+			type = "toggle",
+			name = "OffHand",
+			order = 5.04,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_OFFHAND end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_OFFHAND = value end,
+		},
+		INVSLOT_RANGED = {
+			type = "toggle",
+			name = "Ranged",
+			order = 5.05,
+			desc = "some description",
+			get = function(info) return EZquip.db.profile.paperDoll.INVSLOT_RANGED end,
+			set = function(info, value) EZquip.db.profile.paperDoll.INVSLOT_RANGED = value end,
+		},
+	},
 }
 
 -- for documentation on the info table
@@ -902,5 +1061,3 @@ function EZquip:SetImportedweights()
 		self.db.profile.scalesTable[stat] = weight
 	end
 end
-
--- EZquip.bindPermission = EZquip.db.profile.autoBind;
