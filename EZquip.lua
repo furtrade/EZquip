@@ -312,7 +312,7 @@ function EZquip:UpdateArmory()
     end
   end
 
-  for k, v in pairs(myArmory) do
+  for _, v in pairs(myArmory) do
     sortTableByScore(v)
   end
 end
@@ -836,7 +836,6 @@ function EZquip:AdornSet()
   EZquip:UpdateArmory();
 
   local weapons, armor, rings, trinkets = EZquip:TheorizeSet(myArmory);
-
   if (armor) then
     EZquip:PutTheseOn(armor)
   end
