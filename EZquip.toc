@@ -2,9 +2,16 @@
 ## Version: 1.0.1
 ## Title: EZquip
 ## Notes: Minimal example (with Ace3 libs hard embedded)
-## Author: Dictum
+## Author: Principium-Caelestrasz
 ## SavedVariables: EZquipDB
 ## OptionalDeps: Ace3 # if a user wants to run Ace3 standalone
+
+## X-Category: Bags & Inventory
+## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
+## X-Website: https://github.com/furtrade/EZquip
+## X-Curse-Project-ID: 811551
+## X-Wago-ID: rkGrBXGy
+
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
