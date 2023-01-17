@@ -1,7 +1,4 @@
-- name: WoW Packager
-  uses: BigWigsMods/packager@v2.0.3
-
-name: Package and release
+name: Package addon
 
 
 on:
