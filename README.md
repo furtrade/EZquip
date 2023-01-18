@@ -1,9 +1,9 @@
 <p align="center">
-    <img src="https://i.imgur.com/LFLIM0O.png">
-    <!-- <br>
-    <img src="https://cf.way2muchnoise.eu/699660.svg">
-    <img src="https://cf.way2muchnoise.eu/versions/699660_latest.svg">
-    <img src="https://img.shields.io/github/v/release/axc450/pbs">   -->
+    <!-- <img src="https://i.imgur.com/LFLIM0O.png">
+    <br> -->
+    <img src="https://cf.way2muchnoise.eu/811551.svg">
+    <img src="https://cf.way2muchnoise.eu/versions/811551_latest.svg">
+    <img src="https://img.shields.io/github/v/release/furtrade/ezquip">  
 </p>
 <hr>
 <span style="color:gold">This addon is in development. Feedback and suggestions appreciated</span>
@@ -26,9 +26,10 @@ To use this addon, you will need some stat weights⚖️for your character. `Sta
 
 ### Where to download the addon.
 <!-- - [Curse]()
-- [Wago]()
 - [WoW Interface]() -->
-- [GitHub](https://github.com/furtrade/EZquip/releases)
+- [Wago](https://addons.wago.io/addons/ezquip)
+- [Curse](https://www.curseforge.com/wow/addons/ezquip)
+- [GitHub](https://github.com/furtrade/ezquip)
 
 ## Known Issues
 - Some stat weights might be missing, while others might not be applicable to _retail.
