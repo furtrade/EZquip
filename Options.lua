@@ -1,6 +1,8 @@
 local EZquip = LibStub("AceAddon-3.0"):GetAddon("EZquip")
 -- local EZquip = EZquip
 
+local strmatchg = string.gmatch
+
 EZquip.defaults = {
 	profile = {
 		alternateScales = {
@@ -1098,9 +1100,9 @@ function EZquip:Parser()
 	local weights = {}
 	--print(importString)
 
-	for line in string.gmatch(importString, "[^,]+") do
+	for line in strmatchg(importString, "[^,]+") do
 		--print(line)
-		for stat, weight in string.gmatch(line, "([%a]+)%s*=%s*([%d]*.[%d]*)") do
+		for stat, weight in strmatchg(line, "([%a]+)%s*=%s*([%d]*.[%d]*)") do
 			--print(stat.. " = " .. weight)
 
 			weights[stat] = weight
