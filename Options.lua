@@ -3,6 +3,11 @@ local EZquip = LibStub("AceAddon-3.0"):GetAddon("EZquip")
 
 EZquip.defaults = {
 	profile = {
+		alternateScales = {
+			["default"] = {
+				DPS = 10,
+			},
+		},
 		scalesTable = {
 		},
 		paperDoll = {
@@ -24,8 +29,43 @@ EZquip.defaults = {
 			INVSLOT_OFFHAND = true,
 			INVSLOT_RANGED = true,
 		},
-	},
+	}
 }
+
+-- function EZquip:GetScalesSelection()
+-- 	-- local scales = EZquip.db.profile.alternateScales
+-- 	local selection = {}
+-- 	local scalesFound = false
+
+-- 	-- for scale, _ in pairs(scales) do
+-- 	-- 	if scale then
+-- 	-- 		scalesFound = true
+-- 	-- 		selection[scale] = scale
+-- 	-- 	end
+-- 	-- end
+
+-- 	-- table.sort(selection)
+
+-- 	if scalesFound then
+-- 		return selection
+-- 	else
+-- 		EZquip.db.profile.scaleName = "default"
+-- 		return { ["default"] = "default" }
+-- 	end
+
+-- end
+
+-- function EZquip:SwitchScalesTableToSelection()
+--     local select = EZquip:GetSelectedScale()
+--     local currentScale = EZquip.db.profile.scalesTable
+
+--     if not select then
+--         currentScale = self.db.profile.alternateScales["default"]
+--     else
+--         self.db.profile.scalesTable = self.db.profile.alternateScales[select]
+--     end
+-- end
+
 
 -- https://www.wowace.com/projects/ace3/pages/ace-config-3-0-options-tables
 EZquip.options = {
@@ -33,6 +73,23 @@ EZquip.options = {
 	name = "EZquip", -- label 2
 	handler = EZquip,
 	args = {
+		-- scaleSelect = {
+		-- 	type = "select",
+		-- 	order = 1,
+		-- 	name = "Scale",
+		-- 	desc = "Select a scale to use",
+		-- 	values = "GetScalesSelection", --GetScalesSelection
+		-- 	-- disabled = function()
+        --     --         return next(EZquip.db.profile.scales) == nil or
+        --     --                    not EZquip.db.profile.scales
+        --     --     end,
+		-- 	get = function()
+		-- 		return EZquip.db.profile.scaleName
+		-- 	end,
+		-- 	set = function(_, value)
+		-- 		EZquip.db.profile.scaleName = value
+		-- 	end,
+		-- },
 		importString = {
 			type = "input",
 			order = 2,
@@ -60,7 +117,7 @@ EZquip.options = {
 			type = "toggle",
 			name = "Auto Bind",
 			order = 2.3,
-			desc = "Automatically CONFIRM \"Bind on Equip\" and \"Tradeable\" items, etc. Use at your own discretion.",
+			desc = "Automatically CONFIRM \"Bind on Equip\" and \"Tradeable\" items, etc. Not recommended for crafters/farmers/goblins.",
 			get = function(info) return EZquip.db.profile.autoBind end,
 			set = function(info, value) EZquip.db.profile.autoBind = value end,
 		},
@@ -80,7 +137,7 @@ EZquip.options = {
 					name = "Damage Per Second",
 					order = 100,
 					args = {
-						Dps = {
+						DPS = {
 							type = "input",
 							name = "Damage Per Second" .. " Weight",
 							desc = "Description of key 1",
@@ -643,6 +700,7 @@ EZquip.options = {
 		},
 		Resistances = {
 			type = "group",
+			hidden = true,
 			name = "Resistances",
 			order = 5,
 			handler = EZquip,
@@ -764,6 +822,7 @@ EZquip.options = {
 		},
 		Profession = {
 			type = "group",
+			hidden = true,
 			name = "Profession",
 			order = 6,
 			handler = EZquip,

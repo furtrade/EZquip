@@ -29,11 +29,6 @@ function EZquip:OnInitialize()
   AceConfig:RegisterOptionsTable("EZquip_Options", self.options)
   self.optionsFrame = AceConfigDialog:AddToBlizOptions("EZquip_Options", "EZquip")
 
-  -- adds a child options table, in this case our paperDoll panel
-  -- local paperDoll = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.paperDoll)
-  -- AceConfig:RegisterOptionsTable("EZquip_paperDoll", paperDoll)
-  -- AceConfigDialog:AddToBlizOptions("EZquip_paperDoll", "paperDoll", "EZquip")
-
   AceConfig:RegisterOptionsTable("EZquip_paperDoll", self.paperDoll)
   AceConfigDialog:AddToBlizOptions("EZquip_paperDoll", "Paper Doll", "EZquip")
 
@@ -51,6 +46,7 @@ function EZquip:GetCharacterInfo()
   local spec = GetSpecialization()
   if spec then
     self.db.char.globalSpecID = GetSpecializationInfo(spec)
+    self.db.char.statPreference = select(6, GetSpecializationInfo(spec))
   end
 end
 
