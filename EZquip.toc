@@ -1,5 +1,5 @@
 ## Interface: 100002
-## Version: v1
+## Version: @project-version@
 ## Title: EZquip
 ## Notes: Manage Equipment according to user stat weights.
 ## Author: Principium-Caelestrasz
