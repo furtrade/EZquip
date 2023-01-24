@@ -845,5 +845,6 @@ function EZquip:AdornSet()
     EZquip:PutTheseOn(weapons)
   end
 
+  ClearCursor();
   print("EZquipping complete!")
 end
