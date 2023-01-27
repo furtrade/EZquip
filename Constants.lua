@@ -451,7 +451,7 @@ EZquip.SpecIdPrefs = {
     [63] = "	0001000110111001110010000000	", --	MageFire
     [64] = "	0001000110111001110010000000	", --	MageFrost
     [268] = "	0010001110110011110011010001	", --	MonkBrewmaster
-    [270] = "	0010001110110011110011010001	", --	MonkMistweaver
+    [270] = "	0010101110110011110011010001	", --	MonkMistweaver
     [269] = "	0010000110110011110011010001	", --	MonkWindwalker
     [65] = "	1000010110110001100111110011	", --	PaladinHoly
     [66] = "	1000010110110001100111110011	", --	PaladinProtection
@@ -468,9 +468,9 @@ EZquip.SpecIdPrefs = {
     [265] = "	0001000110111001110010000000	", --	WarlockAffliction
     [266] = "	0001000110111001110010000000	", --	WarlockDemonology
     [267] = "	0001000110111001110010000000	", --	WarlockDestruction
-    [71] = "	1000011110111011110111110011	", --	WarriorArms
-    [72] = "	1000011110111011110111110011	", --	WarriorFury
-    [73] = "	1000011110111011110111110011	", --	WarriorProtection
+    [71] = "	1000000110111011110111110011	", --	WarriorArms
+    [72] = "	1000001110111011110111110011	", --	WarriorFury
+    [73] = "	1000010110111011110111110011	", --	WarriorProtection
 }
 
 --Function to lookup the weapon preference for a given specId and itemId.
@@ -490,7 +490,7 @@ function EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
             if subType == 6 then --shield
                 mask = bit.lshift(1, 22)
             else
-                mask = bit.lshift(1, (subType + 23))
+                mask = bit.lshift(1, 23)
             end
         end
     end

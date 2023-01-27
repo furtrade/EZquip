@@ -212,16 +212,13 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
 
   if location:IsValid() then
     local itemId = C_Item.GetItemID(location)
-    if (not IsEquippableItem(itemId)) then
-      return
-    else
+    if (not IsEquippableItem(itemId)) then return end
+    -- else
       local itemLink = C_Item.GetItemLink(location)
       local invTypeId = C_Item.GetItemInventoryType(location) -- 1
       local reqLvl,itemType,itemSubType,_,invTypeConst = select(5, GetItemInfo(itemId))
 
-      if reqLvl > UnitLevel("player") then
-        return
-      end
+      if reqLvl > UnitLevel("player") then return end
 
       local invslotName = _G[invTypeConst] -- Head
       local invSlotConst = EZquip.invTypeToInvSlot[invTypeConst] -- INVSLOT_HEAD
@@ -234,9 +231,7 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
       local globalSpecID = GetSpecializationInfo(specId)
       itemInfo.canEzquip = EZquip:EzquippableInSpec(itemId, globalSpecID)
       itemInfo.prefered = EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
-      if (itemInfo.prefered ~= true) then
-        return
-      end
+      if (itemInfo.prefered ~= true) then return end
 
       itemInfo.name = C_Item.GetItemName(location)
       itemInfo.id = itemId
@@ -254,7 +249,7 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
       itemInfo.slotEnabled = slotEnabled
 
       return itemInfo
-    end
+    -- end
   end
 end
 
@@ -342,9 +337,9 @@ local function SelectBestWeaponConfig(configurations)
     print("No weapons matches found. Hmmmm....")
     return nil
   else
-    print("Highest total score: " .. highestConfigName, highestTotalScore)
+    print("Highest total score: " .. highestConfigName, floor(highestTotalScore))
     for k,v in pairs(highestConfig) do
-      print(v.slotId,v.link,v.score)
+      print(v.slotId,v.link,floor(v.score))
     end
     return highestConfig
   end
@@ -387,7 +382,7 @@ function EZquip:TheorizeSet(armory)
               table.insert(twoHanders, j)
             elseif k == 16 and (j.invTypeConst ~= "INVTYPE_2HWEAPON") then
               table.insert(oneHanders, j)
-            elseif k == 17 and (j.canEzquip) then
+            elseif k == 17 and (j.prefered) then
               table.insert(offHanders, j)
             elseif k == 18 then
               if (EZquip.db.char.classId == 3) then
@@ -433,9 +428,11 @@ function EZquip:TheorizeSet(armory)
           -- local setting = weaponSet[i]
           if i==1 then
             weaponSet[1].slotId = 16
+            -- print(weaponSet[1].link)
           end
           if i==2 then
             weaponSet[2].slotId = 17
+            -- print(weaponSet[2].link)
           end
         end
       end
