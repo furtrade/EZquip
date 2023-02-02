@@ -334,7 +334,7 @@ local function SelectBestWeaponConfig(configurations)
     end
   end
   if not highestConfig then
-    print("No weapons matches found. Hmmmm....")
+    -- print("No weapons matches found. Hmmmm....")
     return nil
   else
     print("Highest total score: " .. highestConfigName, floor(highestTotalScore))
@@ -351,7 +351,7 @@ local function CheckUniqueness(table1, table2)
       table1[i].unque = C_Item.GetItemUniquenessByID(table1[i].id)
       if table1[i].unique == false then
         table.insert(table2, 2, table1[i])
-        table2[2].slotId = 12;
+        table2[2].slotId = table2[2].slotId + 1;
         break;
       end
     end
@@ -459,13 +459,6 @@ function EZquip:TheorizeSet(armory)
     table.insert(ringSet, 1, rings[1])
 
     CheckUniqueness(rings, ringSet)
-    -- for i=1, #rings do
-    --   if (rings[i].name ~= ringSet[1].name) then
-    --     table.insert(ringSet, 2, rings[i])
-    --     ringSet[2].slotId = 12;
-    --     break;
-    --   end
-    -- end
   end
 
   if (ENSEMBLE_TRINKETS) then
@@ -804,7 +797,6 @@ end
 
 function EZquip:PutTheseOn(theoreticalSet)
   for _, item in pairs(theoreticalSet) do
-    -- print(item.canEzquip,item.link, item.slotId)
 
     local hex = item.hex
     local slotId = item.slotId
