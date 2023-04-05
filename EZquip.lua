@@ -1,5 +1,4 @@
 EZquip = LibStub("AceAddon-3.0"):NewAddon("EZquip", "AceEvent-3.0", "AceConsole-3.0", "AceHook-3.0")
--- local EZ = EZquip
 
 EZquip.myArmory = {};
 EZquip.invSlots = {};
@@ -78,6 +77,11 @@ function EZquip:SlashCommand(input, editbox)
   end
 end
 
+function EZquip:OnEnable()
+  self:RegisterEvent("PLAYER_LEVEL_UP", "AdornSet")
+  self:RegisterEvent("QUEST_TURNED_IN", "AdornSet")
+end
+
 ----------------------------------------------------------------------
 -- Scan bags and Score items
 ----------------------------------------------------------------------
@@ -122,17 +126,8 @@ function EZquip.ParseItemLink(itemLink)
   local unlinked = string.match(itemLink, "|Hitem:([\-%d:]+)")
   if not unlinked then return nil end
 
-  --[[ String Payload looks like this...
-        itemID : enchantID : gemID1 : gemID2 : gemID3 : gemID4
-: suffixID : uniqueID : linkLevel : specializationID : modifiersMask : itemContext
-: numBonusIDs[:bonusID1:bonusID2:...] : numModifiers[:modifierType1:modifierValue1:...]
-: relic1NumBonusIDs[:relicBonusID1:relicBonusID2:...] : relic2NumBonusIDs[...] : relic3NumBonusIDs[...] : crafterGUID : extraEnchantID ]]
-
   local chunk = { strsplit(":", unlinked) }
 
-  -- local link = itemLink
-  -- local id = tonumber(chunk[1]) or 0
-  -- local suffixId = math.abs(tonumber(chunk[7]) or 0)
   local enchantId = tonumber(chunk[2]) or 0
   local gemIds = { tonumber(chunk[3]) or 0, tonumber(chunk[4]) or 0, tonumber(chunk[5]) or 0, tonumber(chunk[6]) or 0 }
 
@@ -227,7 +222,7 @@ function EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
       
       local itemInfo = {}
       
-      local specId = GetSpecialization()
+      local specId = GetSpecialization() or 1
       local globalSpecID = GetSpecializationInfo(specId)
       itemInfo.canEzquip = EZquip:EzquippableInSpec(itemId, globalSpecID)
       itemInfo.prefered = EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
@@ -806,11 +801,6 @@ function EZquip:PutTheseOn(theoreticalSet)
     if action then
       EZquip:RunAction(action)
 
-      --RunAction will call the following functions:
-      --EZquip:UpdateFreeBagSpace()
-      --EZquip:EquipInventoryItem(action)
-      --EZquip:EquipContainerItem(action)
-      --EZquip:PutItemInInventory(action)
     end
   end
 end

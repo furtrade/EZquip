@@ -1,5 +1,4 @@
 local EZquip = LibStub("AceAddon-3.0"):GetAddon("EZquip")
--- local EZquip = EZquip
 
 local strmatchg = string.gmatch
 
@@ -33,41 +32,6 @@ EZquip.defaults = {
 		},
 	}
 }
-
--- function EZquip:GetScalesSelection()
--- 	-- local scales = EZquip.db.profile.alternateScales
--- 	local selection = {}
--- 	local scalesFound = false
-
--- 	-- for scale, _ in pairs(scales) do
--- 	-- 	if scale then
--- 	-- 		scalesFound = true
--- 	-- 		selection[scale] = scale
--- 	-- 	end
--- 	-- end
-
--- 	-- table.sort(selection)
-
--- 	if scalesFound then
--- 		return selection
--- 	else
--- 		EZquip.db.profile.scaleName = "default"
--- 		return { ["default"] = "default" }
--- 	end
-
--- end
-
--- function EZquip:SwitchScalesTableToSelection()
---     local select = EZquip:GetSelectedScale()
---     local currentScale = EZquip.db.profile.scalesTable
-
---     if not select then
---         currentScale = self.db.profile.alternateScales["default"]
---     else
---         self.db.profile.scalesTable = self.db.profile.alternateScales[select]
---     end
--- end
-
 
 -- https://www.wowace.com/projects/ace3/pages/ace-config-3-0-options-tables
 EZquip.options = {
@@ -1068,8 +1032,6 @@ EZquip.paperDoll = {
 	},
 }
 
--- for documentation on the info table
--- https://www.wowace.com/projects/ace3/pages/ace-config-3-0-options-tables#title-4-1
 function EZquip:GetValue(info) -- This will be called by the getter on the options table
 	return self.db.profile[info[#info]] --self.db.profile is the database table, info[#info] is the key we're looking for.
 end
@@ -1083,7 +1045,6 @@ function EZquip:SetimportString(info,value)
 end
 
 function EZquip:GetimportString()
-
 	return self.db.profile.importString
 end
 
