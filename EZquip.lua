@@ -16,8 +16,12 @@ local ITEM_EQUIP = 1;
 local ITEM_UNEQUIP = 2;
 local ITEM_SWAPBLAST = 3;
 
-for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
-  EZquip.bagSlots[i] = {};
+-- for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
+--   EZquip.bagSlots[i] = {};
+-- end
+
+for dollOrBagIndex = 0, 4 do
+  EZquip.bagSlots[dollOrBagIndex] = {};
 end
 
 ----------------------------------------------------------------------
@@ -46,11 +50,11 @@ function EZquip:GetCharacterInfo()
   -- stores character-specific data
   self.db.char.level = UnitLevel("player")
   self.db.char.classId = select(3, UnitClass("player"))
-  local spec = GetSpecialization()
-  if spec then
-    self.db.char.globalSpecID = GetSpecializationInfo(spec)
-    self.db.char.statPreference = select(6, GetSpecializationInfo(spec))
-  end
+  -- local spec = GetSpecialization()
+  -- if spec then
+  --   self.db.char.globalSpecID = GetSpecializationInfo(spec)
+  --   self.db.char.statPreference = select(6, GetSpecializationInfo(spec))
+  -- end
 end
 
 function EZquip:SlashCommand(input, editbox)
@@ -194,71 +198,32 @@ function EZquip:ScoreItem(itemStats, itemLink)
   return score
 end
 
--- Check whether the current spec can equip the item.
--- ! Retail only?
---[[ function EZquip:EzquippableInSpec(itemId, querySpecId)
-  if not querySpecId then
-    return false
-  else
-    local t = GetItemSpecInfo(itemId)
-    if t ~= nil then
-      for _, v in pairs(t) do
-        if v == querySpecId then
-          return true
-        end
-      end
-    end
-  end
-end ]]
-
 -- This is the main function where the magic happens.
 -- Returns iteminfo to populate the myArmory table. 
 -- Here we evaluate whether we want to equip an item or not.
 function EZquip:EvaluateItem(dollOrBagIndex, slotIndex)
-  -- for dollOrBagIndex = 0, 4 do
-  -- local numSlots = C_Container.GetContainerNumSlots(dollOrBagIndex)
-  -- for slotIndex = 1, numSlots do
   local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex) or GetInventoryItemLink("player", dollOrBagIndex)
-  -- local frame = _G["ContainerFrame"..(dollOrBagIndex+1).."Item"..numSlots + 1 - slotIndex] --weakaura var to get the frame of the item
   
   if itemLink then
-      -- Extract the itemID from the itemLink and convert to number
       -- Check if the item can be used
       local itemID = tonumber(string.match(itemLink, "item:(%d+):"))
       if itemID then
           local canUse = C_PlayerInfo.CanUseItem(itemID)
           
           -- Get item type and subtype
-          local lvlRequired, itemType, itemSubType, _, invTypeConst = select(5, GetItemInfo(itemID))
+          local lvlRequired, itemType, itemSubType, _, equipLoc = select(5, GetItemInfo(itemID))
           
           if canUse and (itemType == "Armor" or itemType == "Weapon") then
-              
-              -- local invslotName = _G[invTypeConst] -- Head
-              local invSlotConst = EZquip.invTypeToInvSlot[invTypeConst] -- INVSLOT_HEAD
-              local slotId = _G[invSlotConst] -- integer
-              local slotEnabled = EZquip.db.profile.paperDoll[invSlotConst] --user interface configurationi
+              local slotId = EZquip.ItemEquipLocToInvSlotID[equipLoc][1]
+              local slotEnabled = EZquip.db.profile.paperDoll[tostring(slotId)] --user interface configurationi
               
               local itemInfo = {}
-              
-              -- Can the item be equipped in this spec?
-              -- local specId = GetSpecialization() or 1
-              -- local globalSpecID = GetSpecializationInfo(specId)
-              -- itemInfo.canEzquip = EZquip:EzquippableInSpec(itemId, globalSpecID)
-              -- itemInfo.prefered = EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
-              -- if (itemInfo.prefered ~= true) then return end
-              
               itemInfo.name = C_Item.GetItemNameByID(itemID)
               itemInfo.link = itemLink
               itemInfo.id = itemID
-              itemInfo.invTypeConst = invTypeConst
+              itemInfo.equipLoc = equipLoc
               itemInfo.slotId = slotId
-
-              -- itemInfo.invTypeId = invTypeId
-              -- itemInfo.invslotName = invslotName
-              -- itemInfo.invSlotConst = invSlotConst
-              -- itemInfo.ensemble = itemType --eg. "Armor"
-              -- itemInfo.shape = itemSubType --eg. "Two-Handed Axes"
-
+              
               --get item stats
               local itemStats = GetItemStats(itemLink)
               itemInfo.score = EZquip:ScoreItem(itemStats, itemLink)
@@ -371,9 +336,10 @@ function EZquip:EquipContainerItem(action)
     return false;
   end
   
-  if (not C_PaperDollInfo.CanCursorCanGoInSlot(action.slotId)) then
-    return false;
-  elseif (IsInventoryItemLocked(action.slotId)) then
+  --CanCursorCanGoInSlot returns true if the item can be equipped in the specified slot. 
+  -- if (not C_PaperDollInfo.CanCursorCanGoInSlot(action.slotId)) then
+  --   return false;
+  if (IsInventoryItemLocked(action.slotId)) then
     return false;
   end
   
@@ -739,14 +705,14 @@ function EZquip:AdornSet()
       for _, j in pairs(myArmory[k]) do
         --main hand
         if k == 16 then
-          if j.invTypeConst == "INVTYPE_2HWEAPON" then
+          if j.equipLoc == "INVTYPE_2HWEAPON" then
             table.insert(twoHanders, j)
           else
             table.insert(oneHanders, j)
           end
           
           --off hand
-        elseif k == 17 and j.prefered then
+        elseif k == 17 then
           table.insert(offHanders, j)
           
           --ranged

@@ -1,4 +1,4 @@
-## Interface: 100005
+## Interface: 11404
 ## Version: @project-version@
 ## Title: EZquip
 ## Notes: Manage Equipment according to user stat weights.

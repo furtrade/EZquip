@@ -5,7 +5,7 @@ local EZquip = LibStub("AceAddon-3.0"):GetAddon("EZquip")
 NUM_BAG_SLOTS = Constants.InventoryConstants.NumBagSlots;
 NUM_REAGENTBAG_SLOTS = Constants.InventoryConstants.NumReagentBagSlots;
 BANK_CONTAINER = Enum.BagIndex.Bank;
-NUM_TOTAL_EQUIPPED_BAG_SLOTS = NUM_BAG_SLOTS + NUM_REAGENTBAG_SLOTS;
+NUM_TOTAL_EQUIPPED_BAG_SLOTS = NUM_BAG_SLOTS --+ NUM_REAGENTBAG_SLOTS;
 
 
 --used by EZquip:ScoreItem
@@ -170,9 +170,66 @@ EZquip.itemModConversions = {
     ["ITEM_UNIQUE_EQUIPPABLE"] = "UniqueEquipped",
 }
 
+EZquip.ItemEquipLocToInvSlotID = {
+    ["INVTYPE_HEAD"] = {1},
+    ["INVTYPE_NECK"] = {2},
+    ["INVTYPE_SHOULDER"] = {3},
+    ["INVTYPE_BODY"] = {4},
+    ["INVTYPE_CHEST"] = {5},
+    ["INVTYPE_WAIST"] = {6},
+    ["INVTYPE_LEGS"] = {7},
+    ["INVTYPE_FEET"] = {8},
+    ["INVTYPE_WRIST"] = {9},
+    ["INVTYPE_HAND"] = {10},
+    ["INVTYPE_FINGER"] = {11, 12},
+    ["INVTYPE_TRINKET"] = {13, 14},
+    ["INVTYPE_WEAPON"] = {16, 17},
+    ["INVTYPE_SHIELD"] = {17},
+    ["INVTYPE_RANGED"] = {18},
+    ["INVTYPE_CLOAK"] = {15},
+    ["INVTYPE_2HWEAPON"] = {16},
+    ["INVTYPE_TABARD"] = {19},
+    ["INVTYPE_ROBE"] = {5},
+    ["INVTYPE_WEAPONMAINHAND"] = {16},
+    ["INVTYPE_WEAPONOFFHAND"] = {16},
+    ["INVTYPE_HOLDABLE"] = {17},
+    ["INVTYPE_THROWN"] = {16},
+    ["INVTYPE_RANGEDRIGHT"] = {18}
+}
+
+--used by EvaluateItem
+--[[ EZquip.invTypeToInvSlot = { --format: {INVTYPE_CHEST = INVSLOT_CHEST,}
+    ["INVTYPE_HEAD"] = "INVSLOT_HEAD",
+    ["INVTYPE_NECK"] = "INVSLOT_NECK",
+    ["INVTYPE_SHOULDER"] = "INVSLOT_SHOULDER",
+    ["INVTYPE_BODY"] = "INVSLOT_BODY",
+    ["INVTYPE_CHEST"] = "INVSLOT_CHEST",
+    ["INVTYPE_ROBE"] = "INVSLOT_CHEST",
+    ["INVTYPE_WAIST"] = "INVSLOT_WAIST",
+    ["INVTYPE_LEGS"] = "INVSLOT_LEGS",
+    ["INVTYPE_FEET"] = "INVSLOT_FEET",
+    ["INVTYPE_WRIST"] = "INVSLOT_WRIST",
+    ["INVTYPE_HAND"] = "INVSLOT_HAND",
+    ["INVTYPE_FINGER"] = "INVSLOT_FINGER1",
+    ["INVTYPE_TRINKET"] = "INVSLOT_TRINKET1",
+    ["INVTYPE_CLOAK"] = "INVSLOT_BACK",
+    ["INVTYPE_WEAPON"] = "INVSLOT_MAINHAND",
+    ["INVTYPE_SHIELD"] = "INVSLOT_OFFHAND",
+    ["INVTYPE_2HWEAPON"] = "INVSLOT_MAINHAND",
+    ["INVTYPE_WEAPONMAINHAND"] = "INVSLOT_MAINHAND",
+    ["INVTYPE_WEAPONOFFHAND"] = "INVSLOT_OFFHAND",
+    ["INVTYPE_HOLDABLE"] = "INVSLOT_OFFHAND",
+    ["INVTYPE_RANGED"] = "INVSLOT_RANGED",
+    ["INVTYPE_THROWN"] = "INVSLOT_RANGED",
+    ["INVTYPE_RANGEDRIGHT"] = "INVSLOT_RANGED",
+    ["INVTYPE_RELIC"] = "INVSLOT_RANGED",
+    ["INVTYPE_TABARD"] = "INVSLOT_TABARD",
+    ["INVTYPE_BAG"] = "INVSLOT_BAG1",
+    ["INVTYPE_QUIVER"] = "INVSLOT_BAG1",
+} ]]
 
 --Retail Binary representation of weapon types preferences for each specId.
-EZquip.SpecIdPrefs = {
+--[[ EZquip.SpecIdPrefs = {
     [250] = "	1000000000000000000111110011	", --	DeathKnightBlood
     [251] = "	1000001000000000000111110011	", --	DeathKnightFrost
     [252] = "	1000000000000000000111110011	", --	DeathKnightUnholy
@@ -211,10 +268,10 @@ EZquip.SpecIdPrefs = {
     [71] = "	1000000000001010010111110011	", --	WarriorArms
     [72] = "	1000001000001010010111110011	", --	WarriorFury
     [73] = "	1000010000001010010111110011	", --	WarriorProtection
-}
+} ]]
 
 --Retail Function to lookup the weapon preference for a given specId and itemId.
-function EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
+--[[ function EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
     local classType, subType = select(12, GetItemInfo(itemId)) --integer
     local bin = EZquip.SpecIdPrefs[globalSpecID]; --binary
     local bin_num = tonumber(bin, 2) --decimal
@@ -238,4 +295,4 @@ function EZquip:ItemPrefLookup(globalSpecID, itemId, slotId)
 
     local prefered = (bit.band(bin_num, mask) ~= 0); --This is the value we want
     return prefered;
-end
+end ]]
