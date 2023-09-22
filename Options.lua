@@ -1,6 +1,8 @@
+--- @class EZquip
 local EZquip = LibStub("AceAddon-3.0"):GetAddon("EZquip")
 
 local strmatchg = string.gmatch
+
 
 EZquip.defaults = {
 	profile = {
@@ -39,23 +41,6 @@ EZquip.options = {
 	name = "EZquip", -- label 2
 	handler = EZquip,
 	args = {
-		-- scaleSelect = {
-		-- 	type = "select",
-		-- 	order = 1,
-		-- 	name = "Scale",
-		-- 	desc = "Select a scale to use",
-		-- 	values = "GetScalesSelection", --GetScalesSelection
-		-- 	-- disabled = function()
-        --     --         return next(EZquip.db.profile.scales) == nil or
-        --     --                    not EZquip.db.profile.scales
-        --     --     end,
-		-- 	get = function()
-		-- 		return EZquip.db.profile.scaleName
-		-- 	end,
-		-- 	set = function(_, value)
-		-- 		EZquip.db.profile.scaleName = value
-		-- 	end,
-		-- },
 		importString = {
 			type = "input",
 			order = 2,
@@ -93,11 +78,6 @@ EZquip.options = {
 			order = 1,
 			handler = EZquip,
 			args = {
-				-- rightbox = {
-				-- 	type = "description",
-				-- 	name = "Primary Stats",
-				-- 	order = 1,
-				-- },
 				ModDamagePerSecond = {
 					type = "group",
 					name = "Damage Per Second",
@@ -182,8 +162,8 @@ EZquip.options = {
 						},
 					}
 				},
-
-
+				
+				
 				-- ModHealth = {
 				-- 	type = "group",
 				-- 	name = "Health",
@@ -240,8 +220,8 @@ EZquip.options = {
 				-- 		},
 				-- 	}
 				-- },
-
-
+				
+				
 				
 				-- ModItemUpgrade = {
 				-- 	type = "group",
@@ -271,7 +251,7 @@ EZquip.options = {
 				-- 		},
 				-- 	}
 				-- },
-
+				
 			},
 		},
 		Offense = {
@@ -867,6 +847,8 @@ EZquip.options = {
 		},
 	},
 }
+
+--UI Options for selecting which inventory slots to use
 EZquip.paperDoll = {
 	type = "group",
 	name = "Paper Doll",
@@ -1032,6 +1014,10 @@ EZquip.paperDoll = {
 	},
 }
 
+
+----------------------------------------------------------------------
+--Functions
+----------------------------------------------------------------------
 function EZquip:GetValue(info) -- This will be called by the getter on the options table
 	return self.db.profile[info[#info]] --self.db.profile is the database table, info[#info] is the key we're looking for.
 end
@@ -1060,25 +1046,25 @@ function EZquip:Parser()
 	local importString = EZquip:GetimportString()
 	local weights = {}
 	--print(importString)
-
+	
 	for line in strmatchg(importString, "[^,]+") do
 		--print(line)
 		for stat, weight in strmatchg(line, "([%a]+)%s*=%s*([%d]*.[%d]*)") do
 			--print(stat.. " = " .. weight)
-
+			
 			weights[stat] = weight
 		end
 	end
-
+	
 	return weights
 end
 
 function EZquip:SetImportedweights()
 	local scales = EZquip:Parser()
-
+	
 	--reset scalesTable to defaults
 	self.db.profile.scalesTable = {}
-
+	
 	for stat,weight in pairs(scales) do
 		self.db.profile.scalesTable[stat] = weight
 	end
