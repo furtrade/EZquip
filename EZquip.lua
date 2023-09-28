@@ -16,10 +16,6 @@ local ITEM_EQUIP = 1;
 local ITEM_UNEQUIP = 2;
 local ITEM_SWAPBLAST = 3;
 
--- for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
---   EZquip.bagSlots[i] = {};
--- end
-
 for dollOrBagIndex = 0, 4 do
   EZquip.bagSlots[dollOrBagIndex] = {};
 end
@@ -50,11 +46,7 @@ function EZquip:GetCharacterInfo()
   -- stores character-specific data
   self.db.char.level = UnitLevel("player")
   self.db.char.classId = select(3, UnitClass("player"))
-  -- local spec = GetSpecialization()
-  -- if spec then
-  --   self.db.char.globalSpecID = GetSpecializationInfo(spec)
-  --   self.db.char.statPreference = select(6, GetSpecializationInfo(spec))
-  -- end
+
 end
 
 function EZquip:SlashCommand(input, editbox)
@@ -86,11 +78,25 @@ function EZquip:SlashCommand(input, editbox)
 end
 
 function EZquip:OnEnable()
-  self:RegisterEvent("PLAYER_LEVEL_UP", "AdornSet")
-  self:RegisterEvent("QUEST_TURNED_IN", "AdornSet")
+  --triggers
+  self:RegisterEvent("PLAYER_LEVEL_UP", "autoTrigger")
+  self:RegisterEvent("QUEST_TURNED_IN", "autoTrigger")
+  self:RegisterEvent("LOOT_CLOSED", "autoTrigger")
+  self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "autoTrigger")
 end
 
+local lastEventTime = {}
+local timeThreshold = 1 -- in seconds
 
+-- Event handler
+function EZquip:autoTrigger(event)
+    local currentTime = GetTime()
+    
+    if not lastEventTime[event] or (currentTime - lastEventTime[event] > timeThreshold) then
+        self:AdornSet()
+        lastEventTime[event] = currentTime
+    end
+end
 
 ----------------------------------------------------------------------
 --EZQUIP MAIN FUNCTIONS
@@ -178,23 +184,44 @@ end
 
 -- Score an item based on the stats it has.
 -- Used by EvaluateItem()
-function EZquip:ScoreItem(itemStats, itemLink)
-  local scalesTable = EZquip.db.profile.scalesTable
+function EZquip:ScoreItem(itemLink)
+  -- local scalesTable = EZquip.db.profile.scalesTable
   local score = 0
-  
-  if not itemStats then return score end
-  
-  for mod, value in pairs(itemStats) do --ITEM_MOD_INTELLECT_SHORT
-    local stat = EZquip.itemModConversions[mod] --"Intellect"
-    
-    if (mod and not stat) then
-      score = score + value * 0.01
-    elseif (stat and not scalesTable[stat]) then
-      score = score + value * 0.01
-    else
-      score = score + value * scalesTable[stat]
+
+  --get name of scale selected in the user interface
+  local selectionIndex = EZquip.db.profile.scaleNames
+  local scaleNamesTable =EZquip.getPawnScaleNames()
+  local scaleName = scaleNamesTable[selectionIndex]
+
+  --convert localized scale name to Pawn's Common scale name
+  for commonScale, scaleDat in pairs(PawnCommon.Scales) do
+    for _,v in pairs(scaleDat) do
+       
+       --print(scaleName, scale)
+       if v == scaleName then
+          --print(commonScale, v)
+          scaleName = commonScale
+       end
     end
+ end
+
+  local pawnDat = PawnGetItemData(itemLink)
+  if pawnDat and scaleName then
+    score = PawnGetSingleValueFromItem(pawnDat, scaleName)
   end
+  -- if not itemStats then return score end
+  
+  -- for mod, value in pairs(itemStats) do --ITEM_MOD_INTELLECT_SHORT
+  --   local stat = EZquip.itemModConversions[mod] --"Intellect"
+    
+  --   if (mod and not stat) then
+  --     score = score + value * 0.01
+  --   elseif (stat and not scalesTable[stat]) then
+  --     score = score + value * 0.01
+  --   else
+  --     score = score + value * scalesTable[stat]
+  --   end
+  -- end
   return score
 end
 
@@ -210,12 +237,18 @@ function EZquip:EvaluateItem(dollOrBagIndex, slotIndex)
       if itemID then
           local canUse = C_PlayerInfo.CanUseItem(itemID)
           
-          -- Get item type and subtype
+          -- Get item type and subtype and equipSlotLocation
           local lvlRequired, itemType, itemSubType, _, equipLoc = select(5, GetItemInfo(itemID))
-          
-          if canUse and (itemType == "Armor" or itemType == "Weapon") then
+
+
+          --Bundle the item info for the myArmory table.
+          if canUse
+              and (itemType == "Armor" or itemType == "Weapon") 
+              then
+              
+              --Check if the slot for this item is enabled in the UI Options
               local slotId = EZquip.ItemEquipLocToInvSlotID[equipLoc][1]
-              local slotEnabled = EZquip.db.profile.paperDoll[tostring(slotId)] --user interface configurationi
+              local slotEnabled = EZquip.db.profile.paperDoll["slot" .. slotId] --user interface configuration
               
               local itemInfo = {}
               itemInfo.name = C_Item.GetItemNameByID(itemID)
@@ -225,8 +258,9 @@ function EZquip:EvaluateItem(dollOrBagIndex, slotIndex)
               itemInfo.slotId = slotId
               
               --get item stats
-              local itemStats = GetItemStats(itemLink)
-              itemInfo.score = EZquip:ScoreItem(itemStats, itemLink)
+              -- local itemStats = GetItemStats(itemLink)
+              itemInfo.score = EZquip:ScoreItem(itemLink) --removed itemStats arg
+              -- print(itemLink, itemInfo.score)
               itemInfo.hex = EZquip:HexItem(dollOrBagIndex, slotIndex)
               itemInfo.slotEnabled = slotEnabled
               
@@ -598,10 +632,10 @@ local function SelectBestWeaponConfig(configs)
   
   if not highConfig then return nil end
   
-  print("Highest total score: " .. highName, math.floor(highScore))
-  for _, item in pairs(highConfig) do
-    print(item.slotId, item.link, math.floor(item.score))
-  end
+  -- print("Highest total score: " .. highName, highScore)
+  -- for _, item in pairs(highConfig) do
+  --   print(item.slotId, item.link, item.score)
+  -- end
   return highConfig
 end
 
@@ -649,11 +683,11 @@ ENSEMBLE_WEAPONS = true;
 ENSEMBLE_RINGS = true;
 ENSEMBLE_TRINKETS = true;
 
-function EZquip:AdornSet()
-  -- Initialize myArmory table.
-  EZquip.myArmory = {};
-  local myArmory = EZquip.myArmory;
-  -- Initialize Slots 1-19 are for inventory (paperdoll) slots.
+--[[ function EZquip.myArmoryUpdate()
+    -- Initialize myArmory table.
+    EZquip.myArmory = {};
+    local myArmory = EZquip.myArmory;
+
   for n = 1, 19 do
     myArmory[n] = {}
   end
@@ -669,6 +703,7 @@ function EZquip:AdornSet()
         table.insert(myArmory[slotId], itemInfo);
       end
     end
+    return myArmory
   end
   
   -- Scan Bags (bag slots)
@@ -688,8 +723,56 @@ function EZquip:AdornSet()
       end
     end
   end
-  
-  
+  return myArmory
+end ]]
+
+function EZquip:UpdateArmory()
+  local myArmory = EZquip.myArmory;
+  for n = 1,19 do
+    myArmory[n] = {}
+  end
+
+  --Inventory
+  for bagOrSlotIndex = 1, 19 do
+    local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex);
+
+    if itemInfo then
+      local slotId = itemInfo.slotId
+      local slotEnabled = itemInfo.slotEnabled
+      if slotId and slotEnabled then
+        table.insert(myArmory[slotId], itemInfo);
+      end
+    end
+  end
+  --Bags
+  for bagOrSlotIndex = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
+    local numSlots = C_Container.GetContainerNumSlots(bagOrSlotIndex);
+    if numSlots > 0 then
+      for slotIndex = 1, numSlots do
+        local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
+
+        if itemInfo then
+          local slotId = itemInfo.slotId
+          local slotEnabled = itemInfo.slotEnabled
+          if slotId and slotEnabled then
+            table.insert(myArmory[slotId], itemInfo);
+          end
+        end
+      end
+    end
+  end
+
+  for _, v in pairs(myArmory) do
+    sortTableByScore(v)
+  end
+end
+
+function EZquip:AdornSet()
+
+  EZquip.myArmory = {};
+  local myArmory = EZquip.myArmory
+  EZquip:UpdateArmory();
+
   -----------------------------------------------------
   -- Use myArmory to decide what to equip.
   -----------------------------------------------------  
@@ -802,5 +885,5 @@ function EZquip:AdornSet()
   end
   
   ClearCursor();
-  print("EZquipping complete!")
+  -- print("EZquipping complete!")
 end
