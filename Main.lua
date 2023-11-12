@@ -1,12 +1,17 @@
---- @class EZquip : AceAddon
---- @field public myArmory table
---- @field public invSlots table
---- @field public bagSlots table
-EZquip = LibStub("AceAddon-3.0"):NewAddon("EZquip", "AceEvent-3.0", "AceConsole-3.0", "AceHook-3.0")
+local addonName, addon = ...
 
-EZquip.myArmory = {};
-EZquip.invSlots = {};
-EZquip.bagSlots = {};
+addon = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "AceEvent-3.0", "AceConsole-3.0", "AceHook-3.0")
+local AceConfig = LibStub("AceConfig-3.0")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+
+local _G = _G
+
+local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or _G.GetAddOnMetadata
+addon.title = GetAddOnMetadata(addonName, "Title")
+
+addon.myArmory = {};
+addon.invSlots = {};
+addon.bagSlots = {};
 
 local _isAtBank = false;
 local SLOT_LOCKED = -1;
@@ -17,50 +22,48 @@ local ITEM_UNEQUIP = 2;
 local ITEM_SWAPBLAST = 3;
 
 for dollOrBagIndex = 0, 4 do
-  EZquip.bagSlots[dollOrBagIndex] = {};
+  addon.bagSlots[dollOrBagIndex] = {};
 end
 
 ----------------------------------------------------------------------
 --Ace Interface 
 ----------------------------------------------------------------------
-local AceConfig = LibStub("AceConfig-3.0")
-local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-
-function EZquip:OnInitialize()
-  self.db = LibStub("AceDB-3.0"):New("EZquipDB", self.defaults)
+function addon:OnInitialize()
+  self.db = LibStub("AceDB-3.0"):New(addon.title .."DB", self.defaults)
   
-  AceConfig:RegisterOptionsTable("EZquip_Options", self.options)
-  self.optionsFrame = AceConfigDialog:AddToBlizOptions("EZquip_Options", "EZquip")
+  AceConfig:RegisterOptionsTable(addon.title .."_Options", self.options)
+  self.optionsFrame = AceConfigDialog:AddToBlizOptions(addon.title .."_Options", addon.title)
   
-  AceConfig:RegisterOptionsTable("EZquip_paperDoll", self.paperDoll)
-  AceConfigDialog:AddToBlizOptions("EZquip_paperDoll", "Paper Doll", "EZquip")
+  AceConfig:RegisterOptionsTable(addon.title .."_paperDoll", self.paperDoll)
+  AceConfigDialog:AddToBlizOptions(addon.title .."_paperDoll", "Paper Doll", addon.title)
   
   self:GetCharacterInfo()
   
-  self:RegisterChatCommand("EZquip", "SlashCommand")
+  self:RegisterChatCommand(addon.title, "SlashCommand")
   self:RegisterChatCommand("EZ", "SlashCommand")
   
 end
 
-function EZquip:GetCharacterInfo()
+function addon:GetCharacterInfo()
   -- stores character-specific data
   self.db.char.level = UnitLevel("player")
   self.db.char.classId = select(3, UnitClass("player"))
-
+  
 end
 
-function EZquip:SlashCommand(input, editbox)
+function addon:SlashCommand(input, editbox)
   if input == "enable" then
     self:Enable()
     self:Print("Enabled.")
   elseif input == "disable" then
-    -- unregisters all events and calls EZquip:OnDisable() if you defined that
+    -- unregisters all events and calls addon:OnDisable() if you defined that
     self:Disable()
     self:Print("Disabled.")
   elseif input == "run" then
     self:AdornSet()
-  elseif input == "message" then
-    print("this is our saved message:", self.db.profile.someInput)
+    self:Print("Running..")
+  -- elseif input == "message" then
+  --   print("this is our saved message:", self.db.profile.someInput)
   else
     self:Print("Opening Options window.")
     -- https://github.com/Stanzilla/WoWUIBugs/issues/89
@@ -68,16 +71,16 @@ function EZquip:SlashCommand(input, editbox)
     InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
     --[[ 
     --or as a standalone window
-    if ACD.OpenFrames["EZquip_Options"] then
-      ACD:Close("EZquip_Options")
+    if ACD.OpenFrames["addon_Options"] then
+      ACD:Close("addon_Options")
     else
-      ACD:Open("EZquip_Options")
+      ACD:Open("addon_Options")
     end
     ]]
   end
 end
 
-function EZquip:OnEnable()
+function addon:OnEnable()
   --triggers
   self:RegisterEvent("PLAYER_LEVEL_UP", "autoTrigger")
   self:RegisterEvent("QUEST_TURNED_IN", "autoTrigger")
@@ -86,79 +89,32 @@ function EZquip:OnEnable()
 end
 
 local lastEventTime = {}
-local timeThreshold = 1 -- in seconds
+local timeThreshold = 7 -- in seconds
 
--- Event handler
-function EZquip:autoTrigger(event)
-    local currentTime = GetTime()
-    
-    if not lastEventTime[event] or (currentTime - lastEventTime[event] > timeThreshold) then
-        self:AdornSet()
-        lastEventTime[event] = currentTime
-    end
+-- Event handler to automate the AdornSet() function.
+function addon:autoTrigger(event)
+  --check if the player has a fishing pole equipped. 
+  --exception: auto equipping while fishing can be annoying.
+  local itemId = GetInventoryItemID("player", 16)
+  if itemId and select(7, GetItemInfo(itemId)) == "Fishing Poles" then
+    return
+  end
+
+  local currentTime = GetTime()
+  
+  if not lastEventTime[event] or (currentTime - lastEventTime[event] > timeThreshold) then
+    self:AdornSet()
+    lastEventTime[event] = currentTime
+  end
 end
 
 ----------------------------------------------------------------------
---EZQUIP MAIN FUNCTIONS
+--addon MAIN FUNCTIONS
 ----------------------------------------------------------------------
-local function getBonusIds(chunk, idFirst, idLast)
-  --https://wow.tools/dbc/?dbc=itembonus&build=10.0.5.47621#page=1&colFilter[0]=1488&colFilter[6]=1
-  
-  local ids = {}
-  for i = idFirst, idLast do
-    table.insert(ids, tonumber(chunk[i]))
-  end
-  table.sort(ids)
-  return ids
-end
-
-function EZquip.ParseItemLink(itemLink)
-  if not itemLink then return nil end
-  
-  local unlinked = string.match(itemLink, "|Hitem:([\-%d:]+)")
-  if not unlinked then return nil end
-  
-  local chunk = { strsplit(":", unlinked) }
-  
-  local enchantId = tonumber(chunk[2]) or 0
-  local gemIds = { tonumber(chunk[3]) or 0, tonumber(chunk[4]) or 0, tonumber(chunk[5]) or 0, tonumber(chunk[6]) or 0 }
-  
-  local bonusIds = {}
-  local bonusIdCount = tonumber(chunk[13]) or 0
-  local offset = bonusIdCount
-  if bonusIdCount > 0 then
-    bonusIds = getBonusIds(chunk, 14, 13 + bonusIdCount)
-  end
-  
-  local upgradeId = 0
-  local level = 0
-  local stat1 = 0
-  local stat2 = 0
-  local craftQuality = 0
-  
-  local infoCount = tonumber(chunk[14 + offset]) or 0
-  if infoCount > 0 then
-    for i = 15 + offset, 14 + offset + infoCount * 2, 2 do
-      local info = tonumber(chunk[i]) or 0
-      local value = tonumber(chunk[i + 1]) or 0
-      if info == 9 then
-        level = value
-      elseif info == 29 then
-        stat1 = value
-      elseif info == 30 then
-        stat2 = value
-      elseif info == 38 then
-        craftQuality = value
-      end
-    end
-  end
-  
-  return enchantId, gemIds, bonusIds, upgradeId, level, stat1, stat2, craftQuality
-end
 
 -- Generate a hexidecimal number that represents the item's location.
 --used by EvaluateItem() for the itemInfo.hex field.
-function EZquip:HexItem(dollOrBagIndex, slotIndex)
+function addon:HexItem(dollOrBagIndex, slotIndex)
   local hex = 0;
   
   if (not slotIndex) then --it's a paperDoll Inventory slot.
@@ -184,97 +140,85 @@ end
 
 -- Score an item based on the stats it has.
 -- Used by EvaluateItem()
-function EZquip:ScoreItem(itemLink)
-  -- local scalesTable = EZquip.db.profile.scalesTable
+function addon:ScoreItem(itemLink)
+  -- local scalesTable = addon.db.profile.scalesTable
   local score = 0
-
+  
   --get name of scale selected in the user interface
-  local selectionIndex = EZquip.db.profile.scaleNames
-  local scaleNamesTable =EZquip.getPawnScaleNames()
+  local selectionIndex = addon.db.profile.scaleNames
+  local scaleNamesTable =addon.getPawnScaleNames()
   local scaleName = scaleNamesTable[selectionIndex]
-
+  
   --convert localized scale name to Pawn's Common scale name
   for commonScale, scaleDat in pairs(PawnCommon.Scales) do
     for _,v in pairs(scaleDat) do
-       
-       --print(scaleName, scale)
-       if v == scaleName then
-          --print(commonScale, v)
-          scaleName = commonScale
-       end
+      
+      --print(scaleName, scale)
+      if v == scaleName then
+        --print(commonScale, v)
+        scaleName = commonScale
+      end
     end
- end
-
+  end
+  
   local pawnDat = PawnGetItemData(itemLink)
   if pawnDat and scaleName then
     score = PawnGetSingleValueFromItem(pawnDat, scaleName)
   end
-  -- if not itemStats then return score end
-  
-  -- for mod, value in pairs(itemStats) do --ITEM_MOD_INTELLECT_SHORT
-  --   local stat = EZquip.itemModConversions[mod] --"Intellect"
-    
-  --   if (mod and not stat) then
-  --     score = score + value * 0.01
-  --   elseif (stat and not scalesTable[stat]) then
-  --     score = score + value * 0.01
-  --   else
-  --     score = score + value * scalesTable[stat]
-  --   end
-  -- end
+
   return score
 end
 
 -- This is the main function where the magic happens.
 -- Returns iteminfo to populate the myArmory table. 
 -- Here we evaluate whether we want to equip an item or not.
-function EZquip:EvaluateItem(dollOrBagIndex, slotIndex)
+function addon:EvaluateItem(dollOrBagIndex, slotIndex)
   local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex) or GetInventoryItemLink("player", dollOrBagIndex)
   
   if itemLink then
-      -- Check if the item can be used
-      local itemID = tonumber(string.match(itemLink, "item:(%d+):"))
-      if itemID then
-          local canUse = C_PlayerInfo.CanUseItem(itemID)
-          
-          -- Get item type and subtype and equipSlotLocation
-          local lvlRequired, itemType, itemSubType, _, equipLoc = select(5, GetItemInfo(itemID))
-
-
-          --Bundle the item info for the myArmory table.
-          if canUse
-              and (itemType == "Armor" or itemType == "Weapon") 
-              then
-              
-              --Check if the slot for this item is enabled in the UI Options
-              local slotId = EZquip.ItemEquipLocToInvSlotID[equipLoc][1]
-              local slotEnabled = EZquip.db.profile.paperDoll["slot" .. slotId] --user interface configuration
-              
-              local itemInfo = {}
-              itemInfo.name = C_Item.GetItemNameByID(itemID)
-              itemInfo.link = itemLink
-              itemInfo.id = itemID
-              itemInfo.equipLoc = equipLoc
-              itemInfo.slotId = slotId
-              
-              --get item stats
-              -- local itemStats = GetItemStats(itemLink)
-              itemInfo.score = EZquip:ScoreItem(itemLink) --removed itemStats arg
-              -- print(itemLink, itemInfo.score)
-              itemInfo.hex = EZquip:HexItem(dollOrBagIndex, slotIndex)
-              itemInfo.slotEnabled = slotEnabled
-              
-              return itemInfo
-          end
+    -- Check if the item can be used
+    local itemID = tonumber(string.match(itemLink, "item:(%d+):"))
+    if itemID then
+      local canUse = C_PlayerInfo.CanUseItem(itemID)
+      
+      -- Get item type and subtype and equipSlotLocation
+      local lvlRequired, itemType, itemSubType, _, equipLoc = select(5, GetItemInfo(itemID))
+      
+      
+      --Bundle the item info for the myArmory table.
+      if canUse
+      and (itemType == "Armor" or itemType == "Weapon") 
+      then
+        
+        --Check if the slot for this item is enabled in the UI Options
+        local slotId = addon.ItemEquipLocToInvSlotID[equipLoc][1]
+        local slotEnabled = addon.db.profile.paperDoll["slot" .. slotId] --user interface configuration
+        
+        local itemInfo = {}
+        itemInfo.name = C_Item.GetItemNameByID(itemID)
+        itemInfo.link = itemLink
+        itemInfo.id = itemID
+        itemInfo.equipLoc = equipLoc
+        itemInfo.slotId = slotId
+        
+        --get item stats
+        -- local itemStats = GetItemStats(itemLink)
+        itemInfo.score = addon:ScoreItem(itemLink) --removed itemStats arg
+        -- print(itemLink, itemInfo.score)
+        itemInfo.hex = addon:HexItem(dollOrBagIndex, slotIndex)
+        itemInfo.slotEnabled = slotEnabled
+        
+        return itemInfo
       end
+    end
   end
 end
 
 ---------------------------------------------------------------------
 --PutTheseOn() helper functions
 ---------------------------------------------------------------------
-function EZquip:UpdateFreeBagSpace()
-  local bagSlots = EZquip.bagSlots;
+function addon:UpdateFreeBagSpace()
+  local bagSlots = addon.bagSlots;
   
   for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS + GetNumBankSlots() do
     local _, bagType = C_Container.GetContainerNumFreeSlots(i);
@@ -303,7 +247,7 @@ function EZquip:UpdateFreeBagSpace()
   end
 end
 
-function EZquip:DispelHex(hex)
+function addon:DispelHex(hex)
   if not hex or (hex < 0) then
     return false, false, false, 0;
   end
@@ -337,8 +281,8 @@ function EZquip:DispelHex(hex)
   return paperDoll, inBank, inBags, inVoidStorage, hex, nil, tab, voidSlot
 end
 
-function EZquip:SetupEquipAction(hex, slotId) -- This is like the function that gets called when you click on an item in the equipment manager.
-  local player, bank, bags, _, slot, bag = EZquip:DispelHex(hex);
+function addon:SetupEquipAction(hex, slotId) -- This is like the function that gets called when you click on an item in the equipment manager.
+  local player, bank, bags, _, slot, bag = addon:DispelHex(hex);
   ClearCursor();
   
   if (not bags and slot == slotId) then --We're trying to reequip an equipped item in the same spot, ignore it.
@@ -361,7 +305,7 @@ end
 
 
 
-function EZquip:EquipContainerItem(action)
+function addon:EquipContainerItem(action)
   ClearCursor();
   
   C_Container.PickupContainerItem(action.bag, action.slot);
@@ -379,7 +323,7 @@ function EZquip:EquipContainerItem(action)
   
   PickupInventoryItem(action.slotId);
   ------------------------------------------
-  local ITEM_CONFIRM = EZquip.db.profile.autoBind;
+  local ITEM_CONFIRM = addon.db.profile.autoBind;
   if ITEM_CONFIRM then
     local button1 = _G["StaticPopup1Button1"]
     if button1 then
@@ -387,13 +331,13 @@ function EZquip:EquipContainerItem(action)
     end
   end
   ------------------------------------------
-  EZquip.bagSlots[action.bag][action.slot] = action.slotId;
-  EZquip.invSlots[action.slotId] = SLOT_LOCKED;
+  addon.bagSlots[action.bag][action.slot] = action.slotId;
+  addon.invSlots[action.slotId] = SLOT_LOCKED;
   
   return true;
 end
 
-function EZquip:EquipInventoryItem(action)
+function addon:EquipInventoryItem(action)
   ClearCursor();
   PickupInventoryItem(action.slot);
   if (not C_PaperDollInfo.CanCursorCanGoInSlot(action.slotId)) then
@@ -403,13 +347,13 @@ function EZquip:EquipInventoryItem(action)
   end
   PickupInventoryItem(action.slotId);
   
-  EZquip.invSlots[action.slot] = SLOT_LOCKED;
-  EZquip.invSlots[action.slotId] = SLOT_LOCKED;
+  addon.invSlots[action.slot] = SLOT_LOCKED;
+  addon.invSlots[action.slotId] = SLOT_LOCKED;
   
   return true;
 end
 
-function EZquip:UnequipItemInSlot(slotId)
+function addon:UnequipItemInSlot(slotId)
   local itemID = GetInventoryItemID("player", slotId);
   if (not itemID) then
     return nil; -- Slot was empty already;
@@ -422,14 +366,14 @@ function EZquip:UnequipItemInSlot(slotId)
   return action;
 end
 
-function EZquip:PutItemInInventory(action)
+function addon:PutItemInInventory(action)
   if (not CursorHasItem()) then
     return;
   end
   
-  EZquip:UpdateFreeBagSpace();
+  addon:UpdateFreeBagSpace();
   
-  local bagSlots = EZquip.bagSlots;
+  local bagSlots = addon.bagSlots;
   
   local firstSlot;
   for slot, flag in next, bagSlots[0] do
@@ -508,11 +452,11 @@ function EZquip:PutItemInInventory(action)
   end
   
   ClearCursor();
-  -- EZquip.BagsFullError()
+  -- addon.BagsFullError()
 end
 
-function EZquip:GetItemInfoByHex(hex)
-  local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EZquip:UnHexItem(hex);
+function addon:GetItemInfoByHex(hex)
+  local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = addon:UnHexItem(hex);
   if (not player and not bank and not bags and not voidStorage) then -- Invalid location
     return;
   end
@@ -553,7 +497,7 @@ function EZquip:GetItemInfoByHex(hex)
   return itemID, name, textureName, count, durability, maxDurability, invType, locked, start, duration, enable, setTooltip, quality, isUpgrade, isBound;
 end
 
-function EZquip:EquipSet(setID)
+function addon:EquipSet(setID)
   if (C_EquipmentSet.EquipmentSetContainsLockedItems(setID) or UnitCastingInfo("player")) then
     UIErrorsFrame:AddMessage(ERR_CLIENT_LOCKED_OUT, 1.0, 0.1, 0.1, 1.0);
     return;
@@ -562,23 +506,23 @@ function EZquip:EquipSet(setID)
   C_EquipmentSet.UseEquipmentSet(setID);
 end
 
-function EZquip:RunAction(action)
+function addon:RunAction(action)
   if (UnitAffectingCombat("player") and not INVSLOTS_EQUIPABLE_IN_COMBAT[action.slotId]) then
     return true;
   end
   
-  EZquip:UpdateFreeBagSpace();
+  addon:UpdateFreeBagSpace();
   
   action.run = true; --will return false when the action is complete.
   if (action.type == ITEM_EQUIP or action.type == ITEM_SWAPBLAST) then
     if (not action.bags) then --if it's not in a bag, it's in the player's inventory.
-      return EZquip:EquipInventoryItem(action);
+      return addon:EquipInventoryItem(action);
     else
       local hasItem = action.slotId and GetInventoryItemID("player", action.slotId); --hasItem is true if we're equipping an item that's already in our inventory.
-      local pending = EZquip:EquipContainerItem(action); --pending is true if we're equipping an item that's not in our inventory.
+      local pending = addon:EquipContainerItem(action); --pending is true if we're equipping an item that's not in our inventory.
       
       if (pending and not hasItem) then --then we're equipping an item that's not in our inventory, and we're not replacing an item that's already in our inventory.
-        EZquip.bagSlots[action.bag][action.slot] = SLOT_EMPTY;
+        addon.bagSlots[action.bag][action.slot] = SLOT_EMPTY;
       end
       
       return pending;
@@ -590,7 +534,7 @@ function EZquip:RunAction(action)
       return;
     else
       PickupInventoryItem(action.slotId);
-      return EZquip:PutItemInInventory(action);
+      return addon:PutItemInInventory(action);
     end
   end
 end
@@ -643,7 +587,7 @@ end
 local function CheckUniqueness(table1, table2)
   for i = 1, #table1 do
     if (table1[i].name == table2[1].name) then
-      table1[i].unque = C_Item.GetItemUniquenessByID(table1[i].id)
+      table1[i].unque = addon.CheckTooltipForUnique(table1[i].id)
       if table1[i].unique == false then
         table.insert(table2, 2, table1[i])
         table2[2].slotId = table2[2].slotId + 1;
@@ -659,10 +603,10 @@ local function CheckUniqueness(table1, table2)
 end
 
 --Helper function to put items on.
-function EZquip:PutTheseOn(theoreticalSet)
+function addon:PutTheseOn(theoreticalSet)
   -- Check if theoreticalSet is not nil and not empty
   if not theoreticalSet or next(theoreticalSet) == nil then return end
-
+  
   for _, item in pairs(theoreticalSet) do
     -- Check if item properties are not nil
     if item and item.hex and item.slotId then
@@ -683,59 +627,59 @@ ENSEMBLE_WEAPONS = true;
 ENSEMBLE_RINGS = true;
 ENSEMBLE_TRINKETS = true;
 
---[[ function EZquip.myArmoryUpdate()
-    -- Initialize myArmory table.
-    EZquip.myArmory = {};
-    local myArmory = EZquip.myArmory;
+--[[ function addon.myArmoryUpdate()
+-- Initialize myArmory table.
+addon.myArmory = {};
+local myArmory = addon.myArmory;
 
-  for n = 1, 19 do
-    myArmory[n] = {}
-  end
+for n = 1, 19 do
+  myArmory[n] = {}
+end
+
+-- Scan Inventory (paperdoll) slots
+for dollOrBagIndex = 1, 19 do
+  local itemInfo = addon:EvaluateItem(dollOrBagIndex);
   
-  -- Scan Inventory (paperdoll) slots
-  for dollOrBagIndex = 1, 19 do
-    local itemInfo = EZquip:EvaluateItem(dollOrBagIndex);
-    
-    if itemInfo then
-      local slotId = itemInfo.slotId
-      local slotEnabled = itemInfo.slotEnabled
-      if slotId and slotEnabled then
-        table.insert(myArmory[slotId], itemInfo);
-      end
+  if itemInfo then
+    local slotId = itemInfo.slotId
+    local slotEnabled = itemInfo.slotEnabled
+    if slotId and slotEnabled then
+      table.insert(myArmory[slotId], itemInfo);
     end
-    return myArmory
   end
-  
-  -- Scan Bags (bag slots)
-  for dollOrBagIndex = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
-    local numSlots = C_Container.GetContainerNumSlots(dollOrBagIndex);
-    if numSlots > 0 then
-      for slotIndex = 1, numSlots do
-        local itemInfo = EZquip:EvaluateItem(dollOrBagIndex, slotIndex)
-        
-        if itemInfo then
-          local slotId = itemInfo.slotId
-          local slotEnabled = itemInfo.slotEnabled
-          if slotId and slotEnabled then
-            table.insert(myArmory[slotId], itemInfo);
-          end
+  return myArmory
+end
+
+-- Scan Bags (bag slots)
+for dollOrBagIndex = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
+  local numSlots = C_Container.GetContainerNumSlots(dollOrBagIndex);
+  if numSlots > 0 then
+    for slotIndex = 1, numSlots do
+      local itemInfo = addon:EvaluateItem(dollOrBagIndex, slotIndex)
+      
+      if itemInfo then
+        local slotId = itemInfo.slotId
+        local slotEnabled = itemInfo.slotEnabled
+        if slotId and slotEnabled then
+          table.insert(myArmory[slotId], itemInfo);
         end
       end
     end
   end
-  return myArmory
+end
+return myArmory
 end ]]
 
-function EZquip:UpdateArmory()
-  local myArmory = EZquip.myArmory;
+function addon:UpdateArmory()
+  local myArmory = addon.myArmory;
   for n = 1,19 do
     myArmory[n] = {}
   end
-
+  
   --Inventory
   for bagOrSlotIndex = 1, 19 do
-    local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex);
-
+    local itemInfo = addon:EvaluateItem(bagOrSlotIndex);
+    
     if itemInfo then
       local slotId = itemInfo.slotId
       local slotEnabled = itemInfo.slotEnabled
@@ -749,8 +693,8 @@ function EZquip:UpdateArmory()
     local numSlots = C_Container.GetContainerNumSlots(bagOrSlotIndex);
     if numSlots > 0 then
       for slotIndex = 1, numSlots do
-        local itemInfo = EZquip:EvaluateItem(bagOrSlotIndex, slotIndex)
-
+        local itemInfo = addon:EvaluateItem(bagOrSlotIndex, slotIndex)
+        
         if itemInfo then
           local slotId = itemInfo.slotId
           local slotEnabled = itemInfo.slotEnabled
@@ -761,18 +705,22 @@ function EZquip:UpdateArmory()
       end
     end
   end
-
+  
   for _, v in pairs(myArmory) do
     sortTableByScore(v)
   end
 end
 
-function EZquip:AdornSet()
-
-  EZquip.myArmory = {};
-  local myArmory = EZquip.myArmory
-  EZquip:UpdateArmory();
-
+function addon:AdornSet()
+  
+  addon.myArmory = {};
+  local myArmory = addon.myArmory
+  addon:UpdateArmory();
+  --[[ for k, slot in pairs(myArmory) do
+    for i, item in pairs(slot) do
+      print(item.slotId, item.link, item.score)
+    end
+  end ]]
   -----------------------------------------------------
   -- Use myArmory to decide what to equip.
   -----------------------------------------------------  
@@ -819,9 +767,9 @@ function EZquip:AdornSet()
     }
     
     -- Access specific configurations directly
-    local twoHandWeapon = configurations.twoHandWeapon
-    local dualWielding = configurations.dualWielding
-    local mainAndOffHand = configurations.mainAndOffHand
+    -- local twoHandWeapon = configurations.twoHandWeapon
+    -- local dualWielding = configurations.dualWielding
+    -- local mainAndOffHand = configurations.mainAndOffHand
     --rangedWeapons[1] is nil if there is no ranged weapon
     
     -- Update weapon set and slot IDs
@@ -855,7 +803,11 @@ function EZquip:AdornSet()
     -- Insert the highest scoring item into table2
     table.insert(ringSet, 1, rings[1])
     
-    CheckUniqueness(rings, ringSet)
+    -- if rings and ringset are not empty, check for uniqueness.
+    if rings and ringSet then
+      CheckUniqueness(rings, ringSet)
+    end 
+    -- CheckUniqueness(rings, ringSet)
   end
   
   --Looking at trinkets 13,14.
@@ -872,18 +824,18 @@ function EZquip:AdornSet()
   -- Put on the items that we want to equip.
   -----------------------------------------------------
   if (armorSet) then
-    EZquip:PutTheseOn(armorSet)
+    addon:PutTheseOn(armorSet)
   end
   if (ringSet) then
-    EZquip:PutTheseOn(ringSet)
+    addon:PutTheseOn(ringSet)
   end
   if (trinketSet) then
-    EZquip:PutTheseOn(trinketSet)
+    addon:PutTheseOn(trinketSet)
   end
   if (weaponSet) then
-    EZquip:PutTheseOn(weaponSet)
+    addon:PutTheseOn(weaponSet)
   end
   
   ClearCursor();
-  -- print("EZquipping complete!")
+  -- print("addonping complete!")
 end

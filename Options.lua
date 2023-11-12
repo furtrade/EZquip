@@ -1,18 +1,10 @@
---- @class EZquip
-local EZquip = LibStub("AceAddon-3.0"):GetAddon("EZquip")
+local addonName, addon = ...
 
 local strmatchg = string.gmatch
 
 
-EZquip.defaults = {
+addon.defaults = {
 	profile = {
-		-- alternateScales = {
-		-- 	["default"] = {
-		-- 		DPS = 10,
-		-- 	},
-		-- },
-		-- scalesTable = {
-		-- },
 		options = {
 			AutoBindToggle = false,
 		},
@@ -38,11 +30,10 @@ EZquip.defaults = {
 	}
 }
 
--- https://www.wowace.com/projects/ace3/pages/ace-config-3-0-options-tables
-EZquip.options = {
+addon.options = {
 	type = "group",
-	name = "EZquip", -- label 2
-	handler = EZquip,
+	name = "addon", -- label 2
+	handler = addon,
 	args = {
 		--[[ importString = {
 			type = "input",
@@ -68,16 +59,16 @@ EZquip.options = {
 			desc = "Select a scale to use for equipping items",
 			width = "normal",
 			values = function()
-				return EZquip.getPawnScaleNames()
+				return addon.getPawnScaleNames()
 			end,
 			-- disabled = function()
-			--     return next(EZquip.db.profile.scaleNames) == nil
+			--     return next(addon.db.profile.scaleNames) == nil
 			-- end,
 			get = function()
-				return EZquip.db.profile.scaleNames
+				return addon.db.profile.scaleNames
 			end,
 			set = function(_, value)
-				EZquip.db.profile.scaleNames = value
+				addon.db.profile.scaleNames = value
 			end,
 		},
 		runCodeButton = {
@@ -92,14 +83,14 @@ EZquip.options = {
 			type = "toggle",
 			name = "Auto Bind",
 			desc = "Automatically CONFIRM \"Bind on Equip\" and \"Tradeable\" items, etc. Not recommended for crafters/farmers/goblins.",
-			get = function(info) return EZquip.db.profile.autoBind end,
-			set = function(info, value) EZquip.db.profile.autoBind = value end,
+			get = function(info) return addon.db.profile.autoBind end,
+			set = function(info, value) addon.db.profile.autoBind = value end,
 		},
 		-- Attributes = {
 		-- 	type = "group",
 		-- 	name = "Primary",
 		-- 	order = 1,
-		-- 	handler = EZquip,
+		-- 	handler = addon,
 		-- 	args = {
 		-- 		ModDamagePerSecond = {
 		-- 			type = "group",
@@ -281,7 +272,7 @@ EZquip.options = {
 		-- 	type = "group",
 		-- 	name = "Offense",
 		-- 	order = 3,
-		-- 	handler = EZquip,
+		-- 	handler = addon,
 		-- 	args = {
 		-- 		ModArmorPenetration = {
 		-- 			type = "group",
@@ -374,7 +365,7 @@ EZquip.options = {
 		-- 	type = "group",
 		-- 	name = "Enhancements",
 		-- 	order = 2,
-		-- 	handler = EZquip,
+		-- 	handler = addon,
 		-- 	args = {
 		-- 		ModAvoidance = {
 		-- 			type = "group",
@@ -466,7 +457,7 @@ EZquip.options = {
 		-- 	type = "group",
 		-- 	name = "Defense",
 		-- 	order = 4,
-		-- 	handler = EZquip,
+		-- 	handler = addon,
 		-- 	args = {
 		-- 		ModHealthRegeneration = {
 		-- 			type = "group",
@@ -672,7 +663,7 @@ EZquip.options = {
 		-- 	hidden = true,
 		-- 	name = "Resistances",
 		-- 	order = 5,
-		-- 	handler = EZquip,
+		-- 	handler = addon,
 		-- 	args = {
 		-- 		ModResistHoly = {
 		-- 			type = "group",
@@ -794,7 +785,7 @@ EZquip.options = {
 		-- 	hidden = true,
 		-- 	name = "Profession",
 		-- 	order = 6,
-		-- 	handler = EZquip,
+		-- 	handler = addon,
 		-- 	args = {
 		-- 		ModProfCraftingSpeed = {
 		-- 			type = "group",
@@ -872,7 +863,7 @@ EZquip.options = {
 }
 
 --UI Options for toggling which inventory slots to use
-EZquip.paperDoll = {
+addon.paperDoll = {
 	type = "group",
 	name = "Paper Doll",
 	args = {
@@ -886,80 +877,80 @@ EZquip.paperDoll = {
 			name = "Head",
 			order = 2.01,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot1 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot1 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot1 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot1 = value end,
 		},
 		slot2 = {
 			type = "toggle",
 			name = "Neck",
 			order = 3.051,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot2 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot2 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot2 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot2 = value end,
 		},
 		slot3 = {
 			type = "toggle",
 			name = "Shoulder",
 			order = 2.03,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot3 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot3 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot3 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot3 = value end,
 		},
 		slot15 = {
 			type = "toggle",
 			name = "Back",
 			order = 2.04,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot15 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot15 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot15 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot15 = value end,
 		},
 		slot5 = {
 			type = "toggle",
 			name = "Chest",
 			order = 2.05,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot5 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot5 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot5 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot5 = value end,
 		},
 		slot9 = {
 			type = "toggle",
 			name = "Wrist",
 			order = 2.06,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot9 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot9 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot9 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot9 = value end,
 		},
 		slot10 = {
 			type = "toggle",
 			name = "Hands",
 			order = 3.01,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot10 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot10 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot10 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot10 = value end,
 		},
 		slot6 = {
 			type = "toggle",
 			name = "Waist",
 			order = 3.02,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot6 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot6 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot6 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot6 = value end,
 		},
 		slot7 = {
 			type = "toggle",
 			name = "Legs",
 			order = 3.03,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot7 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot7 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot7 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot7 = value end,
 		},
 		slot8 = {
 			type = "toggle",
 			name = "Feet",
 			order = 3.04,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot8 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot8 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot8 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot8 = value end,
 		},
 		headerR = {
 			type = "header",
@@ -971,8 +962,8 @@ EZquip.paperDoll = {
 			name = "Rings",
 			order = 3.06,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot11 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot11 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot11 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot11 = value end,
 		},
 		slot12 = {
 			type = "toggle",
@@ -980,8 +971,8 @@ EZquip.paperDoll = {
 			name = "Finger2",
 			order = 3.07,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot12 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot12 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot12 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot12 = value end,
 		},
 		-- headerT = {
 		-- 	type = "header",
@@ -993,8 +984,8 @@ EZquip.paperDoll = {
 			name = "Trinkets",
 			order = 4.01,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot13 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot13 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot13 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot13 = value end,
 		},
 		slot14 = {
 			type = "toggle",
@@ -1002,8 +993,8 @@ EZquip.paperDoll = {
 			name = "Trinket2",
 			order = 4.02,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot14 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot14 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot14 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot14 = value end,
 		},
 		headerW = {
 			type = "header",
@@ -1015,24 +1006,24 @@ EZquip.paperDoll = {
 			name = "MainHand",
 			order = 5.03,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot16 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot16 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot16 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot16 = value end,
 		},
 		slot17 = {
 			type = "toggle",
 			name = "OffHand",
 			order = 5.04,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot17 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot17 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot17 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot17 = value end,
 		},
 		slot18 = {
 			type = "toggle",
 			name = "Ranged",
 			order = 5.05,
 			desc = "some description",
-			get = function(info) return EZquip.db.profile.paperDoll.slot18 end,
-			set = function(info, value) EZquip.db.profile.paperDoll.slot18 = value end,
+			get = function(info) return addon.db.profile.paperDoll.slot18 end,
+			set = function(info, value) addon.db.profile.paperDoll.slot18 = value end,
 		},
 	},
 }
@@ -1041,16 +1032,16 @@ EZquip.paperDoll = {
 ----------------------------------------------------------------------
 --Functions
 ----------------------------------------------------------------------
-function EZquip:GetValue(info) -- This will be called by the getter on the options table
+function addon:GetValue(info) -- This will be called by the getter on the options table
 	return self.db.profile[info[#info]] --self.db.profile is the database table, info[#info] is the key we're looking for.
 end
 
-function EZquip:SetValue(info, value) 
+function addon:SetValue(info, value) 
 	self.db.profile[info[#info]] = value
 end
 
 --Get the Pawn Scale Names, including the non Localized names.
-function EZquip.getPawnScaleNames()
+function addon.getPawnScaleNames()
     local scales = PawnGetAllScalesEx()
     local scaleNames = {}
     for _, t in ipairs(scales) do
@@ -1062,47 +1053,3 @@ function EZquip.getPawnScaleNames()
 	end
     return scaleNames
 end
-
--- function EZquip:SetimportString(info,value)
--- 	self.db.profile.importString = value
--- end
-
--- function EZquip:GetimportString()
--- 	return self.db.profile.importString
--- end
-
--- function EZquip:GetValueOfAttribute(info)
--- 	return self.db.profile.scalesTable[info[#info]]
--- end
-
--- function EZquip:SetValueOfAttribute(info, value)
--- 	self.db.profile.scalesTable[info[#info]] = value
--- end
-
--- function EZquip:Parser()
--- 	local importString = EZquip:GetimportString()
--- 	local weights = {}
--- 	--print(importString)
-	
--- 	for line in strmatchg(importString, "[^,]+") do
--- 		--print(line)
--- 		for stat, weight in strmatchg(line, "([%a]+)%s*=%s*([%d]*.[%d]*)") do
--- 			--print(stat.. " = " .. weight)
-			
--- 			weights[stat] = weight
--- 		end
--- 	end
-	
--- 	return weights
--- end
-
--- function EZquip:SetImportedweights()
--- 	local scales = EZquip:Parser()
-	
--- 	--reset scalesTable to defaults
--- 	self.db.profile.scalesTable = {}
-	
--- 	for stat,weight in pairs(scales) do
--- 		self.db.profile.scalesTable[stat] = weight
--- 	end
--- end
