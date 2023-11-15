@@ -12,7 +12,6 @@
 ## X-Curse-Project-ID: 811551
 ## X-Wago-ID: rkGrBXGy
 
-
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 Libs\AceAddon-3.0\AceAddon-3.0.xml
@@ -34,3 +33,4 @@ Main.lua
 Options.lua
 Constants.lua
 Tooltip.lua
+Components\Score.lua

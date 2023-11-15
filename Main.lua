@@ -4,6 +4,9 @@ addon = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "AceEvent-3.0", "AceC
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
+-- TODO: Check if Pawn is loaded and enabled.
+addon.pawn = false
+
 local gameVersion = select(4, GetBuildInfo())
 addon.gameVersion = gameVersion
 
@@ -25,6 +28,8 @@ addon.title = GetAddOnMetadata(addonName, "Title")
 addon.myArmory = {}
 addon.invSlots = {}
 addon.bagSlots = {}
+
+addon.scaleName = nil
 
 local _isAtBank = false
 local SLOT_LOCKED = -1
@@ -149,33 +154,6 @@ function addon:HexItem(dollOrBagIndex, slotIndex)
 	end
 end
 
--- Score an item based on the stats it has.
--- Used by EvaluateItem()
-function addon:ScoreItem(itemLink)
-	-- local scalesTable = addon.db.profile.scalesTable
-	local score = 0
-	-- HACK: get name of scale selected in the user interface
-	local selectionIndex = addon.db.profile.scaleNames
-	local scaleNamesTable = addon.getPawnScaleNames()
-	local scaleName = scaleNamesTable[selectionIndex]
-	--convert localized scale name to Pawn's Common scale name
-	for commonScale, scaleDat in pairs(PawnCommon.Scales) do
-		for _, v in pairs(scaleDat) do
-			if v == scaleName then
-				--print(commonScale, v)
-				scaleName = commonScale
-			end
-		end
-	end
-
-	local pawnDat = PawnGetItemData(itemLink)
-	if pawnDat and scaleName then
-		score = PawnGetSingleValueFromItem(pawnDat, scaleName)
-	end
-
-	return score
-end
-
 -- Check if equipLoc is a slot we are looking for.
 function GetSlotIdForEquipLoc(equipLoc)
 	-- Check if equipLoc is provided and valid
@@ -215,6 +193,9 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
 			if canUse and (itemType == "Armor" or itemType == "Weapon") then
 				--Check if the slot for this item is enabled in the UI Options
 				local slotId = GetSlotIdForEquipLoc(equipLoc)
+				if not slotId then
+					return
+				end
 				local slotEnabled = addon.db.profile.paperDoll["slot" .. slotId] --user interface configuration
 
 				local itemInfo = {}
@@ -598,7 +579,6 @@ end
 --helper function to select the best weapon configuration
 local function SelectBestWeaponConfig(configs)
 	local highScore, highConfig, highName = 0, nil, nil
-	print("we here")
 
 	for name, config in pairs(configs) do
 		local totalScore = 0
@@ -611,16 +591,12 @@ local function SelectBestWeaponConfig(configs)
 		end
 	end
 
-	print(highScore, highName)
+	-- print("Highest total score: " .. highName, highScore)
 
 	if not highConfig then
 		return nil
 	end
 
-	print("Highest total score: " .. highName, highScore)
-	for _, item in pairs(highConfig) do
-		print(item.slotId, item.link, item.score)
-	end
 	return highConfig
 end
 
@@ -729,7 +705,13 @@ function addon:AdornSet()
 			for _, j in pairs(myArmory[k]) do
 				--main hand
 				if k == 16 then
-					if j.equipLoc == "INVTYPE_2HWEAPON" then
+					if
+						j.equipLoc == "INVTYPE_2HWEAPON"
+						or (
+							addon.game == "RETAIL" and j.equipLoc == "INVTYPE_RANGED"
+							or j.equipLoc == "INVTYPE_RANGEDRIGHT"
+						)
+					then
 						table.insert(twoHanders, j)
 					else
 						table.insert(oneHanders, j)
@@ -831,4 +813,3 @@ function addon:AdornSet()
 	ClearCursor()
 	-- print("addonping complete!")
 end
-
