@@ -102,6 +102,8 @@ function addon:OnEnable()
 	self:RegisterEvent("QUEST_TURNED_IN", "autoTrigger")
 	self:RegisterEvent("LOOT_CLOSED", "autoTrigger")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "autoTrigger")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", "autoTrigger")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", "autoTrigger")
 end
 
 local lastEventTime = {}
@@ -109,6 +111,11 @@ local timeThreshold = 7 -- in seconds
 
 -- Event handler to automate the AdornSet() function.
 function addon:autoTrigger(event)
+	-- check if the player is in combat, if so return.
+	if event == "PLAYER_REGEN_DISABLED" or InCombatLockdown() then
+		return
+	end
+
 	--check if the player has a fishing pole equipped.
 	--exception: auto equipping while fishing can be annoying.
 	local itemId = GetInventoryItemID("player", 16)
@@ -188,7 +195,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
 		if itemID then
 			local canUse = C_PlayerInfo.CanUseItem(itemID)
 			-- Get item type and subtype and equipSlotLocation
-			local lvlRequired, itemType, itemSubType, _, equipLoc = select(5, GetItemInfo(itemID))
+			local itemType, _, _, equipLoc = select(6, GetItemInfo(itemID))
 			--Bundle the item info for the myArmory table.
 			if canUse and (itemType == "Armor" or itemType == "Weapon") then
 				--Check if the slot for this item is enabled in the UI Options
@@ -204,12 +211,11 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
 				itemInfo.id = itemID
 				itemInfo.equipLoc = equipLoc
 				itemInfo.slotId = slotId
-				--get item stats
-				-- local itemStats = GetItemStats(itemLink)
 				itemInfo.score = addon:ScoreItem(itemLink) --removed itemStats arg
 				-- print(itemLink, itemInfo.score)
 				itemInfo.hex = addon:HexItem(dollOrBagIndex, slotIndex)
 				itemInfo.slotEnabled = slotEnabled
+
 				return itemInfo
 			end
 		end
@@ -640,6 +646,7 @@ end
 ---------------------------------------------------------------------
 --Main Function.
 ---------------------------------------------------------------------
+-- TODO: The ENSEMBLE is a relic we no longer need.
 ENSEMBLE_ARMOR = true
 ENSEMBLE_WEAPONS = true
 ENSEMBLE_RINGS = true
@@ -698,9 +705,9 @@ function addon:AdornSet()
 
 	--Looking at weapons 16,17,18.
 	if ENSEMBLE_WEAPONS then
-		local twoHanders, oneHanders, offHanders, rangedWeapons = {}, {}, {}, {}
+		local twoHanders, oneHanders, offHanders, rangedClassic = {}, {}, {}, {}
 
-		-- Sorting weapons by handedness for weapon configs
+		-- STEP 1: Sort weapons by handedness for weapon configs
 		for k = 16, 18 do
 			for _, j in pairs(myArmory[k]) do
 				--main hand
@@ -723,18 +730,18 @@ function addon:AdornSet()
 
 				--ranged
 				elseif k == 18 then
-					table.insert(rangedWeapons, j)
+					table.insert(rangedClassic, j)
 				end
 			end
 		end
 
-		--Move high scoring items to the top of the table.
+		-- STEP 2: Put the best items at the top of the array.
 		sortTableByScore(twoHanders)
 		sortTableByScore(oneHanders)
 		sortTableByScore(offHanders)
-		sortTableByScore(rangedWeapons)
+		sortTableByScore(rangedClassic)
 
-		-- Configurations for slots 16 and 17.
+		-- STEP 3: Configurations for slots 16 and 17.
 		local configurations = {
 			twoHandWeapon = { twoHanders[1] },
 			dualWielding = CanDualWield() and { oneHanders[1], oneHanders[2] } or {},
@@ -753,8 +760,8 @@ function addon:AdornSet()
 		end
 
 		-- Insert ranged weapon and assign its slot ID if it exists
-		if rangedWeapons[1] then
-			table.insert(weaponSet, 3, rangedWeapons[1])
+		if rangedClassic[1] then
+			table.insert(weaponSet, 3, rangedClassic[1])
 			if weaponSet[3] then
 				weaponSet[3].slotId = 18
 			end

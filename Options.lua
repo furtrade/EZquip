@@ -33,7 +33,7 @@ addon.defaults = {
 
 addon.options = {
 	type = "group",
-	name = "addon", -- label 2
+	name = addon.title, -- label 2
 	handler = addon,
 	args = {
 		--[[ importString = {
