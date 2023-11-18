@@ -33,4 +33,6 @@ Main.lua
 Options.lua
 Constants.lua
 Tooltip.lua
+Components\EquipmentManager.lua
+Components\Inventory.lua
 Components\Score.lua
