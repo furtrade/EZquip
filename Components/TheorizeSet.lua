@@ -1,6 +1,55 @@
 local addonName, addon = ...
 
-function addon.TheorizeSet()
+-- TODO: The ENSEMBLE is a relic we no longer need.
+ENSEMBLE_ARMOR = true
+ENSEMBLE_WEAPONS = true
+ENSEMBLE_RINGS = true
+ENSEMBLE_TRINKETS = true
+
+--helper function for rings and trinkets
+local function CheckUniqueness(table1, table2)
+	for i = 1, #table1 do
+		if table1[i].name == table2[1].name then
+			table1[i].unque = addon.CheckTooltipForUnique(table1[i].id)
+			if table1[i].unique == false then
+				table.insert(table2, 2, table1[i])
+				table2[2].slotId = table2[2].slotId + 1
+				break
+			end
+		end
+		if table1[i].name ~= table2[1].name then
+			table.insert(table2, 2, table1[i])
+			table2[2].slotId = table2[1].slotId + 1
+			break
+		end
+	end
+end
+
+--helper function to select the best weapon configuration
+local function SelectBestWeaponConfig(configs)
+	local highScore, highConfig, highName = 0, nil, nil
+
+	for name, config in pairs(configs) do
+		local totalScore = 0
+		for _, item in ipairs(config) do
+			totalScore = totalScore + math.max(item.score, 0)
+		end
+
+		if totalScore > highScore then
+			highScore, highConfig, highName = totalScore, config, name
+		end
+	end
+
+	-- print("Highest total score: " .. highName, highScore)
+
+	if not highConfig then
+		return nil
+	end
+
+	return highConfig
+end
+
+function addon.TheorizeSet(myArmory)
 	--Theorize best sets of items.
 	local weaponSet, armorSet, ringSet, trinketSet = {}, {}, {}, {}
 

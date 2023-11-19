@@ -36,3 +36,4 @@ Tooltip.lua
 Components\EquipmentManager.lua
 Components\Inventory.lua
 Components\Score.lua
+Components\TheorizeSet.lua
