@@ -92,6 +92,7 @@ function addon:OnEnable()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "autoTrigger")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "autoTrigger")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", "autoTrigger")
+	self:ReigisterEvent("ACTIVE_COMBAT_CONFIG_CHANGED", "autoTrigger") -- should trigger on spec swap
 end
 
 local lastEventTime = {}
