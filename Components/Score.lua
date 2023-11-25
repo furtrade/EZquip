@@ -27,7 +27,7 @@ function addon:ScoreItem(itemLink)
 	for commonScale, scaleDat in pairs(PawnCommon.Scales) do
 		for _, v in pairs(scaleDat) do
 			if v == addon.scaleName then
-				print(commonScale, v)
+				-- print(commonScale, v)
 				pawnCommonName = commonScale
 			end
 		end
