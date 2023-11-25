@@ -53,7 +53,7 @@ addon.options = {
 			func = "SetImportedweights",
 		}, ]]
 		selectScaleByName = {
-			order = 2.01,
+			order = 2.02,
 			type = "select",
 			style = "dropdown",
 			name = "Pawn Scale",
@@ -62,11 +62,9 @@ addon.options = {
 			values = function()
 				return addon.getPawnScaleNames()
 			end,
-			-- disabled = function()
-			--     return next(addon.db.profile.scaleNames) == nil
-			-- end,
-			get = "GetValue", --function() return addon.db.profile.scaleNames end,
-			set = "SetValue", -- function(_, value) addon.db.profile.scaleNames = value end,
+			-- TODO: Set/Get scale names not the index.
+			get = "GetValueForScale", --function() return addon.db.profile.scaleNames end,
+			set = "SetValueForScale", -- function(_, value) addon.db.profile.scaleNames = value end,
 		},
 		runCodeButton = {
 			order = 2.2,
@@ -335,16 +333,19 @@ function addon:SetValue(info, value)
 	self.db.profile[info[#info]] = value
 end
 
---Get the Pawn Scale Names, including the non Localized names.
-function addon.getPawnScaleNames()
-	local scales = PawnGetAllScalesEx()
-	local scaleNames = {}
-	for _, t in ipairs(scales) do
-		local entry = {
-			Name = t["Name"],
-			LocalizedName = t["LocalizedName"],
-		}
-		table.insert(scaleNames, t["LocalizedName"])
+function addon:GetValueForScale(info)
+	local values = addon.getPawnScaleNames() -- Fetch the values table
+	local currentValue = self.db.profile[info[#info]] -- Get the current string value from the profile
+	for index, value in pairs(values) do -- Iterate over the 'values' table
+		if value == currentValue then
+			return index -- Return the index if a match is found
+		end
 	end
-	return scaleNames
+	return nil -- Return nil if no match is found
+end
+
+function addon:SetValueForScale(info, value)
+	local values = addon.getPawnScaleNames() -- Fetch the values table
+	local actualValue = values[value] -- Fetch the actual value from the 'values' table using 'value' as the index
+	self.db.profile[info[#info]] = actualValue -- Set the actual value in the profile
 end

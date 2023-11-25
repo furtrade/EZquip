@@ -4,21 +4,31 @@ local addonName, addon = ...
 -- Score an item based on the stats it has.
 -- Used by EvaluateItem()
 
-function addon:ScoreItem(itemLink)
-	-- TODO: Move this code out of the inner loop.
-	local selectionIndex = addon.db.profile.scaleNames
-	local scaleNamesTable = addon.getPawnScaleNames()
-	if not selectionIndex then
-		selectionIndex = next(scaleNamesTable)
+-- Get the Pawn Scale Names, including the non Localized names.
+function addon.getPawnScaleNames()
+	local scales = PawnGetAllScalesEx()
+	local scaleNames = {}
+	for _, t in ipairs(scales) do
+		-- local entry = {
+		-- 	Name = t["Name"],
+		-- 	LocalizedName = t["LocalizedName"],
+		-- }
+		table.insert(scaleNames, t["LocalizedName"])
 	end
+	return scaleNames
+end
 
-	addon.scaleName = scaleNamesTable[selectionIndex]
+function addon:ScoreItem(itemLink)
+	-- TODO: Move this logic out of the inner loop of EvaluateItem()
+
+	addon.scaleName = addon.db.profile.selectScaleByName
 	--convert localized scale name to Pawn's Common scale name
+	local pawnCommonName = nil
 	for commonScale, scaleDat in pairs(PawnCommon.Scales) do
 		for _, v in pairs(scaleDat) do
 			if v == addon.scaleName then
-				--print(commonScale, v)
-				addon.scaleName = commonScale
+				print(commonScale, v)
+				pawnCommonName = commonScale
 			end
 		end
 	end
@@ -26,10 +36,9 @@ function addon:ScoreItem(itemLink)
 	-- local scalesTable = addon.db.profile.scalesTable
 	local score = 0
 
-	local scaleName = addon.scaleName
 	local pawnDat = PawnGetItemData(itemLink)
-	if pawnDat and scaleName then
-		score = PawnGetSingleValueFromItem(pawnDat, scaleName)
+	if pawnDat and pawnCommonName then
+		score = PawnGetSingleValueFromItem(pawnDat, pawnCommonName)
 	end
 
 	return score
