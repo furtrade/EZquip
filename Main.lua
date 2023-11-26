@@ -52,13 +52,17 @@ end
 function addon:GetPlayerClassAndSpec()
 	local className, classFilename, classId = UnitClass("player") -- Get class name
 
+	print("before")
 	if addon.game == "RETAIL" then
 		local specId = GetSpecialization() -- Get the current specialization ID
+		print("after: ", specId)
 
 		if specId then
+			print(specId)
 			local specName = select(2, GetSpecializationInfo(specId)) -- Get spec name
 			self.db.char.className = className
 			self.db.char.specName = specName
+			print(specName)
 		end
 	else
 		self.db.char.className = className
@@ -96,13 +100,16 @@ end
 
 function addon:OnEnable()
 	--triggers
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "GetPlayerClassAndSpec")
 	self:RegisterEvent("PLAYER_LEVEL_UP", "autoTrigger")
 	self:RegisterEvent("QUEST_TURNED_IN", "autoTrigger")
 	self:RegisterEvent("LOOT_CLOSED", "autoTrigger")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "autoTrigger")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "autoTrigger")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", "autoTrigger")
-	-- self:ReigisterEvent("ACTIVE_COMBAT_CONFIG_CHANGED", "autoTrigger") -- should trigger on spec swap
+	if addon.game == "RETAIL" then
+		self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "GetPlayerClassAndSpec") -- should trigger on spec swap
+	end
 end
 
 local lastEventTime = {}
