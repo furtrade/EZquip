@@ -4,7 +4,6 @@ addon = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "AceEvent-3.0", "AceC
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
--- TODO: Check if Pawn is loaded and enabled.
 addon.pawn = false
 
 local gameVersion = select(4, GetBuildInfo())
@@ -30,6 +29,7 @@ addon.invSlots = {}
 addon.bagSlots = {}
 
 addon.scaleName = nil
+addon.pawnCommonName = nil
 
 ----------------------------------------------------------------------
 --Ace Interface
@@ -37,22 +37,32 @@ addon.scaleName = nil
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New(addon.title .. "DB", self.defaults)
 
+	self:GetPlayerClassAndSpec()
+
 	AceConfig:RegisterOptionsTable(addon.title .. "_Options", self.options)
 	self.optionsFrame = AceConfigDialog:AddToBlizOptions(addon.title .. "_Options", addon.title)
 
 	AceConfig:RegisterOptionsTable(addon.title .. "_paperDoll", self.paperDoll)
 	AceConfigDialog:AddToBlizOptions(addon.title .. "_paperDoll", "Paper Doll", addon.title)
 
-	self:GetCharacterInfo()
-
 	self:RegisterChatCommand(addon.title, "SlashCommand")
 	self:RegisterChatCommand("EZ", "SlashCommand")
 end
 
-function addon:GetCharacterInfo()
-	-- stores character-specific data
-	self.db.char.level = UnitLevel("player")
-	self.db.char.classId = select(3, UnitClass("player"))
+function addon:GetPlayerClassAndSpec()
+	local className, classFilename, classId = UnitClass("player") -- Get class name
+
+	if addon.game == "RETAIL" then
+		local specId = GetSpecialization() -- Get the current specialization ID
+
+		if specId then
+			local specName = select(2, GetSpecializationInfo(specId)) -- Get spec name
+			self.db.char.className = className
+			self.db.char.specName = specName
+		end
+	else
+		self.db.char.className = className
+	end
 end
 
 function addon:SlashCommand(input, editbox)

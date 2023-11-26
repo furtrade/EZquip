@@ -1,12 +1,8 @@
 local addonName, addon = ...
 
-local strmatchg = string.gmatch
-
 addon.defaults = {
 	profile = {
 		options = {
-			-- TODO: Why is the dropdown selection not being set by default?
-			selectScaleByName = 1,
 			AutoBindToggle = false,
 		},
 		paperDoll = {
@@ -62,7 +58,6 @@ addon.options = {
 			values = function()
 				return addon.getPawnScaleNames()
 			end,
-			-- TODO: Set/Get scale names not the index.
 			get = "GetValueForScale", --function() return addon.db.profile.scaleNames end,
 			set = "SetValueForScale", -- function(_, value) addon.db.profile.scaleNames = value end,
 		},

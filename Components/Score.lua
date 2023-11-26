@@ -19,16 +19,15 @@ function addon.getPawnScaleNames()
 end
 
 function addon:ScoreItem(itemLink)
-	-- TODO: Move this logic out of the inner loop of EvaluateItem()
-
-	addon.scaleName = addon.db.profile.selectScaleByName
-	--convert localized scale name to Pawn's Common scale name
-	local pawnCommonName = nil
-	for commonScale, scaleDat in pairs(PawnCommon.Scales) do
-		for _, v in pairs(scaleDat) do
-			if v == addon.scaleName then
-				-- print(commonScale, v)
-				pawnCommonName = commonScale
+	if not addon.pawnCommonName then
+		addon.scaleName = addon.db.profile.selectScaleByName
+		--convert localized scale name to Pawn's Common scale name
+		for commonScale, scaleDat in pairs(PawnCommon.Scales) do
+			for _, v in pairs(scaleDat) do
+				if v == addon.scaleName then
+					-- print(commonScale, v)
+					addon.pawnCommonName = commonScale
+				end
 			end
 		end
 	end
@@ -37,8 +36,8 @@ function addon:ScoreItem(itemLink)
 	local score = 0
 
 	local pawnDat = PawnGetItemData(itemLink)
-	if pawnDat and pawnCommonName then
-		score = PawnGetSingleValueFromItem(pawnDat, pawnCommonName)
+	if pawnDat and addon.pawnCommonName then
+		score = PawnGetSingleValueFromItem(pawnDat, addon.pawnCommonName)
 	end
 
 	return score
