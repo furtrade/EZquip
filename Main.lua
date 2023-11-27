@@ -31,6 +31,8 @@ addon.bagSlots = {}
 addon.scaleName = nil
 addon.pawnCommonName = nil
 
+addon.classOrSpec = nil
+
 ----------------------------------------------------------------------
 --Ace Interface
 ----------------------------------------------------------------------
@@ -52,20 +54,18 @@ end
 function addon:GetPlayerClassAndSpec()
 	local className, classFilename, classId = UnitClass("player") -- Get class name
 
-	print("before")
 	if addon.game == "RETAIL" then
 		local specId = GetSpecialization() -- Get the current specialization ID
-		print("after: ", specId)
 
 		if specId then
-			print(specId)
 			local specName = select(2, GetSpecializationInfo(specId)) -- Get spec name
 			self.db.char.className = className
 			self.db.char.specName = specName
-			print(specName)
+			addon.classOrSpec = specName
 		end
 	else
 		self.db.char.className = className
+		addon.classOrSpec = className
 	end
 end
 
@@ -156,6 +156,7 @@ function addon:PutTheseOn(theoreticalSet)
 end
 
 function addon:AdornSet()
+	addon:GetPawnCommonName()
 	addon.myArmory = {}
 	local myArmory = addon.myArmory
 	addon:UpdateArmory()

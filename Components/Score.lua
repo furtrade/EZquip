@@ -18,20 +18,21 @@ function addon.getPawnScaleNames()
 	return scaleNames
 end
 
-function addon:ScoreItem(itemLink)
-	if not addon.pawnCommonName then
-		addon.scaleName = addon.db.profile.selectScaleByName
-		--convert localized scale name to Pawn's Common scale name
-		for commonScale, scaleDat in pairs(PawnCommon.Scales) do
-			for _, v in pairs(scaleDat) do
-				if v == addon.scaleName then
-					-- print(commonScale, v)
-					addon.pawnCommonName = commonScale
-				end
+-- Pawn has many names for a single scale. Is what it is.
+function addon:GetPawnCommonName()
+	addon.scaleName = addon.db.profile.selectScaleByName
+	--convert localized scale name to Pawn's Common scale name
+	for commonScale, scaleDat in pairs(PawnCommon.Scales) do
+		for _, v in pairs(scaleDat) do
+			if v == addon.scaleName then
+				-- print(commonScale, v)
+				addon.pawnCommonName = commonScale
 			end
 		end
 	end
+end
 
+function addon:ScoreItem(itemLink)
 	-- local scalesTable = addon.db.profile.scalesTable
 	local score = 0
 
