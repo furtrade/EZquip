@@ -1,5 +1,9 @@
 local addonName, addon = ...
 
+-- TODO: Add special scoring system for trinkets.
+-- Highest ilvl
+-- simc dps rankings/ilvl (eg. as seen on bloodmallet.com)
+
 -- HACK: get name of scale selected in the user interface.
 -- Score an item based on the stats it has.
 -- Used by EvaluateItem()
