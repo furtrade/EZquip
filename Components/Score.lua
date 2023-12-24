@@ -9,7 +9,7 @@ local addonName, addon = ...
 -- Used by EvaluateItem()
 
 -- Get the Pawn Scale Names, including the non Localized names.
-function addon.getPawnScaleNames()
+function addon:getPawnScaleNames()
 	local scales = PawnGetAllScalesEx()
 	local scaleNames = {}
 	for _, t in ipairs(scales) do
@@ -17,6 +17,7 @@ function addon.getPawnScaleNames()
 		-- 	Name = t["Name"],
 		-- 	LocalizedName = t["LocalizedName"],
 		-- }
+		print(t["Name"], t["LocalizedName"])
 		table.insert(scaleNames, t["LocalizedName"])
 	end
 	return scaleNames

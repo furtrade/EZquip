@@ -25,7 +25,7 @@ function addon:HexItem(dollOrBagIndex, slotIndex)
 
 	local _, bagType = C_Container.GetContainerNumFreeSlots(dollOrBagIndex) -- bagType is 0 for bags and 1 for bank bags.
 
-	if bagType == 0 then --normal bag
+	if bagType == 0 then                                                 --normal bag
 		hex = bit.lshift(dollOrBagIndex, ITEM_INVENTORY_BAG_BIT_OFFSET) + slotIndex + ITEM_INVENTORY_LOCATION_BAGS
 
 		return hex
@@ -93,8 +93,8 @@ function addon:DispelHex(hex)
 	end
 
 	if inBags then
-		hex = hex - ITEM_INVENTORY_LOCATION_BAGS -- Remove the bags flag.
-		bag = bit.rshift(hex, ITEM_INVENTORY_BAG_BIT_OFFSET) -- This is the bag number.
+		hex = hex - ITEM_INVENTORY_LOCATION_BAGS              -- Remove the bags flag.
+		bag = bit.rshift(hex, ITEM_INVENTORY_BAG_BIT_OFFSET)  -- This is the bag number.
 		slot = hex - bit.lshift(bag, ITEM_INVENTORY_BAG_BIT_OFFSET) -- This is the slot number.
 		if inBank then
 			bag = bag + ITEM_INVENTORY_BANK_BAG_OFFSET
@@ -119,10 +119,10 @@ function addon:SetupEquipAction(hex, slotId) -- This is like the function that g
 	action.type = (slotVaccancy and ITEM_SWAPBLAST) or ITEM_EQUIP
 	action.slotId = slotId -- THis is the slot we're trying to equip to.
 	action.player = player --true if contained within the paperDoll Inventory.
-	action.bank = bank --true if contained within the bank.
-	action.bags = bags --true if contained within a bag.
-	action.slot = slot --slotIndex within the bag containing the item we're trying to equip.
-	action.bag = bag --bagIndex of the bag containing the item we're trying to equip.
+	action.bank = bank  --true if contained within the bank.
+	action.bags = bags  --true if contained within a bag.
+	action.slot = slot  --slotIndex within the bag containing the item we're trying to equip.
+	action.bag = bag    --bagIndex of the bag containing the item we're trying to equip.
 
 	return action
 end
@@ -355,15 +355,16 @@ function addon:RunAction(action)
 
 	addon:UpdateFreeBagSpace()
 
-	action.run = true --will return false when the action is complete.
+	action.run = true     --will return false when the action is complete.
 	if action.type == ITEM_EQUIP or action.type == ITEM_SWAPBLAST then
 		if not action.bags then --if it's not in a bag, it's in the player's inventory.
 			return addon:EquipInventoryItem(action)
 		else
-			local hasItem = action.slotId and GetInventoryItemID("player", action.slotId) --hasItem is true if we're equipping an item that's already in our inventory.
-			local pending = addon:EquipContainerItem(action) --pending is true if we're equipping an item that's not in our inventory.
+			local hasItem = action.slotId and
+			GetInventoryItemID("player", action.slotId)                          --hasItem is true if we're equipping an item that's already in our inventory.
+			local pending = addon:EquipContainerItem(action)                     --pending is true if we're equipping an item that's not in our inventory.
 
-			if pending and not hasItem then --then we're equipping an item that's not in our inventory, and we're not replacing an item that's already in our inventory.
+			if pending and not hasItem then                                      --then we're equipping an item that's not in our inventory, and we're not replacing an item that's already in our inventory.
 				addon.bagSlots[action.bag][action.slot] = SLOT_EMPTY
 			end
 

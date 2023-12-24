@@ -56,7 +56,7 @@ addon.options = {
 			desc = "Select a scale to use for equipping items",
 			width = "normal",
 			values = function()
-				return addon.getPawnScaleNames()
+				return addon:getPawnScaleNames() or {}
 			end,
 			get = "GetValueForScale", --function() return addon.db.profile.scaleNames end,
 			set = "SetValueForScale", -- function(_, value) addon.db.profile.scaleNames = value end,
@@ -72,7 +72,8 @@ addon.options = {
 			order = 2.3,
 			type = "toggle",
 			name = "Auto Bind",
-			desc = 'Automatically CONFIRM "Bind on Equip" and "Tradeable" items, etc. Not recommended for crafters/farmers/goblins.',
+			desc =
+			'Automatically CONFIRM "Bind on Equip" and "Tradeable" items, etc. Not recommended for crafters/farmers/goblins.',
 			get = function(info)
 				return addon.db.profile.autoBind
 			end,
@@ -321,7 +322,8 @@ addon.paperDoll = {
 --Functions
 ----------------------------------------------------------------------
 function addon:GetValue(info) -- This will be called by the getter on the options table
-	return self.db.profile[info[#info]] --self.db.profile is the database table, info[#info] is the key we're looking for.
+	return self.db.profile
+		[info[#info]]         --self.db.profile is the database table, info[#info] is the key we're looking for.
 end
 
 function addon:SetValue(info, value)
@@ -329,18 +331,23 @@ function addon:SetValue(info, value)
 end
 
 function addon:GetValueForScale(info)
-	local values = addon.getPawnScaleNames() -- Fetch the values table
-	local currentValue = self.db.profile[info[#info]] -- Get the current string value from the profile
-	for index, value in pairs(values) do -- Iterate over the 'values' table
-		if value == currentValue then
-			return index -- Return the index if a match is found
+	-- Check if 'getPawnScaleNames' is a function before calling it
+	if type(self.getPawnScaleNames) == 'function' then
+		local values = self:getPawnScaleNames()     -- Fetch the values table
+		local currentValue = self.db.profile[info[#info]] -- Get the current string value from the profile
+		for index, value in pairs(values) do        -- Iterate over the 'values' table
+			if value == currentValue then
+				return index                        -- Return the index if a match is found
+			end
 		end
+	else
+		print("getPawnScaleNames method is not defined in addon object")
 	end
-	return nil -- Return nil if no match is found
+	return nil -- Return nil if no match is found or 'getPawnScaleNames' is not a function
 end
 
 function addon:SetValueForScale(info, value)
 	local values = addon.getPawnScaleNames() -- Fetch the values table
-	local actualValue = values[value] -- Fetch the actual value from the 'values' table using 'value' as the index
+	local actualValue = values[value]       -- Fetch the actual value from the 'values' table using 'value' as the index
 	self.db.profile[info[#info]] = actualValue -- Set the actual value in the profile
 end

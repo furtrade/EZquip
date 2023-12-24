@@ -4,6 +4,7 @@
 ## Notes: Manage Equipment according to user stat weights.
 ## Author: Principium-Caelestrasz
 ## SavedVariables: EZquipDB
+## Dependencies: Pawn
 ## OptionalDeps: Ace3
 
 ## X-Category: Bags&Inventory
@@ -33,4 +34,9 @@ Libs\AceSerializer-3.0\AceSerializer-3.0.xml
 Main.lua
 Options.lua
 Constants.lua
-Tooltip.lua
+
+Components\EquipmentManager.lua
+Components\Inventory.lua
+Components\Score.lua
+Components\TheorizeSet.lua
+Components\Tooltip.lua
