@@ -43,6 +43,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
 					return
 				end
 				local slotEnabled = addon.db.profile.paperDoll["slot" .. slotId] --user interface configuration
+				local setId = select(16, GetItemInfo(itemID))
 
 				local itemInfo = {}
 				itemInfo.name = C_Item.GetItemNameByID(itemID)
@@ -50,6 +51,9 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
 				itemInfo.id = itemID
 				itemInfo.equipLoc = equipLoc
 				itemInfo.slotId = slotId
+				if setId ~= nil then
+					itemInfo.setId = setId
+				end
 				itemInfo.score = addon:ScoreItem(itemLink) --removed itemStats arg
 				-- print(itemLink, itemInfo.score)
 				itemInfo.hex = addon:HexItem(dollOrBagIndex, slotIndex)

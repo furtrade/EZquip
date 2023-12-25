@@ -92,9 +92,11 @@ end
 
 function addon.getArmorSet(myArmory)
 	local armorSet = {}
+	-- slotIds that we are interested in...
 	for i = 1, 15 do
 		local armor = myArmory[i]
 		if (i <= 10 and i ~= 4) or i == 15 then
+			-- insert the item with the highest score for that slotId.
 			table.insert(armorSet, i, armor[1])
 		end
 	end

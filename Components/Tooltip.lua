@@ -1,25 +1,5 @@
 local addonName, addon = ...
 
--- TODO: Implement this functionality.
--- This function is used to match a given string against a list of regex patterns.
--- We can take the text returned from the TableOfContents function
--- and try to find a keyword match.
-function addon:matchAndAct(text)
-   -- text is the text from the tooltip
-   -- category is like "HP" or "MP"
-   for category, v in pairs(addon.macroData) do
-      -- search for regex patterns for each category
-      for _, j in ipairs(v.keywords) do
-         if text:match(j) then
-            if v.onMatch then
-               v.onMatch()
-            end
-
-            --break
-         end
-      end
-   end
-end
 
 -- `GetTooltipByType(id, type)`: Creates/uses a tooltip for a given item or spell ID.
 -- `type` can be "item" or "spell". Returns the tooltip object.
@@ -30,6 +10,15 @@ end
 -- Usage Example:
 -- local myTooltip = GetTooltipByType(12345, "item")  -- Get tooltip for item with ID 12345
 -- local tooltipContent = TableOfContents(myTooltip)  -- Extract text from this tooltip
+
+function addon:SearchPatterns(text, patterns, onMatch)
+   for _, pattern in ipairs(patterns) do
+      local match = string.match(text, pattern)
+      if match then
+         onMatch(pattern, match)
+      end
+   end
+end
 
 -- Global or persistent tooltip frame
 local persistentTooltip = persistentTooltip
@@ -109,6 +98,6 @@ function addon:TableOfContents(aTooltip, retryCount)
       -- Hide the tooltip after extracting its contents
       aTooltip:Hide()
 
-      return atyp
+      return atyp.onLeftSide .. "\n" .. atyp.onRightSide, atyp.onLeftSide, atyp.onRightSide
    end
 end

@@ -25,9 +25,9 @@ end
 
 -- Pawn has many names for a single scale. Is what it is.
 function addon.GetPawnCommonName()
-	print("Starting GetPawnCommonName function...")
+	-- print("Starting GetPawnCommonName function...")
 	addon.scaleName = addon.db.profile.selectScaleByName
-	print("Selected scale name: ", addon.scaleName)
+	-- print("Selected scale name: ", addon.scaleName)
 	--convert localized scale name to Pawn's Common scale name
 	local found = false
 	for commonScale, scaleDat in pairs(PawnCommon.Scales) do
@@ -35,7 +35,7 @@ function addon.GetPawnCommonName()
 		for _, v in pairs(scaleDat) do
 			-- print("Checking value: ", v)
 			if v == addon.scaleName then
-				print("Match found: ", commonScale, v)
+				-- print("Match found: ", commonScale, v)
 				addon.pawnCommonName = commonScale
 				found = true
 				break
@@ -44,11 +44,11 @@ function addon.GetPawnCommonName()
 		if found then break end
 	end
 	if not found then
-		print("No match found, setting selected scale as common name")
+		-- print("No match found, setting selected scale as common name")
 		addon.pawnCommonName = addon.scaleName
 	end
-	print("Selected Pawn scale: ", addon.pawnCommonName)
-	print("Finished GetPawnCommonName function.")
+	-- print("Selected Pawn scale: ", addon.pawnCommonName)
+	-- print("Finished GetPawnCommonName function.")
 end
 
 function addon:ScoreItem(itemLink)
@@ -56,10 +56,10 @@ function addon:ScoreItem(itemLink)
 
 	local pawnDat = PawnGetItemData(itemLink)
 	-- print("Pawn data for item: ", pawnDat)
-	print("Selected Pawn scale: ", addon.pawnCommonName)
+	-- print("Selected Pawn scale: ", addon.pawnCommonName)
 	if pawnDat and addon.pawnCommonName then
 		score = PawnGetSingleValueFromItem(pawnDat, addon.pawnCommonName)
-		print(itemLink .. " Score: " .. score)
+		-- print(itemLink .. " Score: " .. score)
 	end
 
 	return score
