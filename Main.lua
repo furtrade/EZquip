@@ -80,14 +80,14 @@ function addon:SlashCommand(input, editbox)
 	elseif input == "run" then
 		self:AdornSet()
 		self:Print("Running..")
-	-- elseif input == "message" then
-	--   print("this is our saved message:", self.db.profile.someInput)
+		-- elseif input == "message" then
+		--   print("this is our saved message:", self.db.profile.someInput)
 	else
 		self:Print("Opening Options window.")
 		-- https://github.com/Stanzilla/WoWUIBugs/issues/89
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
-		--[[ 
+		--[[
     --or as a standalone window
     if ACD.OpenFrames["addon_Options"] then
       ACD:Close("addon_Options")
@@ -156,7 +156,7 @@ function addon:PutTheseOn(theoreticalSet)
 end
 
 function addon:AdornSet()
-	addon:GetPawnCommonName()
+	addon.GetPawnCommonName()
 	addon.myArmory = {}
 	local myArmory = addon.myArmory
 	addon:UpdateArmory()

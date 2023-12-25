@@ -56,10 +56,10 @@ addon.options = {
 			desc = "Select a scale to use for equipping items",
 			width = "normal",
 			values = function()
-				return addon:getPawnScaleNames() or {}
+				return addon.getPawnScaleNames() or {}
 			end,
-			get = "GetValueForScale", --function() return addon.db.profile.scaleNames end,
-			set = "SetValueForScale", -- function(_, value) addon.db.profile.scaleNames = value end,
+			get = "GetValueForScale",
+			set = "SetValueForScale",
 		},
 		runCodeButton = {
 			order = 2.2,
@@ -333,7 +333,7 @@ end
 function addon:GetValueForScale(info)
 	-- Check if 'getPawnScaleNames' is a function before calling it
 	if type(self.getPawnScaleNames) == 'function' then
-		local values = self:getPawnScaleNames()     -- Fetch the values table
+		local values = self.getPawnScaleNames()     -- Fetch the values table
 		local currentValue = self.db.profile[info[#info]] -- Get the current string value from the profile
 		for index, value in pairs(values) do        -- Iterate over the 'values' table
 			if value == currentValue then
@@ -347,7 +347,13 @@ function addon:GetValueForScale(info)
 end
 
 function addon:SetValueForScale(info, value)
+	-- print("Starting SetValueForScale function...")
 	local values = addon.getPawnScaleNames() -- Fetch the values table
-	local actualValue = values[value]       -- Fetch the actual value from the 'values' table using 'value' as the index
+	-- print("Pawn scale names: ", table.concat(values, ', '))
+	local actualValue = values
+	[value]                                 -- Fetch the actual value from the 'values' table using 'value' as the index
+	-- print("Actual value: ", actualValue)
 	self.db.profile[info[#info]] = actualValue -- Set the actual value in the profile
+	-- print("Set value in profile: ", self.db.profile[info[#info]])
+	-- print("Finished SetValueForScale function.")
 end
