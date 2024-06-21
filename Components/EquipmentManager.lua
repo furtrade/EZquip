@@ -162,7 +162,7 @@ end
 function addon:EquipInventoryItem(action)
 	ClearCursor()
 	PickupInventoryItem(action.slot)
-	if not C_PaperDollInfo.CanCursorCanGoInSlot(action.slotId) then
+	if addon.game == "RETAIL" and not C_PaperDollInfo.CanCursorCanGoInSlot(action.slotId) then
 		return false
 	elseif IsInventoryItemLocked(action.slotId) then
 		return false
@@ -361,10 +361,10 @@ function addon:RunAction(action)
 			return addon:EquipInventoryItem(action)
 		else
 			local hasItem = action.slotId and
-			GetInventoryItemID("player", action.slotId)                          --hasItem is true if we're equipping an item that's already in our inventory.
-			local pending = addon:EquipContainerItem(action)                     --pending is true if we're equipping an item that's not in our inventory.
+				GetInventoryItemID("player", action.slotId) --hasItem is true if we're equipping an item that's already in our inventory.
+			local pending = addon:EquipContainerItem(action) --pending is true if we're equipping an item that's not in our inventory.
 
-			if pending and not hasItem then                                      --then we're equipping an item that's not in our inventory, and we're not replacing an item that's already in our inventory.
+			if pending and not hasItem then         --then we're equipping an item that's not in our inventory, and we're not replacing an item that's already in our inventory.
 				addon.bagSlots[action.bag][action.slot] = SLOT_EMPTY
 			end
 
