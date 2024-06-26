@@ -82,21 +82,9 @@ function addon:SlashCommand(input, editbox)
 	elseif input == "run" then
 		self:AdornSet()
 		self:Print("Running..")
-		-- elseif input == "message" then
-		--   print("this is our saved message:", self.db.profile.someInput)
 	else
-		self:Print("Opening Options window.")
-		-- https://github.com/Stanzilla/WoWUIBugs/issues/89
-		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
-		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
-		--[[
-    --or as a standalone window
-    if ACD.OpenFrames["addon_Options"] then
-      ACD:Close("addon_Options")
-    else
-      ACD:Open("addon_Options")
-    end
-    ]]
+		-- self:Print("Options")
+		Settings.OpenToCategory(self.optionsFrame.name)
 	end
 end
 
