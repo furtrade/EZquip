@@ -3,11 +3,9 @@ name: Package addon
 on:
   push:
     branches:
-      - main
-
+      - master
     tags:
       - '*'
-
     paths-ignore:
       - '.github/**'
 
@@ -26,13 +24,14 @@ jobs:
       #   with:
       #     args: -q
 
-      - name: WoW Packager
+      - name: Update option files
+        if: always()
+        run: lua gen_option_values.lua BigWigs.toc
+
+      - name: Package
         uses: BigWigsMods/packager@master
-        with:
-          args: |
-            -g retail
-            -g classic
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
           WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+          # WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
