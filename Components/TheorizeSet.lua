@@ -3,60 +3,63 @@ local addonName, addon = ...
 
 --helper function for rings and trinkets
 local function CheckUniqueness(itemList, selectedItems)
-	for i = 1, #itemList do
-		if itemList[i].id ~= selectedItems[1].id then
-			table.insert(selectedItems, 2, itemList[i])
-			selectedItems[2].slotId = selectedItems[1].slotId + 1
-			break
-		end
-	end
+    if not itemList or not selectedItems or #selectedItems == 0 then return end
+    
+    for i = 1, #itemList do
+        if itemList[i].id ~= selectedItems[1].id then
+            table.insert(selectedItems, 2, itemList[i])
+            selectedItems[2].slotId = selectedItems[1].slotId + 1
+            break
+        end
+    end
 end
+
 
 --helper function to select the best weapon configuration
 local function SelectBestWeaponConfig(configs)
-	local highScore, highConfig, highName = 0, nil, nil
+    local highScore, highConfig = 0, nil
 
-	for name, config in pairs(configs) do
-		local totalScore = 0
-		for _, item in ipairs(config) do
-			totalScore = totalScore + math.max(item.score, 0)
-		end
+    for _, config in pairs(configs) do
+        local totalScore = 0
+        for _, item in ipairs(config) do
+            totalScore = totalScore + math.max(item.score, 0)
+        end
 
-		if totalScore > highScore then
-			highScore, highConfig, highName = totalScore, config, name
-		end
-	end
+        if totalScore > highScore then
+            highScore, highConfig = totalScore, config
+        end
+    end
 
-	-- print("Highest total score: " .. highName, highScore)
-
-	if not highConfig then
-		return nil
-	end
-
-	return highConfig
+    return highConfig
 end
+
 
 
 --TheorizeSet
 function addon.sortWeaponsByHandedness(myArmory)
-	local twoHanders, oneHanders, offHanders, rangedClassic = {}, {}, {}, {}
-	for k = 16, 18 do
-		for _, j in pairs(myArmory[k]) do
-			if k == 16 then
-				if j.equipLoc == "INVTYPE_2HWEAPON" or (addon.game == "RETAIL" and j.equipLoc == "INVTYPE_RANGED" or j.equipLoc == "INVTYPE_RANGEDRIGHT") then
-					table.insert(twoHanders, j)
-				else
-					table.insert(oneHanders, j)
-				end
-			elseif k == 17 then
-				table.insert(offHanders, j)
-			elseif k == 18 then
-				table.insert(rangedClassic, j)
-			end
-		end
-	end
-	return twoHanders, oneHanders, offHanders, rangedClassic
+    local twoHanders, oneHanders, offHanders, rangedClassic = {}, {}, {}, {}
+    
+    for k = 16, 18 do
+        if myArmory[k] then
+            for _, j in pairs(myArmory[k]) do
+                if k == 16 then
+                    if j.equipLoc == "INVTYPE_2HWEAPON" or (addon.game == "RETAIL" and (j.equipLoc == "INVTYPE_RANGED" or j.equipLoc == "INVTYPE_RANGEDRIGHT")) then
+                        table.insert(twoHanders, j)
+                    else
+                        table.insert(oneHanders, j)
+                    end
+                elseif k == 17 then
+                    table.insert(offHanders, j)
+                elseif k == 18 then
+                    table.insert(rangedClassic, j)
+                end
+            end
+        end
+    end
+    
+    return twoHanders, oneHanders, offHanders, rangedClassic
 end
+
 
 function addon.sortWeaponsByScore(weaponTypes)
 	for _, weaponType in ipairs(weaponTypes) do
@@ -122,20 +125,33 @@ function addon.getTrinketSet(myArmory)
 end
 
 function addon.TheorizeSet(myArmory)
-	local weaponSet, armorSet, ringSet, trinketSet = {}, {}, {}, {}
+    local weaponSet, armorSet, ringSet, trinketSet = {}, {}, {}, {}
 
-	local twoHanders, oneHanders, offHanders, rangedClassic = addon.sortWeaponsByHandedness(myArmory)
-	addon.sortWeaponsByScore({ twoHanders, oneHanders, offHanders, rangedClassic })
-	local configurations = addon.getWeaponConfigurations(twoHanders, oneHanders, offHanders)
-	weaponSet = SelectBestWeaponConfig(configurations) or {}
-	addon.assignSlotIds(weaponSet)
-	addon.insertRangedWeapon(weaponSet, rangedClassic)
+    -- Sort weapons by handedness
+    local twoHanders, oneHanders, offHanders, rangedClassic = addon.sortWeaponsByHandedness(myArmory)
+    
+    -- Sort weapons by score
+    addon.sortWeaponsByScore({ twoHanders, oneHanders, offHanders, rangedClassic })
+    
+    -- Get the best weapon configurations
+    local configurations = addon.getWeaponConfigurations(twoHanders, oneHanders, offHanders)
+    weaponSet = SelectBestWeaponConfig(configurations) or {}
+    
+    -- Assign slot IDs to the selected weapons
+    addon.assignSlotIds(weaponSet)
+    
+    -- Insert the best ranged weapon
+    addon.insertRangedWeapon(weaponSet, rangedClassic)
+    
+    -- Get the best armor set
+    armorSet = addon.getArmorSet(myArmory)
 
-	armorSet = addon.getArmorSet(myArmory)
+    -- Get the best ring set
+    ringSet = addon.getRingSet(myArmory)
 
-	ringSet = addon.getRingSet(myArmory)
+    -- Get the best trinket set
+    trinketSet = addon.getTrinketSet(myArmory)
 
-	trinketSet = addon.getTrinketSet(myArmory)
-
-	return weaponSet, armorSet, ringSet, trinketSet
+    return weaponSet, armorSet, ringSet, trinketSet
 end
+
