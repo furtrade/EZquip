@@ -67,7 +67,7 @@ end
 function addon.getWeaponConfigurations(twoHanders, oneHanders, offHanders)
 	return {
 		twoHandWeapon = { twoHanders[1] },
-		dualWielding = CanDualWield() and { oneHanders[1], oneHanders[2] } or {},
+		dualWielding = CanDualWield() and (IsPlayerSpell(46917) and { twoHanders[1], twoHanders[2] } or { oneHanders[1], oneHanders[2] }) or {}, -- SpellID 46917 is Fury Warrior's Titan's Grip passive.,
 		mainAndOffHand = { oneHanders[1], offHanders[1] },
 	}
 end
