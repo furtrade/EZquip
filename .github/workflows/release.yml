@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - main
-
     tags:
-      - '*'
-
+      - 'v*.*.*'
+      - 'v*.*.*-beta.*'
+      - 'v*.*.*-alpha.*'
     paths-ignore:
       - '.github/**'
 
@@ -19,14 +19,29 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  
+          fetch-depth: 0
+
+      - name: Determine release type
+        id: vars
+        run: |
+          if [[ $GITHUB_REF == refs/tags/v*.*.* ]]; then
+            echo "::set-output name=release_type::release"
+          elif [[ $GITHUB_REF == refs/tags/v*.*.*-beta.* ]]; then
+            echo "::set-output name=release_type::beta"
+          elif [[ $GITHUB_REF == refs/tags/v*.*.*-alpha.* ]]; then
+            echo "::set-output name=release_type::alpha"
+          else
+            echo "::set-output name=release_type::unknown"
+          fi
 
       - name: WoW Packager
         uses: BigWigsMods/packager@master
         with:
-          args:
+          args: |
             -g retail
+            -g classic
+            -r ${{ steps.vars.outputs.release_type }}
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
           WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}  
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
