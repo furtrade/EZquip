@@ -6,25 +6,44 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 addon.pawn = false
 
+local select = select
+local GetBuildInfo = GetBuildInfo
+local UnitClass = UnitClass
+local GetSpecialization = GetSpecialization
+local GetSpecializationInfo = GetSpecializationInfo
+local GetInventoryItemID = GetInventoryItemID
+local GetItemInfo = GetItemInfo
+local GetTime = GetTime
+local InCombatLockdown = InCombatLockdown
+local Settings = Settings
+local ClearCursor = ClearCursor
+
 local gameVersion = select(4, GetBuildInfo())
 addon.gameVersion = gameVersion
 
-if gameVersion > 90000 then
-    addon.game = "RETAIL"
-elseif gameVersion > 40000 then
+if gameVersion >= 100000 then
+    addon.game = "RETAIL" -- Current and future versions
+elseif gameVersion >= 90000 then
+    addon.game = "SHADOWLANDS"
+elseif gameVersion >= 80000 then
+    addon.game = "BFA"
+elseif gameVersion >= 70000 then
+    addon.game = "LEGION"
+elseif gameVersion >= 60000 then
+    addon.game = "WOD"
+elseif gameVersion >= 50000 then
+    addon.game = "MOP"
+elseif gameVersion >= 40000 then
     addon.game = "CATA"
-elseif gameVersion > 30000 then
+elseif gameVersion >= 30000 then
     addon.game = "WOTLK"
-elseif gameVersion > 20000 then
+elseif gameVersion >= 20000 then
     addon.game = "TBC"
 else
     addon.game = "CLASSIC"
 end
 
-local _G = _G
-
-local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or _G.GetAddOnMetadata
-addon.title = GetAddOnMetadata(addonName, "Title")
+addon.title = C_AddOns and C_AddOns.GetAddOnMetadata(addonName, "Title") or GetAddOnMetadata(addonName, "Title")
 
 addon.myArmory = {}
 addon.invSlots = {}
@@ -32,7 +51,6 @@ addon.bagSlots = {}
 
 addon.scaleName = nil
 addon.pawnCommonName = nil
-
 addon.classOrSpec = nil
 
 ----------------------------------------------------------------------
@@ -54,7 +72,7 @@ function addon:OnInitialize()
 end
 
 function addon:GetPlayerClassAndSpec()
-    local className, classFilename, classId = UnitClass("player") -- Get class name
+    local className = UnitClass("player") -- Get class name
 
     if addon.game == "RETAIL" then
         local specId = GetSpecialization() -- Get the current specialization ID
@@ -71,34 +89,38 @@ function addon:GetPlayerClassAndSpec()
     end
 end
 
-function addon:SlashCommand(input, editbox)
-    if input == "enable" then
-        self:Enable()
-        self:Print("Enabled.")
-    elseif input == "disable" then
-        -- unregisters all events and calls addon:OnDisable() if you defined that
-        self:Disable()
-        self:Print("Disabled.")
-    elseif input == "run" then
-        self:AdornSet()
-        self:Print("Running..")
-    else
-        -- self:Print("Options")
-        Settings.OpenToCategory(self.optionsFrame.name)
-    end
+function addon:SlashCommand(input)
+    local commands = {
+        enable = function()
+            self:Enable();
+            self:Print("Enabled.")
+        end,
+        disable = function()
+            self:Disable();
+            self:Print("Disabled.")
+        end,
+        run = function()
+            self:AdornSet();
+            self:Print("Running...")
+        end,
+        default = function()
+            Settings.OpenToCategory(self.optionsFrame.name)
+        end
+    }
+
+    (commands[input] or commands.default)()
 end
 
 function addon:OnEnable()
-    -- triggers
-    self:RegisterEvent("PLAYER_ENTERING_WORLD", "GetPlayerClassAndSpec")
-    self:RegisterEvent("PLAYER_LEVEL_UP", "autoTrigger")
-    self:RegisterEvent("QUEST_TURNED_IN", "autoTrigger")
-    self:RegisterEvent("LOOT_CLOSED", "autoTrigger")
-    self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "autoTrigger")
-    self:RegisterEvent("PLAYER_REGEN_ENABLED", "autoTrigger")
-    self:RegisterEvent("PLAYER_REGEN_DISABLED", "autoTrigger")
+    local events = {"PLAYER_ENTERING_WORLD", "PLAYER_LEVEL_UP", "QUEST_TURNED_IN", "LOOT_CLOSED",
+                    "ZONE_CHANGED_NEW_AREA", "PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED"}
+
+    for _, event in ipairs(events) do
+        self:RegisterEvent(event, "autoTrigger")
+    end
+
     if addon.game == "RETAIL" then
-        self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "GetPlayerClassAndSpec") -- should trigger on spec swap
+        self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "GetPlayerClassAndSpec")
     end
 end
 
@@ -107,13 +129,10 @@ local timeThreshold = 7 -- in seconds
 
 -- Event handler to automate the AdornSet() function.
 function addon:autoTrigger(event)
-    -- check if the player is in combat, if so return.
     if event == "PLAYER_REGEN_DISABLED" or InCombatLockdown() then
         return
     end
 
-    -- check if the player has a fishing pole equipped.
-    -- exception: auto equipping while fishing can be annoying.
     local itemId = GetInventoryItemID("player", 16)
     if itemId and select(7, GetItemInfo(itemId)) == "Fishing Poles" then
         return
@@ -127,15 +146,13 @@ function addon:autoTrigger(event)
     end
 end
 
--- Helper function to put items on.
+-- Helper function to equip items.
 function addon:PutTheseOn(theoreticalSet)
-    -- Check if theoreticalSet is not nil and not empty
     if not theoreticalSet or next(theoreticalSet) == nil then
         return
     end
 
     for _, item in pairs(theoreticalSet) do
-        -- Check if item properties are not nil
         if item and item.hex and item.slotId then
             local action = self:SetupEquipAction(item.hex, item.slotId)
             if action then
@@ -146,22 +163,30 @@ function addon:PutTheseOn(theoreticalSet)
 end
 
 function addon:AdornSet()
+    -- Get Pawn common name for scoring
     addon.GetPawnCommonName()
+
+    -- Initialize the armory table
     addon.myArmory = {}
     local myArmory = addon.myArmory
+
+    -- Update armory with current items
     addon:UpdateArmory()
-    -- Use myArmory to decide what to equip.
-    -- Theorize best sets of items.
+
+    -- Theorize the best sets of items to equip
     local weaponSet, armorSet, ringSet, trinketSet = addon.TheorizeSet(myArmory)
 
-    -- Put on the items that we want to equip.
+    -- Combine all sets into a single table
     local sets = {armorSet, ringSet, trinketSet, weaponSet}
 
+    -- Equip the items from each set
     for _, set in ipairs(sets) do
         if set then
             addon:PutTheseOn(set)
         end
     end
 
+    -- Clear the cursor to avoid holding any items
     ClearCursor()
 end
+
