@@ -17,19 +17,25 @@ local function GetSlotIdForEquipLoc(equipLoc)
 end
 
 function addon:EvaluateItem(dollOrBagIndex, slotIndex)
-    local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex)
-        or GetInventoryItemLink("player", dollOrBagIndex)
-    if not itemLink then return nil end
+    local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex) or
+                         GetInventoryItemLink("player", dollOrBagIndex)
+    if not itemLink then
+        return nil
+    end
 
     local itemID = tonumber(string.match(itemLink, "item:(%d+):"))
-    if not itemID then return nil end
+    if not itemID then
+        return nil
+    end
 
     local canUse = C_PlayerInfo.CanUseItem(itemID)
     local itemType, _, _, equipLoc = select(6, GetItemInfo(itemID))
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
         local slotId = GetSlotIdForEquipLoc(equipLoc)
-        if not slotId then return nil end
+        if not slotId then
+            return nil
+        end
 
         local slotEnabled = addon.db.profile.paperDoll["slot" .. slotId]
         local setId = select(16, GetItemInfo(itemID))
