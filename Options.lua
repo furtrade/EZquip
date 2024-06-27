@@ -29,25 +29,9 @@ addon.defaults = {
 
 addon.options = {
     type = "group",
-    name = addon.title, -- label 2
+    name = addon.title,
     handler = addon,
     args = {
-        --[[ importString = {
-			type = "input",
-			order = 2,
-			name = "Import String",
-			desc = "You can obtain this from addons like Pawn, or websites like Raidbots, or you can simply enter your own statweights seperated by commas. E.g. Agility=2.5, etc.",
-			width = "full",
-			set = "SetimportString",
-			get = "GetimportString",
-		}, ]]
-        --[[ importButton = {
-			type = "execute",
-			order = 2.1,
-			name = "Import",
-			desc = "Clear current stat weights and set them to the import string",
-			func = "SetImportedweights",
-		}, ]]
         selectScaleByName = {
             order = 2.02,
             type = "select",
@@ -68,260 +52,93 @@ addon.options = {
             desc = "This will scan your bags and equip the best items for your current stat weights",
             func = "AdornSet"
         },
-        AutBindToggle = {
+        AutoBindToggle = {
             order = 2.3,
             type = "toggle",
             name = "Auto Bind",
             desc = 'Automatically CONFIRM "Bind on Equip" and "Tradeable" items, etc. Not recommended for crafters/farmers/goblins.',
             get = function(info)
-                return addon.db.profile.autoBind
+                return addon.db.profile.options.AutoBindToggle
             end,
             set = function(info, value)
-                addon.db.profile.autoBind = value
+                addon.db.profile.options.AutoBindToggle = value
             end
         }
     }
 }
 
--- UI Options for toggling which inventory slots to use
+-- Helper function to create slot toggle options
+local function createSlotToggleOption(slotId, slotName, order, description, hidden)
+    return {
+        type = "toggle",
+        name = slotName,
+        order = order,
+        desc = description,
+        hidden = hidden,
+        get = function(info)
+            return addon.db.profile.paperDoll[slotId]
+        end,
+        set = function(info, value)
+            addon.db.profile.paperDoll[slotId] = value
+        end
+    }
+end
+
 addon.paperDoll = {
     type = "group",
     name = "Paper Doll",
     args = {
-        header1 = {
+        armorHeader = {
             type = "header",
             name = "Armor",
             order = 1
         },
-        slot1 = {
-            type = "toggle",
-            name = "Head",
-            order = 2.01,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot1
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot1 = value
-            end
-        },
-        slot2 = {
-            type = "toggle",
-            name = "Neck",
-            order = 3.051,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot2
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot2 = value
-            end
-        },
-        slot3 = {
-            type = "toggle",
-            name = "Shoulder",
-            order = 2.03,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot3
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot3 = value
-            end
-        },
-        slot15 = {
-            type = "toggle",
-            name = "Back",
-            order = 2.04,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot15
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot15 = value
-            end
-        },
-        slot5 = {
-            type = "toggle",
-            name = "Chest",
-            order = 2.05,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot5
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot5 = value
-            end
-        },
-        slot9 = {
-            type = "toggle",
-            name = "Wrist",
-            order = 2.06,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot9
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot9 = value
-            end
-        },
-        slot10 = {
-            type = "toggle",
-            name = "Hands",
-            order = 3.01,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot10
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot10 = value
-            end
-        },
-        slot6 = {
-            type = "toggle",
-            name = "Waist",
-            order = 3.02,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot6
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot6 = value
-            end
-        },
-        slot7 = {
-            type = "toggle",
-            name = "Legs",
-            order = 3.03,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot7
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot7 = value
-            end
-        },
-        slot8 = {
-            type = "toggle",
-            name = "Feet",
-            order = 3.04,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot8
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot8 = value
-            end
-        },
-        headerR = {
+        slot1 = createSlotToggleOption("slot1", "Head", 2.01, "Head slot"),
+        slot2 = createSlotToggleOption("slot2", "Neck", 3.051, "Neck slot"),
+        slot3 = createSlotToggleOption("slot3", "Shoulder", 2.03, "Shoulder slot"),
+        slot15 = createSlotToggleOption("slot15", "Back", 2.04, "Back slot"),
+        slot5 = createSlotToggleOption("slot5", "Chest", 2.05, "Chest slot"),
+        slot9 = createSlotToggleOption("slot9", "Wrist", 2.06, "Wrist slot"),
+        slot10 = createSlotToggleOption("slot10", "Hands", 3.01, "Hands slot"),
+        slot6 = createSlotToggleOption("slot6", "Waist", 3.02, "Waist slot"),
+        slot7 = createSlotToggleOption("slot7", "Legs", 3.03, "Legs slot"),
+        slot8 = createSlotToggleOption("slot8", "Feet", 3.04, "Feet slot"),
+        jewelleryHeader = {
             type = "header",
             name = "Jewellery",
             order = 3.05
         },
-        slot11 = {
-            type = "toggle",
-            name = "Rings",
-            order = 3.06,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot11
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot11 = value
-            end
-        },
-        slot12 = {
-            type = "toggle",
-            hidden = true,
-            name = "Finger2",
-            order = 3.07,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot12
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot12 = value
-            end
-        },
-        -- headerT = {
-        -- 	type = "header",
-        -- 	name = "Trinkets",
-        -- 	order = 4,
-        -- },
-        slot13 = {
-            type = "toggle",
+        slot11 = createSlotToggleOption("slot11", "Rings", 3.06, "Rings slot"),
+        slot12 = createSlotToggleOption("slot12", "Finger2", 3.07, "Finger2 slot", true),
+        trinketsHeader = {
+            type = "header",
             name = "Trinkets",
-            order = 4.01,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot13
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot13 = value
-            end
+            order = 4
         },
-        slot14 = {
-            type = "toggle",
-            hidden = true,
-            name = "Trinket2",
-            order = 4.02,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot14
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot14 = value
-            end
-        },
-        headerW = {
+        slot13 = createSlotToggleOption("slot13", "Trinkets", 4.01, "Trinkets slot"),
+        slot14 = createSlotToggleOption("slot14", "Trinket2", 4.02, "Trinket2 slot", true),
+        weaponsHeader = {
             type = "header",
             name = "Weapons",
             order = 5
         },
-        slot16 = {
-            type = "toggle",
-            name = "MainHand",
-            order = 5.03,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot16
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot16 = value
-            end
-        },
-        slot17 = {
-            type = "toggle",
-            name = "OffHand",
-            order = 5.04,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot17
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot17 = value
-            end
-        },
-        slot18 = {
-            type = "toggle",
-            name = "Ranged",
-            order = 5.05,
-            desc = "some description",
-            get = function(info)
-                return addon.db.profile.paperDoll.slot18
-            end,
-            set = function(info, value)
-                addon.db.profile.paperDoll.slot18 = value
-            end
-        }
+        slot16 = createSlotToggleOption("slot16", "MainHand", 5.03, "MainHand slot"),
+        slot17 = createSlotToggleOption("slot17", "OffHand", 5.04, "OffHand slot"),
+        slot18 = createSlotToggleOption("slot18", "Ranged", 5.05, "Ranged slot")
     }
 }
+
+-- Register the options table
+LibStub("AceConfig-3.0"):RegisterOptionsTable("MyAddon", addon.options)
+LibStub("AceConfig-3.0"):RegisterOptionsTable("MyAddon_PaperDoll", addon.paperDoll)
+addon.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyAddon", "MyAddon")
+LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyAddon_PaperDoll", "Paper Doll", "MyAddon")
 
 ----------------------------------------------------------------------
 -- Functions
 ----------------------------------------------------------------------
-function addon:GetValue(info) -- This will be called by the getter on the options table
-    return self.db.profile[info[#info]] -- self.db.profile is the database table, info[#info] is the key we're looking for.
+function addon:GetValue(info)
+    return self.db.profile[info[#info]]
 end
 
 function addon:SetValue(info, value)
@@ -329,28 +146,22 @@ function addon:SetValue(info, value)
 end
 
 function addon:GetValueForScale(info)
-    -- Check if 'getPawnScaleNames' is a function before calling it
     if type(self.getPawnScaleNames) == 'function' then
-        local values = self.getPawnScaleNames() -- Fetch the values table
-        local currentValue = self.db.profile[info[#info]] -- Get the current string value from the profile
-        for index, value in pairs(values) do -- Iterate over the 'values' table
+        local values = self.getPawnScaleNames()
+        local currentValue = self.db.profile[info[#info]]
+        for index, value in pairs(values) do
             if value == currentValue then
-                return index -- Return the index if a match is found
+                return index
             end
         end
     else
         print("getPawnScaleNames method is not defined in addon object")
     end
-    return nil -- Return nil if no match is found or 'getPawnScaleNames' is not a function
+    return nil
 end
 
 function addon:SetValueForScale(info, value)
-    -- print("Starting SetValueForScale function...")
-    local values = addon.getPawnScaleNames() -- Fetch the values table
-    -- print("Pawn scale names: ", table.concat(values, ', '))
-    local actualValue = values[value] -- Fetch the actual value from the 'values' table using 'value' as the index
-    -- print("Actual value: ", actualValue)
-    self.db.profile[info[#info]] = actualValue -- Set the actual value in the profile
-    -- print("Set value in profile: ", self.db.profile[info[#info]])
-    -- print("Finished SetValueForScale function.")
+    local values = addon.getPawnScaleNames()
+    local actualValue = values[value]
+    self.db.profile[info[#info]] = actualValue
 end
