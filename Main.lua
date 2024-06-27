@@ -6,42 +6,38 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 addon.pawn = false
 
-local select = select
-local GetBuildInfo = GetBuildInfo
-local UnitClass = UnitClass
-local GetSpecialization = GetSpecialization
-local GetSpecializationInfo = GetSpecializationInfo
-local GetInventoryItemID = GetInventoryItemID
-local GetItemInfo = GetItemInfo
-local GetTime = GetTime
-local InCombatLockdown = InCombatLockdown
-local Settings = Settings
-local ClearCursor = ClearCursor
+-- Localize global functions
+local select, ipairs, pairs, GetBuildInfo, UnitClass, GetSpecialization, GetSpecializationInfo, GetInventoryItemID,
+    GetItemInfo, GetTime, InCombatLockdown, Settings, ClearCursor = select, ipairs, pairs, GetBuildInfo, UnitClass,
+    GetSpecialization, GetSpecializationInfo, GetInventoryItemID, GetItemInfo, GetTime, InCombatLockdown, Settings,
+    ClearCursor
+
+-- Table lookup for game versions
+local gameVersionLookup = {
+    [100000] = "RETAIL",
+    [90000] = "SHADOWLANDS",
+    [80000] = "BFA",
+    [70000] = "LEGION",
+    [60000] = "WOD",
+    [50000] = "MOP",
+    [40000] = "CATA",
+    [30000] = "WOTLK",
+    [20000] = "TBC"
+}
 
 local gameVersion = select(4, GetBuildInfo())
 addon.gameVersion = gameVersion
 
-if gameVersion >= 100000 then
-    addon.game = "RETAIL" -- Current and future versions
-elseif gameVersion >= 90000 then
-    addon.game = "SHADOWLANDS"
-elseif gameVersion >= 80000 then
-    addon.game = "BFA"
-elseif gameVersion >= 70000 then
-    addon.game = "LEGION"
-elseif gameVersion >= 60000 then
-    addon.game = "WOD"
-elseif gameVersion >= 50000 then
-    addon.game = "MOP"
-elseif gameVersion >= 40000 then
-    addon.game = "CATA"
-elseif gameVersion >= 30000 then
-    addon.game = "WOTLK"
-elseif gameVersion >= 20000 then
-    addon.game = "TBC"
-else
-    addon.game = "CLASSIC"
+-- Find the appropriate game version
+for version, name in pairs(gameVersionLookup) do
+    if gameVersion >= version then
+        addon.game = name
+        break
+    end
 end
+
+-- Default to CLASSIC if no match found
+addon.game = addon.game or "CLASSIC"
 
 addon.title = C_AddOns and C_AddOns.GetAddOnMetadata(addonName, "Title") or GetAddOnMetadata(addonName, "Title")
 

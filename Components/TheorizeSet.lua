@@ -1,11 +1,14 @@
 local addonName, addon = ...
 
+-- Localize global functions
+local select, ipairs, pairs, table, math = select, ipairs, pairs, table, math
+local CanDualWield, IsPlayerSpell = CanDualWield, IsPlayerSpell
+
 -- Helper function for rings and trinkets
 function addon:CheckUniqueness(itemList, selectedItems)
     if not itemList or not selectedItems or #selectedItems == 0 then
         return
     end
-
     for i = 1, #itemList do
         if itemList[i].id ~= selectedItems[1].id then
             table.insert(selectedItems, 2, itemList[i])
@@ -18,25 +21,21 @@ end
 -- Helper function to select the best weapon configuration
 function addon:SelectBestWeaponConfig(configs)
     local highScore, highConfig = 0, nil
-
     for _, config in pairs(configs) do
         local totalScore = 0
         for _, item in ipairs(config) do
             totalScore = totalScore + math.max(item.score, 0)
         end
-
         if totalScore > highScore then
             highScore, highConfig = totalScore, config
         end
     end
-
     return highConfig
 end
 
 -- Sort weapons by handedness
 function addon:sortWeaponsByHandedness(myArmory)
     local twoHanders, oneHanders, offHanders, rangedClassic = {}, {}, {}, {}
-
     for slotId = 16, 18 do
         if myArmory[slotId] then
             for _, item in pairs(myArmory[slotId]) do
@@ -56,7 +55,6 @@ function addon:sortWeaponsByHandedness(myArmory)
             end
         end
     end
-
     return twoHanders, oneHanders, offHanders, rangedClassic
 end
 
@@ -70,7 +68,6 @@ end
 -- Get weapon configurations
 function addon:getWeaponConfigurations(twoHanders, oneHanders, offHanders)
     local configs = {}
-
     if twoHanders[1] then
         configs.twoHandWeapon = {twoHanders[1]}
     end
