@@ -53,54 +53,49 @@ addon.scaleName = nil
 addon.pawnCommonName = nil
 addon.classOrSpec = nil
 
-----------------------------------------------------------------------
--- Ace Interface
-----------------------------------------------------------------------
 function addon:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New(addon.title .. "DB", self.defaults)
-
+    self.db = LibStub("AceDB-3.0"):New(self.title .. "DB", self.defaults)
     self:GetPlayerClassAndSpec()
 
-    AceConfig:RegisterOptionsTable(addon.title .. "_Options", self.options)
-    self.optionsFrame = AceConfigDialog:AddToBlizOptions(addon.title .. "_Options", addon.title)
+    AceConfig:RegisterOptionsTable(self.title .. "_Options", self.options)
+    self.optionsFrame = AceConfigDialog:AddToBlizOptions(self.title .. "_Options", self.title)
 
-    AceConfig:RegisterOptionsTable(addon.title .. "_paperDoll", self.paperDoll)
-    AceConfigDialog:AddToBlizOptions(addon.title .. "_paperDoll", "Paper Doll", addon.title)
+    AceConfig:RegisterOptionsTable(self.title .. "_paperDoll", self.paperDoll)
+    AceConfigDialog:AddToBlizOptions(self.title .. "_paperDoll", "Paper Doll", self.title)
 
-    self:RegisterChatCommand(addon.title, "SlashCommand")
+    self:RegisterChatCommand(self.title, "SlashCommand")
     self:RegisterChatCommand("EZ", "SlashCommand")
 end
 
 function addon:GetPlayerClassAndSpec()
-    local className = UnitClass("player") -- Get class name
+    local className = UnitClass("player")
 
-    if addon.game == "RETAIL" then
-        local specId = GetSpecialization() -- Get the current specialization ID
-
+    if self.game == "RETAIL" then
+        local specId = GetSpecialization()
         if specId then
-            local specName = select(2, GetSpecializationInfo(specId)) -- Get spec name
+            local specName = select(2, GetSpecializationInfo(specId))
             self.db.char.className = className
             self.db.char.specName = specName
-            addon.classOrSpec = specName
+            self.classOrSpec = specName
         end
     else
         self.db.char.className = className
-        addon.classOrSpec = className
+        self.classOrSpec = className
     end
 end
 
 function addon:SlashCommand(input)
     local commands = {
         enable = function()
-            self:Enable();
+            self:Enable()
             self:Print("Enabled.")
         end,
         disable = function()
-            self:Disable();
+            self:Disable()
             self:Print("Disabled.")
         end,
         run = function()
-            self:AdornSet();
+            self:AdornSet()
             self:Print("Running...")
         end,
         default = function()
@@ -119,7 +114,7 @@ function addon:OnEnable()
         self:RegisterEvent(event, "autoTrigger")
     end
 
-    if addon.game == "RETAIL" then
+    if self.game == "RETAIL" then
         self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "GetPlayerClassAndSpec")
     end
 end
@@ -127,7 +122,6 @@ end
 local lastEventTime = {}
 local timeThreshold = 7 -- in seconds
 
--- Event handler to automate the AdornSet() function.
 function addon:autoTrigger(event)
     if event == "PLAYER_REGEN_DISABLED" or InCombatLockdown() then
         return
@@ -146,7 +140,6 @@ function addon:autoTrigger(event)
     end
 end
 
--- Helper function to equip items.
 function addon:PutTheseOn(theoreticalSet)
     if not theoreticalSet or next(theoreticalSet) == nil then
         return
@@ -163,30 +156,20 @@ function addon:PutTheseOn(theoreticalSet)
 end
 
 function addon:AdornSet()
-    -- Get Pawn common name for scoring
-    addon.GetPawnCommonName()
+    self:GetPawnCommonName()
+    self.myArmory = {}
+    local myArmory = self.myArmory
+    self:UpdateArmory()
 
-    -- Initialize the armory table
-    addon.myArmory = {}
-    local myArmory = addon.myArmory
+    local weaponSet, armorSet, ringSet, trinketSet = self:TheorizeSet(myArmory)
 
-    -- Update armory with current items
-    addon:UpdateArmory()
-
-    -- Theorize the best sets of items to equip
-    local weaponSet, armorSet, ringSet, trinketSet = addon.TheorizeSet(myArmory)
-
-    -- Combine all sets into a single table
     local sets = {armorSet, ringSet, trinketSet, weaponSet}
 
-    -- Equip the items from each set
     for _, set in ipairs(sets) do
         if set then
-            addon:PutTheseOn(set)
+            self:PutTheseOn(set)
         end
     end
 
-    -- Clear the cursor to avoid holding any items
     ClearCursor()
 end
-
