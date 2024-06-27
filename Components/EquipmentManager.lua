@@ -134,17 +134,44 @@ function addon:EquipContainerItem(action)
 
     PickupInventoryItem(action.slotId)
 
-    if self.db.profile.autoBind then
-        local button1 = _G["StaticPopup1Button1"]
-        if button1 then
-            button1:Click()
+    if StaticPopup1 and StaticPopup1:IsShown() then
+        if self.db.profile.autoBind then
+            self:ClickStaticPopupButton()
+        else
+            self.pendingAction = action
+            self:RegisterEvent("STATICPOPUP_HIDDEN", "OnStaticPopupHidden")
+            return false
         end
     end
 
-    self.bagSlots[action.bag][action.slot] = action.slotId
-    self.invSlots[action.slotId] = SLOT_LOCKED
-
+    self:FinalizeEquip(action)
     return true
+end
+
+-- Helper function to click the static popup button
+function addon:ClickStaticPopupButton()
+    local button1 = _G["StaticPopup1Button1"]
+    if button1 then
+        button1:Click()
+    end
+end
+
+-- Finalize the equipping process
+function addon:FinalizeEquip(action)
+    local bagSlots = self.bagSlots[action.bag]
+    bagSlots[action.slot] = action.slotId
+    self.invSlots[action.slotId] = SLOT_LOCKED
+end
+
+-- Event handler for when the static popup is hidden
+function addon:OnStaticPopupHidden()
+    self:UnregisterEvent("STATICPOPUP_HIDDEN")
+
+    -- Continue the equipping process once the popup is dismissed
+    if self.pendingAction then
+        self:FinalizeEquip(self.pendingAction)
+        self.pendingAction = nil
+    end
 end
 
 -- Equip an item from the inventory
