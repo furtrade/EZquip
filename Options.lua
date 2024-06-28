@@ -38,7 +38,7 @@ addon.options = {
             type = "select",
             style = "dropdown",
             name = "Pawn Scale",
-            desc = "Select a scale to use for equipping items",
+            desc = "A scale is used to score items based on their stats",
             width = "normal",
             values = function()
                 return addon.getPawnScaleNames() or {}
@@ -54,7 +54,7 @@ addon.options = {
             order = 2.2,
             type = "execute",
             name = "Equip!",
-            desc = "This will scan your bags and equip the best items for your current stat weights",
+            desc = "Scan your bags and equip the best items according to the stat weights of the selected scale",
             func = "AdornSet"
         },
         AutoBindToggle = {
