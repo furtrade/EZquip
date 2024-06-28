@@ -33,6 +33,46 @@ function addon:SelectBestWeaponConfig(configs)
     return highConfig
 end
 
+-- Get weapon configurations
+function addon:getWeaponConfigurations(twoHanders, oneHanders, offHanders)
+    local configs = {}
+
+    local function addConfig(name, ...)
+        configs[name] = {...}
+    end
+
+    -- Add two-hand weapon configuration
+    if twoHanders[1] then
+        addConfig("twoHandWeapon", twoHanders[1])
+    end
+
+    -- Add dual-wield configurations
+    if CanDualWield() then
+        if IsPlayerSpell(46917) then -- Titan's Grip
+            if twoHanders[1] and twoHanders[2] then
+                addConfig("dualTwoHanders", twoHanders[1], twoHanders[2])
+            end
+            if twoHanders[1] and oneHanders[1] then
+                addConfig("twoHanderAndOneHander", twoHanders[1], oneHanders[1])
+                addConfig("oneHanderAndTwoHander", oneHanders[1], twoHanders[1])
+            end
+        end
+        if oneHanders[1] and oneHanders[2] then
+            addConfig("dualOneHanders", oneHanders[1], oneHanders[2])
+        end
+    end
+
+    -- Add main-hand and off-hand configuration
+    if oneHanders[1] then
+        addConfig("mainHand", oneHanders[1])
+        if offHanders[1] then
+            addConfig("mainAndOffHand", oneHanders[1], offHanders[1])
+        end
+    end
+
+    return configs
+end
+
 -- Sort weapons by handedness
 function addon:sortWeaponsByHandedness(myArmory)
     local twoHanders, oneHanders, offHanders, rangedClassic = {}, {}, {}, {}
@@ -55,6 +95,7 @@ function addon:sortWeaponsByHandedness(myArmory)
             end
         end
     end
+
     return twoHanders, oneHanders, offHanders, rangedClassic
 end
 
@@ -65,33 +106,18 @@ function addon:sortWeaponsByScore(weaponTypes)
     end
 end
 
--- Get weapon configurations
-function addon:getWeaponConfigurations(twoHanders, oneHanders, offHanders)
-    local configs = {}
-    if twoHanders[1] then
-        configs.twoHandWeapon = {twoHanders[1]}
-    end
+-- Get best weapon configurations
+function addon:getBestWeaponConfigurations(myArmory)
+    local twoHanders, oneHanders, offHanders, rangedClassic = self:sortWeaponsByHandedness(myArmory)
+    self:sortWeaponsByScore({twoHanders, oneHanders, offHanders, rangedClassic})
 
-    if CanDualWield() then
-        if IsPlayerSpell(46917) then -- Titan's Grip
-            if twoHanders[1] and twoHanders[2] then
-                configs.dualTwoHanders = {twoHanders[1], twoHanders[2]}
-            end
-            if twoHanders[1] and oneHanders[1] then
-                configs.twoHanderAndOneHander = {twoHanders[1], oneHanders[1]}
-                configs.oneHanderAndTwoHander = {oneHanders[1], twoHanders[1]}
-            end
-        end
-        if oneHanders[1] and oneHanders[2] then
-            configs.dualOneHanders = {oneHanders[1], oneHanders[2]}
-        end
-    end
+    local configurations = self:getWeaponConfigurations(twoHanders, oneHanders, offHanders)
+    local bestConfig = self:SelectBestWeaponConfig(configurations) or {}
 
-    if oneHanders[1] and offHanders[1] then
-        configs.mainAndOffHand = {oneHanders[1], offHanders[1]}
-    end
+    self:assignSlotIds(bestConfig)
+    self:insertRangedWeapon(bestConfig, rangedClassic)
 
-    return configs
+    return bestConfig
 end
 
 -- Assign slot IDs to weapon set
@@ -150,20 +176,10 @@ end
 
 -- Theorize set
 function addon:TheorizeSet(myArmory)
-    local weaponSet, armorSet, ringSet, trinketSet = {}, {}, {}, {}
-
-    local twoHanders, oneHanders, offHanders, rangedClassic = self:sortWeaponsByHandedness(myArmory)
-    self:sortWeaponsByScore({twoHanders, oneHanders, offHanders, rangedClassic})
-
-    local configurations = self:getWeaponConfigurations(twoHanders, oneHanders, offHanders)
-    weaponSet = self:SelectBestWeaponConfig(configurations) or {}
-
-    self:assignSlotIds(weaponSet)
-    self:insertRangedWeapon(weaponSet, rangedClassic)
-
-    armorSet = self:getArmorSet(myArmory)
-    ringSet = self:getRingSet(myArmory)
-    trinketSet = self:getTrinketSet(myArmory)
+    local weaponSet = self:getBestWeaponConfigurations(myArmory)
+    local armorSet = self:getArmorSet(myArmory)
+    local ringSet = self:getRingSet(myArmory)
+    local trinketSet = self:getTrinketSet(myArmory)
 
     return weaponSet, armorSet, ringSet, trinketSet
 end

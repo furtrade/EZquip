@@ -181,6 +181,7 @@ function addon:EquipInventoryItem(action)
 
     if (self.game == "RETAIL" and not C_PaperDollInfo.CanCursorCanGoInSlot(action.slotId)) or
         IsInventoryItemLocked(action.slotId) then
+        print("EquipInventoryItem: Item cannot go in slot or slot is locked")
         return false
     end
 
@@ -346,6 +347,7 @@ function addon:EquipSet(setID)
 end
 
 -- Run an equip or unequip action
+-- Run an equip or unequip action
 function addon:RunAction(action)
     if UnitAffectingCombat("player") and not INVSLOTS_EQUIPABLE_IN_COMBAT[action.slotId] then
         return true
@@ -378,3 +380,4 @@ function addon:RunAction(action)
         end
     end
 end
+
