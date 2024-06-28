@@ -3,26 +3,27 @@ local addonName, addon = ...
 addon.defaults = {
     profile = {
         options = {
-            AutoBindToggle = false
+            AutoBindToggle = false,
+            selectedScale = nil
         },
         paperDoll = {
-            slot1 = true, -- INVSLOT_HEAD
-            slot2 = true, -- INVSLOT_NECK
-            slot3 = true, -- INVSLOT_SHOULDER
-            slot15 = true, -- INVSLOT_BACK
-            slot5 = true, -- INVSLOT_CHEST
-            slot9 = true, -- INVSLOT_WRIST
-            slot10 = true, -- INVSLOT_HAND
-            slot6 = true, -- INVSLOT_WAIST
-            slot7 = true, -- INVSLOT_LEGS
-            slot8 = true, -- INVSLOT_FEET
-            slot11 = true, -- INVSLOT_FINGER1
-            slot12 = true, -- INVSLOT_FINGER2
-            slot13 = true, -- INVSLOT_TRINKET1
-            slot14 = true, -- INVSLOT_TRINKET2
-            slot16 = true, -- INVSLOT_MAINHAND
-            slot17 = true, -- INVSLOT_OFFHAND
-            slot18 = true -- INVSLOT_RANGED
+            slot1 = true,
+            slot2 = true,
+            slot3 = true,
+            slot15 = true,
+            slot5 = true,
+            slot9 = true,
+            slot10 = true,
+            slot6 = true,
+            slot7 = true,
+            slot8 = true,
+            slot11 = true,
+            slot12 = true,
+            slot13 = true,
+            slot14 = true,
+            slot16 = true,
+            slot17 = true,
+            slot18 = true
         }
     }
 }
@@ -42,8 +43,12 @@ addon.options = {
             values = function()
                 return addon.getPawnScaleNames() or {}
             end,
-            get = "GetValueForScale",
-            set = "SetValueForScale"
+            get = function(info)
+                return addon:GetSelectedScale(info)
+            end,
+            set = function(info, value)
+                addon:SetSelectedScale(info, value)
+            end
         },
         runCodeButton = {
             order = 2.2,
@@ -67,7 +72,6 @@ addon.options = {
     }
 }
 
--- Helper function to create slot toggle options
 local function createSlotToggleOption(slotId, slotName, order, description, hidden)
     return {
         type = "toggle",
@@ -128,7 +132,6 @@ addon.paperDoll = {
     }
 }
 
--- Register the options table
 LibStub("AceConfig-3.0"):RegisterOptionsTable("MyAddon", addon.options)
 LibStub("AceConfig-3.0"):RegisterOptionsTable("MyAddon_PaperDoll", addon.paperDoll)
 addon.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyAddon", "MyAddon")
@@ -137,31 +140,63 @@ LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyAddon_PaperDoll", "Paper Doll
 ----------------------------------------------------------------------
 -- Functions
 ----------------------------------------------------------------------
-function addon:GetValue(info)
-    return self.db.profile[info[#info]]
-end
 
-function addon:SetValue(info, value)
-    self.db.profile[info[#info]] = value
-end
+function addon:GetSelectedScale(info)
+    local selectedScale = self.db.profile.options.selectedScale
+    -- print("Selected Scale:", selectedScale)
 
-function addon:GetValueForScale(info)
-    if type(self.getPawnScaleNames) == 'function' then
-        local values = self.getPawnScaleNames()
-        local currentValue = self.db.profile[info[#info]]
-        for index, value in pairs(values) do
-            if value == currentValue then
-                return index
-            end
-        end
-    else
-        print("getPawnScaleNames method is not defined in addon object")
+    -- Ensure default scale is set if not already selected
+    if not selectedScale then
+        self:DetermineDefaultScale()
+        selectedScale = self.db.profile.options.selectedScale
+        -- print("Default Scale Set:", selectedScale)
     end
+
+    -- Find the index of the selected scale in the values table
+    local values = self.getPawnScaleNames()
+    for index, scaleName in pairs(values) do
+        if scaleName == selectedScale then
+            return index
+        end
+    end
+
+    -- If no match found, return nil
     return nil
 end
 
-function addon:SetValueForScale(info, value)
-    local values = addon.getPawnScaleNames()
+function addon:SetSelectedScale(info, value)
+    local values = self.getPawnScaleNames()
     local actualValue = values[value]
-    self.db.profile[info[#info]] = actualValue
+    self.db.profile.options.selectedScale = actualValue
+end
+
+function addon:DetermineDefaultScale()
+    self:GetPlayerClassAndSpec() -- Ensure class and spec are up to date
+    local className = self.db.char.className
+    local specName = self.db.char.specName
+    local defaultScale = self:GetDefaultScaleForClassOrSpec(className, specName)
+    self.db.profile.options.selectedScale = defaultScale
+end
+
+function addon:GetDefaultScaleForClassOrSpec(className, specName)
+    local scaleNames = addon.getPawnScaleNames() or {}
+
+    -- Try to match "class: spec"
+    if specName then
+        for _, scaleName in ipairs(scaleNames) do
+            if scaleName:match("^" .. className .. ": " .. specName .. "$") then
+                return scaleName
+            end
+        end
+    end
+
+    -- If no match, try to match just "class"
+    for _, scaleName in ipairs(scaleNames) do
+        if scaleName:match("^" .. className) then
+            return scaleName
+        end
+    end
+
+    print("No match found")
+    return nil -- Fallback if no match found
 end

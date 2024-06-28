@@ -50,33 +50,37 @@ addon.pawnCommonName = nil
 addon.classOrSpec = nil
 
 function addon:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New(self.title .. "DB", self.defaults)
-    self:GetPlayerClassAndSpec()
+    self.db = LibStub("AceDB-3.0"):New(addon.title .. "DB", self.defaults)
 
-    AceConfig:RegisterOptionsTable(self.title .. "_Options", self.options)
-    self.optionsFrame = AceConfigDialog:AddToBlizOptions(self.title .. "_Options", self.title)
+    -- Delay getting player class and spec until the player is fully loaded
+    self:RegisterEvent("PLAYER_LOGIN", "InitializeClassAndSpec")
 
-    AceConfig:RegisterOptionsTable(self.title .. "_paperDoll", self.paperDoll)
-    AceConfigDialog:AddToBlizOptions(self.title .. "_paperDoll", "Paper Doll", self.title)
+    AceConfig:RegisterOptionsTable(addon.title .. "_Options", self.options)
+    self.optionsFrame = AceConfigDialog:AddToBlizOptions(addon.title .. "_Options", addon.title)
 
-    self:RegisterChatCommand(self.title, "SlashCommand")
+    AceConfig:RegisterOptionsTable(addon.title .. "_paperDoll", self.paperDoll)
+    AceConfigDialog:AddToBlizOptions(addon.title .. "_paperDoll", "Paper Doll", addon.title)
+
+    self:RegisterChatCommand(addon.title, "SlashCommand")
     self:RegisterChatCommand("EZ", "SlashCommand")
+end
+
+function addon:InitializeClassAndSpec()
+    self:GetPlayerClassAndSpec()
+    -- Unregister the event after initialization
+    self:UnregisterEvent("PLAYER_LOGIN")
 end
 
 function addon:GetPlayerClassAndSpec()
     local className = UnitClass("player")
+    self.db.char.className = className
 
-    if self.game == "RETAIL" then
-        local specId = GetSpecialization()
-        if specId then
-            local specName = select(2, GetSpecializationInfo(specId))
-            self.db.char.className = className
-            self.db.char.specName = specName
-            self.classOrSpec = specName
-        end
+    local specId = GetSpecialization()
+    if specId then
+        local specName = select(2, GetSpecializationInfo(specId))
+        self.db.char.specName = specName
     else
-        self.db.char.className = className
-        self.classOrSpec = className
+        self.db.char.specName = nil
     end
 end
 
