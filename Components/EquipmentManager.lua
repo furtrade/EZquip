@@ -8,14 +8,6 @@ local ITEM_EQUIP = 1
 local ITEM_UNEQUIP = 2
 local ITEM_SWAPBLAST = 3
 
--- Localized frequently used globals
-local pairs, ipairs = pairs, ipairs
-local bit = bit
-local C_Container = C_Container
-local GetItemInfo, PickupInventoryItem, ClearCursor = GetItemInfo, PickupInventoryItem, ClearCursor
-local IsInventoryItemLocked, InCombatLockdown = IsInventoryItemLocked, InCombatLockdown
-local GetInventoryItemID, GetInventoryItemCount = GetInventoryItemID, GetInventoryItemCount
-
 for dollOrBagIndex = 0, 4 do
     addon.bagSlots[dollOrBagIndex] = {}
 end
@@ -32,7 +24,7 @@ function addon:HexItem(dollOrBagIndex, slotIndex)
     if bagType == 0 then
         location = ITEM_INVENTORY_LOCATION_BAGS
     elseif bagType == 1 then
-        location = ITEM_INVENTORY_LOCATION_BANKBAGS
+        location = ITEM_INVENTORY_LOCATION_BANK
     else
         return nil
     end
@@ -306,7 +298,7 @@ function addon:GetItemInfoByHex(hex)
     elseif not bags then
         itemID = GetInventoryItemID("player", slot)
         isBound = true
-        name, _, _, _, _, _, _, _, invType, textureName = GetItemInfo(itemID)
+        name, _, _, _, _, _, _, _, invType, textureName = C_Item.GetItemInfo(itemID)
         if textureName then
             count = GetInventoryItemCount("player", slot)
             durability, maxDurability = GetInventoryItemDurability(slot)
@@ -318,7 +310,7 @@ function addon:GetItemInfoByHex(hex)
         end
     else
         itemID = C_Container.GetContainerItemID(bag, slot)
-        name, _, _, _, _, _, _, _, invType = GetItemInfo(itemID)
+        name, _, _, _, _, _, _, _, invType = C_Item.GetItemInfo(itemID)
         local info = C_Container.GetContainerItemInfo(bag, slot)
         textureName = info.iconFileID
         count = info.stackCount

@@ -29,7 +29,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     end
 
     local canUse = C_PlayerInfo.CanUseItem(itemID)
-    local itemType, _, _, equipLoc = select(6, GetItemInfo(itemID))
+    local itemType, _, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
         local slotId = GetSlotIdForEquipLoc(equipLoc)
@@ -38,7 +38,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
         end
 
         local slotEnabled = addon.db.profile.paperDoll["slot" .. slotId]
-        local setId = select(16, GetItemInfo(itemID))
+        local setId = select(16, C_Item.GetItemInfo(itemID))
 
         local itemInfo = {
             name = C_Item.GetItemNameByID(itemID),

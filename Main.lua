@@ -6,15 +6,10 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 addon.pawn = false
 
--- Localize global functions
-local select, ipairs, pairs, GetBuildInfo, UnitClass, GetSpecialization, GetSpecializationInfo, GetInventoryItemID,
-    GetItemInfo, GetTime, InCombatLockdown, Settings, ClearCursor = select, ipairs, pairs, GetBuildInfo, UnitClass,
-    GetSpecialization, GetSpecializationInfo, GetInventoryItemID, GetItemInfo, GetTime, InCombatLockdown, Settings,
-    ClearCursor
-
 -- Table lookup for game versions
 local gameVersionLookup = {
-    [100000] = "RETAIL",
+    [110000] = "RETAIL",
+    [100000] = "DRAGONFLIGHT",
     [90000] = "SHADOWLANDS",
     [80000] = "BFA",
     [70000] = "LEGION",
@@ -39,7 +34,7 @@ end
 -- Default to CLASSIC if no match found
 addon.game = addon.game or "CLASSIC"
 
-addon.title = C_AddOns and C_AddOns.GetAddOnMetadata(addonName, "Title") or GetAddOnMetadata(addonName, "Title")
+addon.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
 
 addon.myArmory = {}
 addon.invSlots = {}
@@ -128,7 +123,7 @@ function addon:autoTrigger(event)
     end
 
     local itemId = GetInventoryItemID("player", 16)
-    if itemId and select(7, GetItemInfo(itemId)) == "Fishing Poles" then
+    if itemId and select(7, C_Item.GetItemInfo(itemId)) == "Fishing Poles" then
         return
     end
 
