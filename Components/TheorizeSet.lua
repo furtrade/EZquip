@@ -18,8 +18,8 @@ function addon:CheckUniqueness(itemList, selectedItems)
     end
 end
 
--- Helper function to select the best weapon configuration
-function addon:SelectBestWeaponConfig(configs)
+-- Helper function to select the best configuration
+function addon:SelectBestConfig(configs)
     local highScore, highConfig = 0, nil
     for _, config in pairs(configs) do
         local totalScore = 0
@@ -33,41 +33,59 @@ function addon:SelectBestWeaponConfig(configs)
     return highConfig
 end
 
+-- Utility function to get the best items for a given slot
+function addon:getBestItems(itemList, count)
+    local bestItems = {}
+    for _, item in ipairs(itemList) do
+        if #bestItems < count then
+            table.insert(bestItems, item)
+        else
+            for i = 1, count do
+                if item.score > bestItems[i].score then
+                    bestItems[i] = item
+                    break
+                end
+            end
+        end
+    end
+    return bestItems
+end
+
 -- Get weapon configurations
 function addon:getWeaponConfigurations(twoHanders, oneHanders, offHanders)
     local configs = {}
 
-    local function addConfig(name, ...)
-        configs[name] = {...}
+    local function addConfig(...)
+        table.insert(configs, {...})
     end
 
     -- Add two-hand weapon configuration
     if twoHanders[1] then
-        addConfig("twoHandWeapon", twoHanders[1])
+        addConfig(twoHanders[1])
     end
 
     -- Add dual-wield configurations
     if CanDualWield() then
         if IsPlayerSpell(46917) then -- Titan's Grip
             if twoHanders[1] and twoHanders[2] then
-                addConfig("dualTwoHanders", twoHanders[1], twoHanders[2])
+                addConfig(twoHanders[1], twoHanders[2])
             end
             if twoHanders[1] and oneHanders[1] then
-                addConfig("twoHanderAndOneHander", twoHanders[1], oneHanders[1])
-                addConfig("oneHanderAndTwoHander", oneHanders[1], twoHanders[1])
+                addConfig(twoHanders[1], oneHanders[1])
+                addConfig(oneHanders[1], twoHanders[1])
             end
         end
         if oneHanders[1] and oneHanders[2] then
-            addConfig("dualOneHanders", oneHanders[1], oneHanders[2])
+            addConfig(oneHanders[1], oneHanders[2])
         end
     end
 
     -- Add main-hand and off-hand configuration
     if oneHanders[1] then
-        addConfig("mainHand", oneHanders[1])
         if offHanders[1] then
-            addConfig("mainAndOffHand", oneHanders[1], offHanders[1])
+            addConfig(oneHanders[1], offHanders[1])
         end
+        addConfig(oneHanders[1])
     end
 
     return configs
@@ -75,7 +93,12 @@ end
 
 -- Sort weapons by handedness
 function addon:sortWeaponsByHandedness(myArmory)
-    local twoHanders, oneHanders, offHanders, rangedClassic = {}, {}, {}, {}
+    local sortedWeapons = {
+        twoHanders = {},
+        oneHanders = {},
+        offHanders = {},
+        rangedClassic = {}
+    }
     for slotId = 16, 18 do
         if myArmory[slotId] then
             for _, item in pairs(myArmory[slotId]) do
@@ -83,60 +106,49 @@ function addon:sortWeaponsByHandedness(myArmory)
                     if item.equipLoc == "INVTYPE_2HWEAPON" or
                         (self.game == "RETAIL" and
                             (item.equipLoc == "INVTYPE_RANGED" or item.equipLoc == "INVTYPE_RANGEDRIGHT")) then
-                        table.insert(twoHanders, item)
+                        table.insert(sortedWeapons.twoHanders, item)
                     else
-                        table.insert(oneHanders, item)
+                        table.insert(sortedWeapons.oneHanders, item)
                     end
                 elseif slotId == 17 then
-                    table.insert(offHanders, item)
+                    table.insert(sortedWeapons.offHanders, item)
                 elseif slotId == 18 then
-                    table.insert(rangedClassic, item)
+                    table.insert(sortedWeapons.rangedClassic, item)
                 end
             end
         end
     end
 
-    return twoHanders, oneHanders, offHanders, rangedClassic
-end
-
--- Sort weapons by score
-function addon:sortWeaponsByScore(weaponTypes)
-    for _, weaponType in ipairs(weaponTypes) do
-        self:sortTableByScore(weaponType)
-    end
+    return sortedWeapons
 end
 
 -- Get best weapon configurations
 function addon:getBestWeaponConfigurations(myArmory)
-    local twoHanders, oneHanders, offHanders, rangedClassic = self:sortWeaponsByHandedness(myArmory)
-    self:sortWeaponsByScore({twoHanders, oneHanders, offHanders, rangedClassic})
+    local weapons = self:sortWeaponsByHandedness(myArmory)
+    local twoHanders = self:getBestItems(weapons.twoHanders, 2)
+    local oneHanders = self:getBestItems(weapons.oneHanders, 2)
+    local offHanders = self:getBestItems(weapons.offHanders, 1)
+    local rangedClassic = self:getBestItems(weapons.rangedClassic, 1)
 
     local configurations = self:getWeaponConfigurations(twoHanders, oneHanders, offHanders)
-    local bestConfig = self:SelectBestWeaponConfig(configurations) or {}
+    local bestConfig = self:SelectBestConfig(configurations) or {}
 
-    self:assignSlotIds(bestConfig)
-    self:insertRangedWeapon(bestConfig, rangedClassic)
+    self:assignSlotIdsAndInsertRanged(bestConfig, rangedClassic)
 
     return bestConfig
 end
 
--- Assign slot IDs to weapon set
-function addon:assignSlotIds(weaponSet)
+-- Assign slot IDs and insert ranged weapon
+function addon:assignSlotIdsAndInsertRanged(weaponSet, rangedClassic)
     if weaponSet[1] then
         weaponSet[1].slotId = 16
     end
     if weaponSet[2] then
         weaponSet[2].slotId = 17
     end
-end
-
--- Insert ranged weapon
-function addon:insertRangedWeapon(weaponSet, rangedClassic)
     if rangedClassic[1] then
-        table.insert(weaponSet, 3, rangedClassic[1])
-        if weaponSet[3] then
-            weaponSet[3].slotId = 18
-        end
+        table.insert(weaponSet, rangedClassic[1])
+        weaponSet[#weaponSet].slotId = 18
     end
 end
 
@@ -144,34 +156,29 @@ end
 function addon:getArmorSet(myArmory)
     local armorSet = {}
     for slotId = 1, 15 do
-        local armor = myArmory[slotId]
-        if (slotId <= 10 and slotId ~= 4) or slotId == 15 then
-            table.insert(armorSet, armor[1])
+        if myArmory[slotId] then
+            table.insert(armorSet, myArmory[slotId][1])
         end
     end
     return armorSet
 end
 
+-- General function for ring and trinket sets
+function addon:getItemSet(myArmory, slotId)
+    local items = myArmory[slotId] or {}
+    local bestItems = self:getBestItems(items, 2)
+    self:CheckUniqueness(items, bestItems)
+    return bestItems
+end
+
 -- Get ring set
 function addon:getRingSet(myArmory)
-    local ringSet = {}
-    local rings = myArmory[11]
-    if rings[1] then
-        table.insert(ringSet, rings[1])
-        self:CheckUniqueness(rings, ringSet)
-    end
-    return ringSet
+    return self:getItemSet(myArmory, 11)
 end
 
 -- Get trinket set
 function addon:getTrinketSet(myArmory)
-    local trinketSet = {}
-    local trinkets = myArmory[13]
-    if trinkets[1] then
-        table.insert(trinketSet, trinkets[1])
-        self:CheckUniqueness(trinkets, trinketSet)
-    end
-    return trinketSet
+    return self:getItemSet(myArmory, 13)
 end
 
 -- Theorize set
