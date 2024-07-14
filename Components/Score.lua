@@ -4,43 +4,36 @@ local addonName, addon = ...
 function addon.getPawnScaleNames()
     local scales = PawnGetAllScalesEx()
     local scaleNames = {}
-    for _, t in ipairs(scales) do
-        table.insert(scaleNames, t["LocalizedName"])
+    for i = 1, #scales do
+        scaleNames[i] = scales[i].LocalizedName
     end
     return scaleNames
 end
 
 -- Get the selected Pawn common scale name.
 function addon.GetPawnCommonName()
-    -- Retrieve the selected scale from the options table
     addon.scaleName = addon.db.profile.options.selectedScale
 
-    -- Convert localized scale name to Pawn's Common scale name
-    local found = false
     for commonScale, scaleDat in pairs(PawnCommon.Scales) do
         for _, v in pairs(scaleDat) do
             if v == addon.scaleName then
                 addon.pawnCommonName = commonScale
-                found = true
-                break
+                return
             end
         end
-        if found then
-            break
-        end
     end
-    if not found then
-        addon.pawnCommonName = addon.scaleName
-    end
+    addon.pawnCommonName = addon.scaleName
 end
 
 function addon:ScoreItem(itemLink)
-    local score = 0
-
-    local pawnDat = PawnGetItemData(itemLink)
-    if pawnDat and addon.pawnCommonName then
-        score = PawnGetSingleValueFromItem(pawnDat, addon.pawnCommonName)
+    if not addon.pawnCommonName then
+        return 0
     end
 
-    return score
+    local pawnDat = PawnGetItemData(itemLink)
+    if not pawnDat then
+        return 0
+    end
+
+    return PawnGetSingleValueFromItem(pawnDat, addon.pawnCommonName) or 0
 end
