@@ -19,10 +19,8 @@ local gameVersionLookup = {
     [30000] = "WOTLK",
     [20000] = "TBC"
 }
-
 local gameVersion = select(4, GetBuildInfo())
 addon.gameVersion = gameVersion
-
 -- Find the appropriate game version
 for version, name in pairs(gameVersionLookup) do
     if gameVersion >= version then
