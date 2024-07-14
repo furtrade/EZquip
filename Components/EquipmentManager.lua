@@ -8,6 +8,8 @@ local ITEM_EQUIP = 1
 local ITEM_UNEQUIP = 2
 local ITEM_SWAPBLAST = 3
 
+-- Ensure bagSlots is initialized before this code runs
+addon.bagSlots = addon.bagSlots or {}
 for dollOrBagIndex = 0, 4 do
     addon.bagSlots[dollOrBagIndex] = {}
 end

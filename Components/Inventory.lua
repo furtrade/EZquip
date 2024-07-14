@@ -10,7 +10,7 @@ local function GetSlotIdForEquipLoc(equipLoc)
     local slotArray = addon.ItemEquipLocToInvSlotID[equipLoc]
     if slotArray and #slotArray > 0 then
         local slotId = slotArray[1]
-        return (slotId == 18 and addon.game == "RETAIL") and 16 or slotId
+        return (slotId == 18 and addon.gameVersion >= 4000) and 16 or slotId
     end
 
     return nil
