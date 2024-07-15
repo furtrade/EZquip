@@ -132,11 +132,6 @@ addon.paperDoll = {
     }
 }
 
-LibStub("AceConfig-3.0"):RegisterOptionsTable("MyAddon", addon.options)
-LibStub("AceConfig-3.0"):RegisterOptionsTable("MyAddon_PaperDoll", addon.paperDoll)
-addon.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyAddon", "MyAddon")
-LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyAddon_PaperDoll", "Paper Doll", "MyAddon")
-
 ----------------------------------------------------------------------
 -- Functions
 ----------------------------------------------------------------------

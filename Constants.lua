@@ -34,3 +34,17 @@ addon.ItemEquipLocToInvSlotID = {
     ["INVTYPE_RANGEDRIGHT"] = {18} -- This should be 18 for classic
 }
 
+addon.gameVersionLookup = {
+    [110000] = "RETAIL",
+    [100000] = "DRAGONFLIGHT",
+    [90000] = "SHADOWLANDS",
+    [80000] = "BFA",
+    [70000] = "LEGION",
+    [60000] = "WOD",
+    [50000] = "MOP",
+    [40000] = "CATA",
+    [30000] = "WOTLK",
+    [20000] = "TBC"
+}
+
+addon.timeThreshold = 7 -- in seconds

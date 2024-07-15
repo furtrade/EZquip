@@ -4,25 +4,16 @@ addon = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "AceEvent-3.0", "AceC
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
+-- Import constants from Constants.lua
+-- Ensure Constants.lua is loaded before this script in your TOC file
+
 addon.pawn = false
 
--- Table lookup for game versions
-local gameVersionLookup = {
-    [110000] = "RETAIL",
-    [100000] = "DRAGONFLIGHT",
-    [90000] = "SHADOWLANDS",
-    [80000] = "BFA",
-    [70000] = "LEGION",
-    [60000] = "WOD",
-    [50000] = "MOP",
-    [40000] = "CATA",
-    [30000] = "WOTLK",
-    [20000] = "TBC"
-}
 local gameVersion = select(4, GetBuildInfo())
 addon.gameVersion = gameVersion
+
 -- Find the appropriate game version
-for version, name in pairs(gameVersionLookup) do
+for version, name in pairs(addon.gameVersionLookup) do
     if gameVersion >= version then
         addon.game = name
         break
@@ -113,7 +104,6 @@ function addon:OnEnable()
 end
 
 local lastEventTime = {}
-local timeThreshold = 7 -- in seconds
 
 function addon:autoTrigger(event)
     if event == "PLAYER_REGEN_DISABLED" or InCombatLockdown() then
@@ -127,7 +117,7 @@ function addon:autoTrigger(event)
 
     local currentTime = GetTime()
 
-    if not lastEventTime[event] or (currentTime - lastEventTime[event] > timeThreshold) then
+    if not lastEventTime[event] or (currentTime - lastEventTime[event] > addon.timeThreshold) then
         self:AdornSet()
         lastEventTime[event] = currentTime
     end

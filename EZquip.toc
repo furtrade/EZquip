@@ -29,9 +29,9 @@ Libs\AceComm-3.0\AceComm-3.0.xml
 Libs\AceTab-3.0\AceTab-3.0.xml
 Libs\AceSerializer-3.0\AceSerializer-3.0.xml
 
-Main.lua
-Options.lua
 Constants.lua
+Options.lua
+Main.lua
 
 Components\EquipmentManager.lua
 Components\Inventory.lua
