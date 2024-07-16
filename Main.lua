@@ -138,6 +138,24 @@ function addon:PutTheseOn(theoreticalSet)
     end
 end
 
+addon.WeaponHandler = addon.WeaponHandler or {}
+addon.ArmorHandler = addon.ArmorHandler or {}
+addon.AccessoryHandler = addon.AccessoryHandler or {}
+
+-- Load other modules
+local WeaponHandler = addon.WeaponHandler
+local ArmorHandler = addon.ArmorHandler
+local AccessoryHandler = addon.AccessoryHandler
+
+function addon:TheorizeSet(myArmory)
+    local sortedWeapons = WeaponHandler:sortWeapons(myArmory)
+    local weaponSet = WeaponHandler:getBestConfigs(sortedWeapons)
+    local armorSet = ArmorHandler:getBestArmor(myArmory)
+    local ringSet = AccessoryHandler:getBestItems(myArmory, 11)
+    local trinketSet = AccessoryHandler:getBestItems(myArmory, 13)
+    return weaponSet, armorSet, ringSet, trinketSet
+end
+
 function addon:AdornSet()
     self:GetPawnCommonName()
     self.myArmory = {}
