@@ -60,12 +60,8 @@ function addon.sortTableByScore(items)
     table.sort(items, function(a, b)
         if a.score and b.score then
             return a.score > b.score
-        elseif a.score then
-            return true
-        elseif b.score then
-            return false
         else
-            return false
+            return a.score ~= nil
         end
     end)
 end
