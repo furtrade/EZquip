@@ -137,40 +137,36 @@ function addon:PutTheseOn(theoreticalSet)
         end
     end
 end
-
+-- Initialize addon handlers if not already set
 addon.WeaponHandler = addon.WeaponHandler or {}
 addon.ArmorHandler = addon.ArmorHandler or {}
 addon.AccessoryHandler = addon.AccessoryHandler or {}
 
--- Load other modules
-local WeaponHandler = addon.WeaponHandler
-local ArmorHandler = addon.ArmorHandler
-local AccessoryHandler = addon.AccessoryHandler
-
+-- Function to get best sets for weapons, armor, rings, and trinkets
 function addon:TheorizeSet(myArmory)
-    local sortedWeapons = WeaponHandler:sortWeapons(myArmory)
-    local weaponSet = WeaponHandler:getBestConfigs(sortedWeapons)
-    local armorSet = ArmorHandler:getBestArmor(myArmory)
-    local ringSet = AccessoryHandler:getBestItems(myArmory, 11)
-    local trinketSet = AccessoryHandler:getBestItems(myArmory, 13)
+    local weaponSet = addon.WeaponHandler:getBestConfigs(addon.WeaponHandler:sortWeapons(myArmory))
+    local armorSet = addon.ArmorHandler:getBestArmor(myArmory)
+    local ringSet = addon.AccessoryHandler:getBestItems(myArmory, 11)
+    local trinketSet = addon.AccessoryHandler:getBestItems(myArmory, 13)
     return weaponSet, armorSet, ringSet, trinketSet
 end
 
+-- Function to update armory and equip the best sets
 function addon:AdornSet()
     self:GetPawnCommonName()
-    self.myArmory = {}
-    local myArmory = self.myArmory
     self:UpdateArmory()
 
-    local weaponSet, armorSet, ringSet, trinketSet = self:TheorizeSet(myArmory)
+    local weaponSet, armorSet, ringSet, trinketSet = self:TheorizeSet(self.myArmory)
 
-    local sets = {armorSet, ringSet, trinketSet, weaponSet}
+    self:EquipSets({weaponSet, armorSet, ringSet, trinketSet})
+    ClearCursor()
+end
 
+-- Function to equip the given sets
+function addon:EquipSets(sets)
     for _, set in ipairs(sets) do
         if set then
             self:PutTheseOn(set)
         end
     end
-
-    ClearCursor()
 end
