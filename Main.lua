@@ -36,16 +36,18 @@ addon.classOrSpec = nil
 function addon:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New(addon.title .. "DB", self.defaults)
 
-    -- Delay getting player class and spec until the player is fully loaded
+    self:InitializeOptions()
+    self:InitializePaperDoll()
+
     self:RegisterEvent("PLAYER_LOGIN", "InitializeClassAndSpec")
 
-    AceConfig:RegisterOptionsTable(addon.title .. "_Options", self.options)
-    self.optionsFrame = AceConfigDialog:AddToBlizOptions(addon.title .. "_Options", addon.title)
+    AceConfig:RegisterOptionsTable(self.title .. "_Options", self.options)
+    self.optionsFrame = AceConfigDialog:AddToBlizOptions(self.title .. "_Options", self.title)
 
-    AceConfig:RegisterOptionsTable(addon.title .. "_paperDoll", self.paperDoll)
-    AceConfigDialog:AddToBlizOptions(addon.title .. "_paperDoll", "Paper Doll", addon.title)
+    AceConfig:RegisterOptionsTable(self.title .. "_paperDoll", self.paperDoll)
+    AceConfigDialog:AddToBlizOptions(self.title .. "_paperDoll", "Paper Doll", self.title)
 
-    self:RegisterChatCommand(addon.title, "SlashCommand")
+    self:RegisterChatCommand(self.title, "SlashCommand")
     self:RegisterChatCommand("EZ", "SlashCommand")
 end
 
