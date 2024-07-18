@@ -7,23 +7,7 @@ addon.defaults = {
             selectedScale = nil
         },
         paperDoll = {
-            slot1 = true,
-            slot2 = true,
-            slot3 = true,
-            slot15 = true,
-            slot5 = true,
-            slot9 = true,
-            slot10 = true,
-            slot6 = true,
-            slot7 = true,
-            slot8 = true,
-            slot11 = true,
-            slot12 = true,
-            slot13 = true,
-            slot14 = true,
-            slot16 = true,
-            slot17 = true,
-            slot18 = true
+            ['*'] = true
         }
     }
 }
