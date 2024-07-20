@@ -94,20 +94,15 @@ function addon:InitializePaperDoll()
             slot6 = createSlotToggleOption("slot6", "Waist", 3.02, "Waist slot"),
             slot7 = createSlotToggleOption("slot7", "Legs", 3.03, "Legs slot"),
             slot8 = createSlotToggleOption("slot8", "Feet", 3.04, "Feet slot"),
-            jewelleryHeader = {
+            accessoriesHeader = {
                 type = "header",
-                name = "Jewellery",
+                name = "Accessories",
                 order = 3.05
             },
-            slot11 = createSlotToggleOption("slot11", "Rings", 3.06, "Rings slot"),
-            slot12 = createSlotToggleOption("slot12", "Finger2", 3.07, "Finger2 slot", true),
-            trinketsHeader = {
-                type = "header",
-                name = "Trinkets",
-                order = 4
-            },
-            slot13 = createSlotToggleOption("slot13", "Trinkets", 4.01, "Trinkets slot"),
-            slot14 = createSlotToggleOption("slot14", "Trinket2", 4.02, "Trinket2 slot", true),
+            slot11 = createSlotToggleOption("slot11", "Ring 1", 3.06, "Ring slot 1"),
+            slot12 = createSlotToggleOption("slot12", "Ring 2", 3.07, "Ring slot 2"),
+            slot13 = createSlotToggleOption("slot13", "Trinket 1", 4.01, "Trinket slot 1"),
+            slot14 = createSlotToggleOption("slot14", "Trinket 2", 4.02, "Trinket slot 2"),
             weaponsHeader = {
                 type = "header",
                 name = "Weapons",

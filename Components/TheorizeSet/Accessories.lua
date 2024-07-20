@@ -4,35 +4,56 @@ addon.AccessoryHandler = addon.AccessoriesHandler or {}
 
 local AccessoryHandler = addon.AccessoryHandler
 
-local function selectBestItemsAcrossSlots(myArmory, slots)
-    local combinedItems = {}
+-- Function to collect items from specified slots
+local function collectItemsForSlots(myArmory, slots)
+    local items = {}
     for _, slotId in ipairs(slots) do
         for _, item in ipairs(myArmory[slotId] or {}) do
-            table.insert(combinedItems, item)
+            table.insert(items, item)
         end
     end
+    return items
+end
 
-    table.sort(combinedItems, function(a, b)
+-- Function to select the best items based on scores
+local function selectBestItems(items)
+    table.sort(items, function(a, b)
         return a.score > b.score
     end)
+    return items[1], items[2] -- Return best and second best items
+end
 
+-- Function to assign items to active slots
+local function assignItemsToSlots(bestItem, secondBestItem, activeSlots)
     local selectedItems = {}
-    for _, item in ipairs(combinedItems) do
-        if #selectedItems < 2 then
-            table.insert(selectedItems, item)
-        end
+    if #activeSlots == 2 then
+        bestItem.slotId = activeSlots[1]
+        secondBestItem.slotId = activeSlots[2]
+        table.insert(selectedItems, bestItem)
+        table.insert(selectedItems, secondBestItem)
+    elseif #activeSlots == 1 then
+        bestItem.slotId = activeSlots[1]
+        table.insert(selectedItems, bestItem)
     end
-
-    if #selectedItems > 0 then
-        selectedItems[1].slotId = slots[1]
-    end
-    if #selectedItems > 1 then
-        selectedItems[2].slotId = slots[2]
-    end
-
     return selectedItems
 end
 
+-- Main function to select and assign best items across specified slots
+local function selectAndAssignBestItems(myArmory, slots)
+    local items = collectItemsForSlots(myArmory, slots)
+    local bestItem, secondBestItem = selectBestItems(items)
+
+    local activeSlots = {}
+    for _, slotId in ipairs(slots) do
+        if addon.db.profile.paperDoll["slot" .. slotId] then
+            table.insert(activeSlots, slotId)
+        end
+    end
+
+    return assignItemsToSlots(bestItem, secondBestItem, activeSlots)
+end
+
+-- Function to get the best items for a given slot
 function AccessoryHandler:getBestItems(myArmory, slotId)
     local relatedSlots = {}
 
@@ -41,8 +62,8 @@ function AccessoryHandler:getBestItems(myArmory, slotId)
     elseif slotId == 13 or slotId == 14 then
         relatedSlots = {13, 14}
     else
-        return selectBestItemsAcrossSlots(myArmory, {slotId})
+        return selectAndAssignBestItems(myArmory, {slotId})
     end
 
-    return selectBestItemsAcrossSlots(myArmory, relatedSlots)
+    return selectAndAssignBestItems(myArmory, relatedSlots)
 end

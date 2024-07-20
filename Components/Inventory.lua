@@ -49,7 +49,8 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             setId = setId,
             score = addon:ScoreItem(itemLink),
             hex = addon:HexItem(dollOrBagIndex, slotIndex),
-            slotEnabled = slotEnabled
+            slotEnabled = slotEnabled,
+            equipped = (not slotIndex) and dollOrBagIndex or false
         }
 
         return itemInfo
@@ -77,10 +78,12 @@ function addon:UpdateArmory()
     local function processItem(dollOrBagIndex, slotIndex)
         local itemInfo = addon:EvaluateItem(dollOrBagIndex, slotIndex)
         if itemInfo then
-            local slotId = itemInfo.slotId
-            local slotEnabled = itemInfo.slotEnabled
-            if slotId and slotEnabled then
-                table.insert(myArmory[slotId], itemInfo)
+            -- Check if an equipped item is in an ignored slot so it doesnt get moved.
+            -- works for rings/trinkets, but not armor
+            if type(itemInfo.equipped) == "number" and not addon.db.profile.paperDoll["slot" .. itemInfo.equipped] then
+                -- print("Skipping " .. itemInfo.link .. " because its in an ignored slot")
+            else
+                table.insert(myArmory[itemInfo.slotId], itemInfo)
             end
         end
     end
