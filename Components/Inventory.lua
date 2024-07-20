@@ -1,16 +1,24 @@
 local addonName, addon = ...
 
 addon.myArmory = addon.myArmory or {}
-
-local function GetSlotIdForEquipLoc(equipLoc)
+local function GetSlotIdsForEquipLoc(equipLoc)
     if not equipLoc or not addon.ItemEquipLocToInvSlotID[equipLoc] then
         return nil
     end
 
-    local slotArray = addon.ItemEquipLocToInvSlotID[equipLoc]
-    if slotArray and #slotArray > 0 then
-        local slotId = slotArray[1]
-        return (slotId == 18 and addon.gameVersion >= 4000) and 16 or slotId
+    return addon.ItemEquipLocToInvSlotID[equipLoc]
+end
+
+local function GetEnabledSlotIdForEquipLoc(equipLoc)
+    local slotIds = GetSlotIdsForEquipLoc(equipLoc)
+    if not slotIds then
+        return nil
+    end
+
+    for _, slotId in ipairs(slotIds) do
+        if addon.db.profile.paperDoll["slot" .. slotId] then
+            return slotId
+        end
     end
 
     return nil
@@ -32,12 +40,11 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local itemType, _, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
-        local slotId = GetSlotIdForEquipLoc(equipLoc)
+        local slotId = GetEnabledSlotIdForEquipLoc(equipLoc)
         if not slotId then
             return nil
         end
 
-        local slotEnabled = addon.db.profile.paperDoll["slot" .. slotId]
         local setId = select(16, C_Item.GetItemInfo(itemID))
 
         local itemInfo = {
@@ -49,7 +56,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             setId = setId,
             score = addon:ScoreItem(itemLink),
             hex = addon:HexItem(dollOrBagIndex, slotIndex),
-            slotEnabled = slotEnabled,
+            slotEnabled = true,
             equipped = (not slotIndex) and dollOrBagIndex or false
         }
 
@@ -79,7 +86,7 @@ function addon:UpdateArmory()
         local itemInfo = addon:EvaluateItem(dollOrBagIndex, slotIndex)
         if itemInfo then
             -- Check if an equipped item is in an ignored slot so it doesnt get moved.
-            -- works for rings/trinkets, but not armor
+            -- this is mainly for rings/trinkets which span multiple slots with the same equiploc info.
             if type(itemInfo.equipped) == "number" and not addon.db.profile.paperDoll["slot" .. itemInfo.equipped] then
                 -- print("Skipping " .. itemInfo.link .. " because its in an ignored slot")
             else
