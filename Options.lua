@@ -12,6 +12,29 @@ addon.defaults = {
     }
 }
 
+-- Function to create dropdowns for each spec
+function addon:CreateDropdownsForSpecs()
+    for index, spec in ipairs(self.db.char.specializations) do
+        self.options.args["selectScaleByName" .. spec.id] = {
+            order = 2.02 + index,
+            type = "select",
+            style = "dropdown",
+            name = spec.name .. " Pawn Scale",
+            desc = "A scale is used to score items based on their stats for " .. spec.name,
+            width = "normal",
+            values = function()
+                return self:getPawnScaleNames() or {}
+            end,
+            get = function(info)
+                return self:GetSelectedScale(info, spec.id)
+            end,
+            set = function(info, value)
+                self:SetSelectedScale(info, value, spec.id)
+            end
+        }
+    end
+end
+
 local function createSlotToggleOption(slotId, slotName, order, description, hidden)
     return {
         type = "toggle",

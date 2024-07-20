@@ -53,8 +53,28 @@ end
 
 function addon:InitializeClassAndSpec()
     self:GetPlayerClassAndSpec()
+    self:GetPlayerSpecs()
+    self:CreateDropdownsForSpecs()
+
     -- Unregister the event after initialization
     self:UnregisterEvent("PLAYER_LOGIN")
+end
+
+-- setting up specs for dynamic dropdowns in the options
+-- Function to gather user spec information
+function addon:GetPlayerSpecs()
+    self.db.char.specializations = {}
+    for specIndex = 1, GetNumSpecializations() do
+        local specID, specName = GetSpecializationInfo(specIndex)
+        self.db.char.specializations[specIndex] = {
+            id = specID,
+            name = specName
+        }
+    end
+    -- Print the specs information for debugging
+    for index, spec in ipairs(self.db.char.specializations) do
+        print("Spec ID: " .. spec.id .. ", Spec Name: " .. spec.name)
+    end
 end
 
 function addon:GetPlayerClassAndSpec()
