@@ -168,11 +168,3 @@ function addon:GetDefaultScaleForClassOrSpec(className, specName)
     return nil
 end
 
--- Export necessary functions and variables
-addon.InitializeOptions = addon.InitializeOptions
-addon.InitializePaperDoll = addon.InitializePaperDoll
-addon.GetSelectedScale = addon.GetSelectedScale
-addon.SetSelectedScale = addon.SetSelectedScale
-addon.DetermineDefaultScale = addon.DetermineDefaultScale
-addon.GetDefaultScaleForClassOrSpec = addon.GetDefaultScaleForClassOrSpec
-addon.OnInitialize = addon.OnInitialize
