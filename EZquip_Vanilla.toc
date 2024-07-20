@@ -31,12 +31,15 @@ Libs\AceComm-3.0\AceComm-3.0.xml
 Libs\AceTab-3.0\AceTab-3.0.xml
 Libs\AceSerializer-3.0\AceSerializer-3.0.xml
 
-Main.lua
-Options.lua
+Components\TheorizeSet\Weapons.lua
+Components\TheorizeSet\Armor.lua
+Components\TheorizeSet\Accessories.lua
+
 Constants.lua
+Options.lua
+Main.lua
 
 Components\EquipmentManager.lua
 Components\Inventory.lua
 Components\Score.lua
-Components\TheorizeSet.lua
 Components\Tooltip.lua
