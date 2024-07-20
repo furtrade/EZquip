@@ -77,18 +77,6 @@ function addon:GetPlayerSpecs()
     end
 end
 
-function addon:GetPlayerClassAndSpec()
-    local className = UnitClass("player")
-    self.db.char.className = className
-
-    local specId = GetSpecialization()
-    if specId then
-        local specName = select(2, GetSpecializationInfo(specId))
-        self.db.char.specName = specName
-    else
-        self.db.char.specName = nil
-    end
-end
 
 function addon:SlashCommand(input)
     local commands = {

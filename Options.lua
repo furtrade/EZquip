@@ -4,36 +4,14 @@ addon.defaults = {
     profile = {
         options = {
             AutoBindToggle = false,
-            selectedScale = nil
+            -- selectedScale = nil,
+            selectedScales = {}
         },
         paperDoll = {
             ['*'] = true
         }
     }
 }
-
--- Function to create dropdowns for each spec
-function addon:CreateDropdownsForSpecs()
-    for index, spec in ipairs(self.db.char.specializations) do
-        self.options.args["selectScaleByName" .. spec.id] = {
-            order = 2.02 + index,
-            type = "select",
-            style = "dropdown",
-            name = spec.name .. " Pawn Scale",
-            desc = "A scale is used to score items based on their stats for " .. spec.name,
-            width = "normal",
-            values = function()
-                return self:getPawnScaleNames() or {}
-            end,
-            get = function(info)
-                return self:GetSelectedScale(info, spec.id)
-            end,
-            set = function(info, value)
-                self:SetSelectedScale(info, value, spec.id)
-            end
-        }
-    end
-end
 
 local function createSlotToggleOption(slotId, slotName, order, description, hidden)
     return {
@@ -57,23 +35,23 @@ function addon:InitializeOptions()
         name = self.title,
         handler = self,
         args = {
-            selectScaleByName = {
-                order = 2.02,
-                type = "select",
-                style = "dropdown",
-                name = "Pawn Scale",
-                desc = "A scale is used to score items based on their stats",
-                width = "normal",
-                values = function()
-                    return self.getPawnScaleNames() or {}
-                end,
-                get = function(info)
-                    return self:GetSelectedScale(info)
-                end,
-                set = function(info, value)
-                    self:SetSelectedScale(info, value)
-                end
-            },
+            -- selectScaleByName = {
+            --     order = 2.02,
+            --     type = "select",
+            --     style = "dropdown",
+            --     name = "Pawn Scale",
+            --     desc = "A scale is used to score items based on their stats",
+            --     width = "normal",
+            --     values = function()
+            --         return self.getPawnScaleNames() or {}
+            --     end,
+            --     get = function(info)
+            --         return self:GetSelectedScale(info)
+            --     end,
+            --     set = function(info, value)
+            --         self:SetSelectedScale(info, value)
+            --     end
+            -- },
             runCodeButton = {
                 order = 2.2,
                 type = "execute",
@@ -138,12 +116,35 @@ function addon:InitializePaperDoll()
     }
 end
 
+-- ===============================================================
+-- Function to gather user spec information
+function addon:GetPlayerSpecs()
+    self.db.char.specializations = {}
+    for specIndex = 1, GetNumSpecializations() do
+        local specID, specName = GetSpecializationInfo(specIndex)
+        self.db.char.specializations[specIndex] = {
+            id = specID,
+            name = specName
+        }
+    end
+    -- Print the specs information for debugging
+    for index, spec in ipairs(self.db.char.specializations) do
+        print("Spec ID: " .. spec.id .. ", Spec Name: " .. spec.name)
+    end
+end
+
+-- Function to get the selected scale for a specific spec
 function addon:GetSelectedScale(info)
-    local selectedScale = self.db.profile.options.selectedScale
+    local specID = info[#info] -- Get the specID directly from the info table
+    if not self.db.char.selectedScales then
+        self.db.char.selectedScales = {}
+    end
+
+    local selectedScale = self.db.char.selectedScales[specID]
 
     if not selectedScale then
-        self:DetermineDefaultScale()
-        selectedScale = self.db.profile.options.selectedScale
+        self:DetermineDefaultScale(specID)
+        selectedScale = self.db.char.selectedScales[specID]
     end
 
     local values = self.getPawnScaleNames()
@@ -156,22 +157,35 @@ function addon:GetSelectedScale(info)
     return nil
 end
 
+-- Function to set the selected scale for a specific spec
 function addon:SetSelectedScale(info, value)
+    local specID = info[#info] -- Get the specID directly from the info table
     local values = self.getPawnScaleNames()
     local actualValue = values[value]
-    self.db.profile.options.selectedScale = actualValue
+
+    if not self.db.char.selectedScales then
+        self.db.char.selectedScales = {}
+    end
+
+    self.db.char.selectedScales[specID] = actualValue
 end
 
-function addon:DetermineDefaultScale()
+-- Function to determine and set the default scale for a specific spec
+function addon:DetermineDefaultScale(specID)
+    if not self.db.char.selectedScales then
+        self.db.char.selectedScales = {}
+    end
+
     self:GetPlayerClassAndSpec()
     local className = self.db.char.className
     local specName = self.db.char.specName
     local defaultScale = self:GetDefaultScaleForClassOrSpec(className, specName)
-    self.db.profile.options.selectedScale = defaultScale
+    self.db.char.selectedScales[specID] = defaultScale
 end
 
+-- Function to get the default scale for a given class and spec
 function addon:GetDefaultScaleForClassOrSpec(className, specName)
-    local scaleNames = addon.getPawnScaleNames() or {}
+    local scaleNames = self.getPawnScaleNames() or {}
 
     if specName then
         for _, scaleName in ipairs(scaleNames) do
@@ -191,3 +205,45 @@ function addon:GetDefaultScaleForClassOrSpec(className, specName)
     return nil
 end
 
+-- Function to get the player class and spec and store them in the database
+function addon:GetPlayerClassAndSpec()
+    local className = UnitClass("player")
+    self.db.char.className = className
+
+    local specId = GetSpecialization()
+    if specId then
+        local specName = select(2, GetSpecializationInfo(specId))
+        self.db.char.specName = specName
+    else
+        self.db.char.specName = nil
+    end
+end
+
+-- Function to create dropdowns for each spec
+function addon:CreateDropdownsForSpecs()
+    self.options.args.selectScales = {
+        type = "group",
+        name = "Select Scales",
+        args = {}
+    }
+
+    for index, spec in ipairs(self.db.char.specializations) do
+        self.options.args.selectScales.args[tostring(spec.id)] = {
+            order = 2.02 + index,
+            type = "select",
+            style = "dropdown",
+            name = spec.name .. " Pawn Scale",
+            desc = "A scale is used to score items based on their stats for " .. spec.name,
+            width = "normal",
+            values = function()
+                return self:getPawnScaleNames() or {}
+            end,
+            get = function(info)
+                return self:GetSelectedScale(info)
+            end,
+            set = function(info, value)
+                self:SetSelectedScale(info, value)
+            end
+        }
+    end
+end
