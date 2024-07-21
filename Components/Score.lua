@@ -1,5 +1,11 @@
 local addonName, addon = ...
 
+function addon:UpdateScaleName()
+    local specId = GetSpecializationInfo(GetSpecialization())
+
+    self.scaleName = self.db.char.selectedScales[tostring(specId)]
+end
+
 -- Get the Pawn Scale Names, including the non Localized names.
 function addon.getPawnScaleNames()
     local scales = PawnGetAllScalesEx()
@@ -12,7 +18,7 @@ end
 
 -- Get the selected Pawn common scale name.
 function addon.GetPawnCommonName()
-    addon.scaleName = addon.db.profile.options.selectedScale
+    addon:UpdateScaleName()
 
     for commonScale, scaleDat in pairs(PawnCommon.Scales) do
         for _, v in pairs(scaleDat) do

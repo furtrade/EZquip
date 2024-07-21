@@ -4,6 +4,7 @@
 ## Notes: Manage Equipment according to user stat weights.
 ## Author: Principium-Caelestrasz
 ## SavedVariables: EZquipDB
+## Dependencies: Pawn
 ## OptionalDeps: Ace3
 
 ## X-Category: Bags&Inventory

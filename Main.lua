@@ -4,42 +4,11 @@ addon = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "AceEvent-3.0", "AceC
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
--- Import constants from Constants.lua
--- Ensure Constants.lua is loaded before this script in your TOC file
-
-addon.pawn = false
-
-local gameVersion = select(4, GetBuildInfo())
-addon.gameVersion = gameVersion
-
--- Find the appropriate game version
-for version, name in pairs(addon.gameVersionLookup) do
-    if gameVersion >= version then
-        addon.game = name
-        break
-    end
-end
-
--- Default to CLASSIC if no match found
-addon.game = addon.game or "CLASSIC"
-
-addon.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
-
-addon.myArmory = {}
-addon.invSlots = {}
-addon.bagSlots = {}
-
-addon.scaleName = nil
-addon.pawnCommonName = nil
-addon.classOrSpec = nil
-
 function addon:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New(addon.title .. "DB", self.defaults)
 
     self:InitializeOptions()
     self:InitializePaperDoll()
-
-    self:RegisterEvent("PLAYER_LOGIN", "InitializeClassAndSpec")
 
     AceConfig:RegisterOptionsTable(self.title .. "_Options", self.options)
     self.optionsFrame = AceConfigDialog:AddToBlizOptions(self.title .. "_Options", self.title)
@@ -49,12 +18,16 @@ function addon:OnInitialize()
 
     self:RegisterChatCommand(self.title, "SlashCommand")
     self:RegisterChatCommand("EZ", "SlashCommand")
+
+    self:RegisterEvent("PLAYER_LOGIN", "InitSpecsAndScales")
+
 end
 
-function addon:InitializeClassAndSpec()
+function addon:InitSpecsAndScales()
     self:GetPlayerClassAndSpec()
     self:GetPlayerSpecs()
     self:CreateDropdownsForSpecs()
+    self:UpdateScaleName()
 
     -- Unregister the event after initialization
     self:UnregisterEvent("PLAYER_LOGIN")
@@ -71,12 +44,7 @@ function addon:GetPlayerSpecs()
             name = specName
         }
     end
-    -- Print the specs information for debugging
-    for index, spec in ipairs(self.db.char.specializations) do
-        print("Spec ID: " .. spec.id .. ", Spec Name: " .. spec.name)
-    end
 end
-
 
 function addon:SlashCommand(input)
     local commands = {
@@ -180,3 +148,5 @@ function addon:EquipSets(sets)
         end
     end
 end
+
+_G["EZquip"] = addon

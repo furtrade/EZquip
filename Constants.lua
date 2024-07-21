@@ -48,3 +48,29 @@ addon.gameVersionLookup = {
 }
 
 addon.timeThreshold = 7 -- in seconds
+
+addon.pawn = false
+
+local gameVersion = select(4, GetBuildInfo())
+addon.gameVersion = gameVersion
+
+-- Find the appropriate game version
+for version, name in pairs(addon.gameVersionLookup) do
+    if gameVersion >= version then
+        addon.game = name
+        break
+    end
+end
+
+-- Default to CLASSIC if no match found
+addon.game = addon.game or "CLASSIC"
+
+addon.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
+
+addon.myArmory = {}
+addon.invSlots = {}
+addon.bagSlots = {}
+
+addon.scaleName = nil
+addon.pawnCommonName = nil
+addon.classOrSpec = nil

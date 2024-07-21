@@ -232,7 +232,7 @@ function addon:CreateDropdownsForSpecs()
             order = 2.02 + index,
             type = "select",
             style = "dropdown",
-            name = spec.name .. " Pawn Scale",
+            name = spec.name,
             desc = "A scale is used to score items based on their stats for " .. spec.name,
             width = "normal",
             values = function()
