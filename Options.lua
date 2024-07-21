@@ -136,6 +136,7 @@ end
 -- Function to get the selected scale for a specific spec
 function addon:GetSelectedScale(info)
     local specID = info[#info] -- Get the specID directly from the info table
+
     if not self.db.char.selectedScales then
         self.db.char.selectedScales = {}
     end
@@ -143,7 +144,7 @@ function addon:GetSelectedScale(info)
     local selectedScale = self.db.char.selectedScales[specID]
 
     if not selectedScale then
-        self:DetermineDefaultScale(specID)
+        self:SetDefaultScaleForSpec(specID)
         selectedScale = self.db.char.selectedScales[specID]
     end
 
@@ -172,23 +173,42 @@ end
 
 -- Function to initialize default scales for each spec
 function addon:InitializeDefaultScales()
-    print("\nInitializing Default Scales")
     for index, spec in ipairs(self.db.char.specializations) do
-        print(spec.id)
-        self:DetermineDefaultScale(spec.id, spec.name)
+        self:SetDefaultScaleForSpec(spec.id, spec.name)
     end
 end
 
--- Function to determine and set the default scale for a specific spec
-function addon:DetermineDefaultScale(specID, specName)
-    if not self.db.char.selectedScales then
-        self.db.char.selectedScales = {}
+function addon:SetDefaultScaleForSpec(specID, specName)
+    -- Initialize selectedScales if not already initialized
+    self.db.char.selectedScales = self.db.char.selectedScales or {}
+
+    -- Check if the default scale for the specID already exists
+    if self.db.char.selectedScales[tostring(specID)] then
+        return
     end
 
+    -- Get player class and specialization details
     self:GetPlayerClassAndSpec()
     local className = self.db.char.className
-    -- local specName = self.db.char.specializations
+    specName = specName or self.db.char.specName
+
+    if not className then
+        local className = select(7, GetSpecializationInfoByID(specID))
+    end
+    if not specName then
+        local _, specName = GetSpecializationInfoByID(specID)
+    end
+
+    -- Get the default scale for the class or spec
     local defaultScale = self:GetDefaultScaleForClassOrSpec(className, specName)
+
+    -- Validate default scale
+    if not defaultScale then
+        print("Error: Unable to determine default scale for class: " .. className .. ", spec: " .. specName)
+        return
+    end
+
+    -- Assign the determined default scale to the selectedScales table
     self.db.char.selectedScales[tostring(specID)] = defaultScale
 end
 
@@ -198,7 +218,6 @@ function addon:GetDefaultScaleForClassOrSpec(className, specName)
 
     if specName then
         for _, scaleName in ipairs(scaleNames) do
-            print(scaleName, className, specName)
             if scaleName:match("^" .. className .. ": " .. specName .. "$") then
                 return scaleName
             end
