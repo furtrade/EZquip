@@ -175,7 +175,7 @@ function addon:EquipInventoryItem(action)
 
     if (self.game == "RETAIL" and not C_PaperDollInfo.CanCursorCanGoInSlot(action.slotId)) or
         IsInventoryItemLocked(action.slotId) then
-        print("EquipInventoryItem: Item cannot go in slot or slot is locked")
+        -- print("EquipInventoryItem: Item cannot go in slot or slot is locked")
         return false
     end
 
