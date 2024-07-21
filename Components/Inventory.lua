@@ -9,13 +9,17 @@ local function GetSlotIdsForEquipLoc(equipLoc)
     return addon.ItemEquipLocToInvSlotID[equipLoc]
 end
 
-local function GetEnabledSlotIdForEquipLoc(equipLoc)
+local function SetSlotIdForEquipLoc(equipLoc)
     local slotIds = GetSlotIdsForEquipLoc(equipLoc)
     if not slotIds then
         return nil
     end
 
     for _, slotId in ipairs(slotIds) do
+        if slotId == 18 and not addon.gameVersion < 40000 then
+            slotId = 16
+        end
+
         if addon.db.profile.paperDoll["slot" .. slotId] then
             return slotId
         end
@@ -40,7 +44,8 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local itemType, _, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
-        local slotId = GetEnabledSlotIdForEquipLoc(equipLoc)
+        print(equipLoc)
+        local slotId = SetSlotIdForEquipLoc(equipLoc)
         if not slotId then
             return nil
         end
