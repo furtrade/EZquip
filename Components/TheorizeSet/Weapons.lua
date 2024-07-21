@@ -31,7 +31,11 @@ local function selectBestItems(itemList, count)
     table.sort(itemList, function(a, b)
         return a.score > b.score
     end)
-    return {unpack(itemList, 1, count)}
+    local selectedItems = {}
+    for i = 1, count do
+        selectedItems[i] = itemList[i]
+    end
+    return selectedItems
 end
 
 function WeaponHandler:sortWeapons(myArmory)
@@ -41,23 +45,33 @@ function WeaponHandler:sortWeapons(myArmory)
         offHanders = {}, -- slotId = 17
         ranged = {} -- slotID = 18 for gameVersion < 40000. "CLASSIC"
     }
+
     for slotId, items in pairs(myArmory) do
-        for _, item in ipairs(items) do
-            if slotId == 16 and item.equipLoc == "INVTYPE_2HWEAPON" then
-                table.insert(sorted.twoHanders, item)
-            elseif slotId == 16 and item.equipLoc ~= "INVTYPE_2HWEAPON" then
-                table.insert(sorted.oneHanders, item)
-            elseif slotId == 17 then
-                table.insert(sorted.offHanders, item)
-            elseif slotId == 18 then
-                if not addon.gameVersion < 40000 then
+        if slotId == 16 then
+            for _, item in ipairs(items) do
+                if item.equipLoc == "INVTYPE_2HWEAPON" then
                     table.insert(sorted.twoHanders, item)
                 else
+                    table.insert(sorted.oneHanders, item)
+                end
+            end
+        elseif slotId == 17 then
+            for _, item in ipairs(items) do
+                table.insert(sorted.offHanders, item)
+            end
+        elseif slotId == 18 then
+            if addon.gameVersion < 40000 then
+                for _, item in ipairs(items) do
                     table.insert(sorted.ranged, item)
+                end
+            else
+                for _, item in ipairs(items) do
+                    table.insert(sorted.twoHanders, item)
                 end
             end
         end
     end
+
     return sorted
 end
 

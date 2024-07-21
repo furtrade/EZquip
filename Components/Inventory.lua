@@ -16,9 +16,10 @@ local function SetSlotIdForEquipLoc(equipLoc)
     end
 
     for _, slotId in ipairs(slotIds) do
-        -- if slotId == 18 and not addon.gameVersion < 40000 then
-        --     slotId = 16
-        -- end
+        -- make sure the mainhand slot is toggled before processing ranged
+        if slotId == 18 and not (addon.gameVersion < 40000) and not (addon.db.profile.paperDoll["slot" .. 16]) then
+            return nil
+        end
 
         if addon.db.profile.paperDoll["slot" .. slotId] then
             return slotId
@@ -32,6 +33,11 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex) or
                          GetInventoryItemLink("player", dollOrBagIndex)
     if not itemLink then
+        return nil
+    end
+
+    local score = addon:ScoreItem(itemLink)
+    if not (score > 0) then
         return nil
     end
 
@@ -58,7 +64,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             equipLoc = equipLoc,
             slotId = slotId,
             setId = setId,
-            score = addon:ScoreItem(itemLink),
+            score = score,
             hex = addon:HexItem(dollOrBagIndex, slotIndex),
             slotEnabled = true,
             equipped = (not slotIndex) and dollOrBagIndex or false
