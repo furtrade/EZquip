@@ -27,6 +27,8 @@ function addon:InitSpecsAndScales()
     self:GetPlayerClassAndSpec()
     self:GetPlayerSpecs()
     self:CreateDropdownsForSpecs()
+    self:InitializeDefaultScales()
+    -- Setting the scaleName to the current specId
     self:UpdateScaleName()
 
     -- Unregister the event after initialization

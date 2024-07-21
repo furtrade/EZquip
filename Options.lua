@@ -170,17 +170,26 @@ function addon:SetSelectedScale(info, value)
     self.db.char.selectedScales[specID] = actualValue
 end
 
+-- Function to initialize default scales for each spec
+function addon:InitializeDefaultScales()
+    print("\nInitializing Default Scales")
+    for index, spec in ipairs(self.db.char.specializations) do
+        print(spec.id)
+        self:DetermineDefaultScale(spec.id, spec.name)
+    end
+end
+
 -- Function to determine and set the default scale for a specific spec
-function addon:DetermineDefaultScale(specID)
+function addon:DetermineDefaultScale(specID, specName)
     if not self.db.char.selectedScales then
         self.db.char.selectedScales = {}
     end
 
     self:GetPlayerClassAndSpec()
     local className = self.db.char.className
-    local specName = self.db.char.specName
+    -- local specName = self.db.char.specializations
     local defaultScale = self:GetDefaultScaleForClassOrSpec(className, specName)
-    self.db.char.selectedScales[specID] = defaultScale
+    self.db.char.selectedScales[tostring(specID)] = defaultScale
 end
 
 -- Function to get the default scale for a given class and spec
@@ -189,6 +198,7 @@ function addon:GetDefaultScaleForClassOrSpec(className, specName)
 
     if specName then
         for _, scaleName in ipairs(scaleNames) do
+            print(scaleName, className, specName)
             if scaleName:match("^" .. className .. ": " .. specName .. "$") then
                 return scaleName
             end
