@@ -35,23 +35,6 @@ function addon:InitializeOptions()
         name = self.title,
         handler = self,
         args = {
-            -- selectScaleByName = {
-            --     order = 2.02,
-            --     type = "select",
-            --     style = "dropdown",
-            --     name = "Pawn Scale",
-            --     desc = "A scale is used to score items based on their stats",
-            --     width = "normal",
-            --     values = function()
-            --         return self.getPawnScaleNames() or {}
-            --     end,
-            --     get = function(info)
-            --         return self:GetSelectedScale(info)
-            --     end,
-            --     set = function(info, value)
-            --         self:SetSelectedScale(info, value)
-            --     end
-            -- },
             runCodeButton = {
                 order = 2.2,
                 type = "execute",
@@ -111,7 +94,9 @@ function addon:InitializePaperDoll()
             },
             slot16 = createSlotToggleOption("slot16", "MainHand", 5.03, "MainHand slot"),
             slot17 = createSlotToggleOption("slot17", "OffHand", 5.04, "OffHand slot"),
-            slot18 = createSlotToggleOption("slot18", "Ranged", 5.05, "Ranged slot")
+            slot18 = addon.gameVersion < 40000 and createSlotToggleOption("slot18", "Ranged", 5.05, "Ranged slot") or
+                createSlotToggleOption("slot18", "Ranged", 5.05, "Ranged slot", true)
+
         }
     }
 end
