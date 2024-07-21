@@ -8,10 +8,6 @@ local function addConfig(configs, ...)
     table.insert(configs, {...})
 end
 
-local function canDualWield()
-    return CanDualWield() and (IsPlayerSpell(46917) or true)
-end
-
 local function calculateConfigScore(config)
     local totalScore = 0
     for _, item in ipairs(config) do
@@ -40,21 +36,25 @@ end
 
 function WeaponHandler:sortWeapons(myArmory)
     local sorted = {
-        twoHanders = {},
-        oneHanders = {},
-        offHanders = {},
-        ranged = {}
+        twoHanders = {}, -- slotId = 16; also includes staves and ranged(non-classic)
+        oneHanders = {}, -- slotId = 16;
+        offHanders = {}, -- slotId = 17
+        ranged = {} -- slotID = 18 for gameVersion < 40000. "CLASSIC"
     }
     for slotId, items in pairs(myArmory) do
         for _, item in ipairs(items) do
-            if item.equipLoc == "INVTYPE_2HWEAPON" then
+            if slotId == 16 and item.equipLoc == "INVTYPE_2HWEAPON" then
                 table.insert(sorted.twoHanders, item)
-            elseif item.equipLoc == "INVTYPE_WEAPON" then
+            elseif slotId == 16 and item.equipLoc ~= "INVTYPE_2HWEAPON" then
                 table.insert(sorted.oneHanders, item)
-            elseif item.equipLoc == "INVTYPE_SHIELD" or item.equipLoc == "INVTYPE_HOLDABLE" then
+            elseif slotId == 17 then
                 table.insert(sorted.offHanders, item)
-            elseif item.equipLoc == "INVTYPE_RANGED" then
-                table.insert(sorted.ranged, item)
+            elseif slotId == 18 then
+                if not addon.gameVersion < 40000 then
+                    table.insert(sorted.twoHanders, item)
+                else
+                    table.insert(sorted.ranged, item)
+                end
             end
         end
     end
@@ -68,16 +68,19 @@ function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
         addConfig(configs, twoHanders[1])
     end
 
-    if canDualWield() then
+    if CanDualWield() then
+        -- Titan's Grip Config 1
         if IsPlayerSpell(46917) then
             if twoHanders[1] and twoHanders[2] then
                 addConfig(configs, twoHanders[1], twoHanders[2])
             end
+            -- Titan's Grip Config 2 for weaklings
             if twoHanders[1] and oneHanders[1] then
                 addConfig(configs, twoHanders[1], oneHanders[1])
                 addConfig(configs, oneHanders[1], twoHanders[1])
             end
         end
+        -- Regular DualWield Config
         if oneHanders[1] and oneHanders[2] then
             addConfig(configs, oneHanders[1], oneHanders[2])
         end
@@ -101,7 +104,10 @@ function WeaponHandler:getBestConfigs(sortedWeapons)
     local configurations = self:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     local bestConfig = findBestConfig(configurations) or {}
 
-    self:assignSlotIdsAndInsertRanged(bestConfig, sortedWeapons.ranged)
+    local ranged = selectBestItems(sortedWeapons.ranged, 1)
+
+    self:assignSlotIdsAndInsertRanged(bestConfig, ranged)
+
     return bestConfig
 end
 

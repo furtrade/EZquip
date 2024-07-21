@@ -16,9 +16,9 @@ local function SetSlotIdForEquipLoc(equipLoc)
     end
 
     for _, slotId in ipairs(slotIds) do
-        if slotId == 18 and not addon.gameVersion < 40000 then
-            slotId = 16
-        end
+        -- if slotId == 18 and not addon.gameVersion < 40000 then
+        --     slotId = 16
+        -- end
 
         if addon.db.profile.paperDoll["slot" .. slotId] then
             return slotId
