@@ -44,7 +44,6 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local itemType, _, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
-        print(equipLoc)
         local slotId = SetSlotIdForEquipLoc(equipLoc)
         if not slotId then
             return nil
