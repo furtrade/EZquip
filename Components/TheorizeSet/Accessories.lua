@@ -31,13 +31,13 @@ local function assignItemsToSlots(bestItem, secondBestItem, activeSlots)
             bestItem.slotId = activeSlots[1]
             table.insert(selectedItems, bestItem)
         else
-            print("No best item found for first slot.")
+            -- print("No best item found for first slot.")
         end
         if secondBestItem then
             secondBestItem.slotId = activeSlots[2]
             table.insert(selectedItems, secondBestItem)
         else
-            print("No second best item found for second slot.")
+            -- print("No second best item found for second slot.")
         end
     elseif #activeSlots == 1 then
         if bestItem then
