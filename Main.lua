@@ -35,19 +35,6 @@ function addon:InitSpecsAndScales()
     self:UnregisterEvent("PLAYER_LOGIN")
 end
 
--- setting up specs for dynamic dropdowns in the options
--- Function to gather user spec information
-function addon:GetPlayerSpecs()
-    self.db.char.specializations = {}
-    for specIndex = 1, GetNumSpecializations() do
-        local specID, specName = GetSpecializationInfo(specIndex)
-        self.db.char.specializations[specIndex] = {
-            id = specID,
-            name = specName
-        }
-    end
-end
-
 function addon:SlashCommand(input)
     local commands = {
         enable = function()
