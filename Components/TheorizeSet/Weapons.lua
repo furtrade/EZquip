@@ -19,6 +19,7 @@ end
 local function findBestConfig(configs)
     local highScore, highConfig = 0, nil
     for _, config in pairs(configs) do
+        print(config)
         local score = calculateConfigScore(config)
         if score > highScore then
             highScore, highConfig = score, config
@@ -29,17 +30,21 @@ end
 
 local function selectBestItems(itemList, count)
     table.sort(itemList, function(a, b)
+        print(a.link, a.score, b.link, b.score)
         return a.score > b.score
     end)
     local selectedItems = {}
     for i = 1, count do
-        selectedItems[i] = itemList[i]
+        if itemList[i] then
+            print("selectedItem " .. i .. " " .. tostring(itemList[i].name))
+            selectedItems[i] = itemList[i]
+        end
     end
     return selectedItems
 end
 
-function WeaponHandler:sortWeapons(myArmory)
-    local sorted = {
+function WeaponHandler:SetHandedness(myArmory)
+    local handedness = {
         twoHanders = {}, -- slotId = 16; also includes staves and ranged(non-classic)
         oneHanders = {}, -- slotId = 16;
         offHanders = {}, -- slotId = 17
@@ -50,29 +55,29 @@ function WeaponHandler:sortWeapons(myArmory)
         if slotId == 16 then
             for _, item in ipairs(items) do
                 if item.equipLoc == "INVTYPE_2HWEAPON" then
-                    table.insert(sorted.twoHanders, item)
+                    table.insert(handedness.twoHanders, item)
                 else
-                    table.insert(sorted.oneHanders, item)
+                    table.insert(handedness.oneHanders, item)
                 end
             end
         elseif slotId == 17 then
             for _, item in ipairs(items) do
-                table.insert(sorted.offHanders, item)
+                table.insert(handedness.offHanders, item)
             end
-        elseif slotId == 18 then
+        elseif slotId == 18 then -- CLASSIC
             if addon.gameVersion < 40000 then
                 for _, item in ipairs(items) do
-                    table.insert(sorted.ranged, item)
+                    table.insert(handedness.ranged, item)
                 end
             else
                 for _, item in ipairs(items) do
-                    table.insert(sorted.twoHanders, item)
+                    table.insert(handedness.twoHanders, item)
                 end
             end
         end
     end
 
-    return sorted
+    return handedness
 end
 
 function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
@@ -110,15 +115,19 @@ function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     return configs
 end
 
-function WeaponHandler:getBestConfigs(sortedWeapons)
-    local twoHanders = selectBestItems(sortedWeapons.twoHanders, 2)
-    local oneHanders = selectBestItems(sortedWeapons.oneHanders, 2)
-    local offHanders = selectBestItems(sortedWeapons.offHanders, 1)
+function WeaponHandler:getBestConfigs(weaponHand)
+    -- select best weapons By Handedness and count
+    -- the count should probably be 2 for dual wielders
+    local count = CanDualWield() and 2 or 1
+
+    local twoHanders = selectBestItems(weaponHand.twoHanders, 1)
+    local oneHanders = selectBestItems(weaponHand.oneHanders, count)
+    local offHanders = selectBestItems(weaponHand.offHanders, 1)
 
     local configurations = self:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     local bestConfig = findBestConfig(configurations) or {}
 
-    local ranged = selectBestItems(sortedWeapons.ranged, 1)
+    local ranged = selectBestItems(weaponHand.ranged, 1)
 
     self:assignSlotIdsAndInsertRanged(bestConfig, ranged)
 

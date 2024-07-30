@@ -111,7 +111,7 @@ addon.AccessoryHandler = addon.AccessoryHandler or {}
 
 -- Function to get best sets for weapons, armor, rings, and trinkets
 function addon:TheorizeSet(myArmory)
-    local weaponSet = addon.WeaponHandler:getBestConfigs(addon.WeaponHandler:sortWeapons(myArmory))
+    local weaponSet = addon.WeaponHandler:getBestConfigs(addon.WeaponHandler:SetHandedness(myArmory))
     local armorSet = addon.ArmorHandler:getBestArmor(myArmory)
     local ringSet = addon.AccessoryHandler:getBestItems(myArmory, 11)
     local trinketSet = addon.AccessoryHandler:getBestItems(myArmory, 13)
