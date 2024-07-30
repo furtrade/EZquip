@@ -19,7 +19,6 @@ end
 local function findBestConfig(configs)
     local highScore, highConfig = 0, nil
     for _, config in pairs(configs) do
-        print(config)
         local score = calculateConfigScore(config)
         if score > highScore then
             highScore, highConfig = score, config
@@ -30,13 +29,13 @@ end
 
 local function selectBestItems(itemList, count)
     table.sort(itemList, function(a, b)
-        print(a.link, a.score, b.link, b.score)
+        -- print(a.link, a.score, b.link, b.score)
         return a.score > b.score
     end)
     local selectedItems = {}
     for i = 1, count do
         if itemList[i] then
-            print("selectedItem " .. i .. " " .. tostring(itemList[i].name))
+            -- print("selectedItem " .. i .. " " .. tostring(itemList[i].name))
             selectedItems[i] = itemList[i]
         end
     end
