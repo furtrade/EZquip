@@ -1,9 +1,18 @@
 local addonName, addon = ...
 
 function addon:UpdateScaleName()
-    local specId = GetSpecializationInfo(GetSpecialization())
+    local scale = nil
+    self:GetPlayerClassAndSpec()
 
-    self.scaleName = self.db.char.selectedScales[tostring(specId)]
+    if addon.gameVersion >= 40000 then
+        -- specID
+        scale = GetSpecializationInfo(GetSpecialization())
+    else -- CLASSIC
+        -- className
+        scale = self.db.char.className
+    end
+
+    self.scaleName = self.db.char.selectedScales[tostring(scale)]
 end
 
 -- Get the Pawn Scale Names, including the non Localized names.

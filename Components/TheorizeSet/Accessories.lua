@@ -44,7 +44,7 @@ local function assignItemsToSlots(bestItem, secondBestItem, activeSlots)
             bestItem.slotId = activeSlots[1]
             table.insert(selectedItems, bestItem)
         else
-            print("No best item found for single active slot.")
+            -- print("No best item found for single active slot.")
         end
     end
     return selectedItems
