@@ -74,7 +74,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     end
 end
 
-function addon.sortTableByScore(items)
+local function SortTableByScore(items)
     table.sort(items, function(a, b)
         if a.score and b.score then
             return a.score > b.score
@@ -83,6 +83,64 @@ function addon.sortTableByScore(items)
         end
     end)
 end
+
+-- ==========================================================================
+-- Function to group items by their ID
+local function GroupItemsById(items)
+    local itemsGroupedById = {}
+    for _, item in ipairs(items) do
+        local itemId = item.id
+        if not itemsGroupedById[itemId] then
+            itemsGroupedById[itemId] = {}
+        end
+        table.insert(itemsGroupedById[itemId], item)
+    end
+    return itemsGroupedById
+end
+
+-- Function to handle item uniqueness constraints
+local function HandleUniquenessConstraints(itemList, isUnique, limitMax)
+    if isUnique and limitMax == 1 then
+        -- print("Keeping " .. itemList[1].link)
+        return {itemList[1]} -- Keep only the top item if it's unique
+    elseif limitMax > 1 and (#itemList > limitMax) then
+        for i = #itemList, limitMax + 1, -1 do
+            itemList[i] = nil -- Trim excess items
+        end
+    end
+    return itemList
+end
+
+-- Main function to filter and retain items based on score and uniqueness constraints
+local function FilterUniqueEquippedItems(items)
+    local itemsGroupedById = GroupItemsById(items)
+
+    for itemId, itemList in pairs(itemsGroupedById) do
+        local isUnique = C_Item.GetItemUniquenessByID(itemList[1].id) -- Assume it returns only a boolean for isUnique
+
+        if isUnique then
+            SortTableByScore(itemList)
+            itemList = HandleUniquenessConstraints(itemList, isUnique, 1)
+        end
+
+        itemsGroupedById[itemId] = itemList
+    end
+
+    -- Update the original items list with only the retained items
+    local insertIndex = 1
+    for _, itemList in pairs(itemsGroupedById) do
+        for _, item in ipairs(itemList) do
+            items[insertIndex] = item
+            insertIndex = insertIndex + 1
+        end
+    end
+
+    -- Remove any excess items in the original list
+    for i = insertIndex, #items do
+        items[i] = nil
+    end
+end
+-- ==========================================================================
 
 function addon:UpdateArmory()
     local myArmory = addon.myArmory
@@ -122,6 +180,7 @@ function addon:UpdateArmory()
 
     -- Sort items by score in each slot
     for _, slotItems in pairs(myArmory) do
-        addon.sortTableByScore(slotItems)
+        FilterUniqueEquippedItems(slotItems)
+        SortTableByScore(slotItems)
     end
 end
