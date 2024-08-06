@@ -10,19 +10,19 @@ local function GetSlotIdsForEquipLoc(equipLoc)
 end
 
 local function SetSlotIdForEquipLoc(equipLoc)
-    local slotIds = GetSlotIdsForEquipLoc(equipLoc)
-    if not slotIds then
+    local invSlots = GetSlotIdsForEquipLoc(equipLoc)
+    if not invSlots then
         return nil
     end
 
-    for _, slotId in ipairs(slotIds) do
+    for _, invSlot in ipairs(invSlots) do
         -- make sure the mainhand slot is toggled before processing ranged
-        if slotId == 18 and not (addon.gameVersion < 40000) and not (addon.db.profile.paperDoll["slot" .. 16]) then
+        if invSlot == 18 and not (addon.gameVersion < 40000) and not (addon.db.profile.paperDoll["slot" .. 16]) then
             return nil
         end
 
-        if addon.db.profile.paperDoll["slot" .. slotId] then
-            return slotId
+        if addon.db.profile.paperDoll["slot" .. invSlot] then
+            return invSlot
         end
     end
 
@@ -50,8 +50,8 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local itemType, _, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
-        local slotId = SetSlotIdForEquipLoc(equipLoc)
-        if not slotId then
+        local invSlot = SetSlotIdForEquipLoc(equipLoc)
+        if not invSlot then
             return nil
         end
 
@@ -62,7 +62,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             link = itemLink,
             id = itemID,
             equipLoc = equipLoc,
-            slotId = slotId,
+            invSlot = invSlot,
             setId = setId,
             score = score,
             hex = addon:HexItem(dollOrBagIndex, slotIndex),
@@ -158,7 +158,7 @@ function addon:UpdateArmory()
             if type(itemInfo.equipped) == "number" and not addon.db.profile.paperDoll["slot" .. itemInfo.equipped] then
                 -- print("Skipping " .. itemInfo.link .. " because its in an ignored slot")
             else
-                table.insert(myArmory[itemInfo.slotId], itemInfo)
+                table.insert(myArmory[itemInfo.invSlot], itemInfo)
             end
         end
     end

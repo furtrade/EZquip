@@ -6,9 +6,9 @@ local ArmorHandler = addon.ArmorHandler
 
 function ArmorHandler:getBestArmor(myArmory)
     local bestArmor = {}
-    for slotId = 1, 15 do
-        if myArmory[slotId] then
-            table.insert(bestArmor, myArmory[slotId][1])
+    for invSlot = 1, 15 do
+        if myArmory[invSlot] then
+            table.insert(bestArmor, myArmory[invSlot][1])
         end
     end
     return bestArmor

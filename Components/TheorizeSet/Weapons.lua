@@ -44,14 +44,14 @@ end
 
 function WeaponHandler:SetHandedness(myArmory)
     local handedness = {
-        twoHanders = {}, -- slotId = 16; also includes staves and ranged(non-classic)
-        oneHanders = {}, -- slotId = 16;
-        offHanders = {}, -- slotId = 17
+        twoHanders = {}, -- invSlot = 16; also includes staves and ranged(non-classic)
+        oneHanders = {}, -- invSlot = 16;
+        offHanders = {}, -- invSlot = 17
         ranged = {} -- slotID = 18 for gameVersion < 40000. "CLASSIC"
     }
 
-    for slotId, items in pairs(myArmory) do
-        if slotId == 16 then
+    for invSlot, items in pairs(myArmory) do
+        if invSlot == 16 then
             for _, item in ipairs(items) do
                 if item.equipLoc == "INVTYPE_2HWEAPON" then
                     table.insert(handedness.twoHanders, item)
@@ -59,11 +59,11 @@ function WeaponHandler:SetHandedness(myArmory)
                     table.insert(handedness.oneHanders, item)
                 end
             end
-        elseif slotId == 17 then
+        elseif invSlot == 17 then
             for _, item in ipairs(items) do
                 table.insert(handedness.offHanders, item)
             end
-        elseif slotId == 18 then -- CLASSIC
+        elseif invSlot == 18 then -- CLASSIC
             if addon.gameVersion < 40000 then
                 for _, item in ipairs(items) do
                     table.insert(handedness.ranged, item)
@@ -135,13 +135,13 @@ end
 
 function WeaponHandler:assignSlotIdsAndInsertRanged(weaponSet, rangedClassic)
     if weaponSet[1] then
-        weaponSet[1].slotId = 16
+        weaponSet[1].invSlot = 16
     end
     if weaponSet[2] then
-        weaponSet[2].slotId = 17
+        weaponSet[2].invSlot = 17
     end
     if rangedClassic[1] then
         table.insert(weaponSet, rangedClassic[1])
-        weaponSet[#weaponSet].slotId = 18
+        weaponSet[#weaponSet].invSlot = 18
     end
 end

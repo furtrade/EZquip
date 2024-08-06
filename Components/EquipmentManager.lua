@@ -1,4 +1,6 @@
-local addonName, addon = ...
+local _, addon = ...
+
+addon.pendingAction = nil
 
 local _isAtBank = false
 local SLOT_LOCKED = -1
@@ -32,32 +34,6 @@ function addon:HexItem(dollOrBagIndex, slotIndex)
     end
 
     return bit.lshift(dollOrBagIndex, ITEM_INVENTORY_BAG_BIT_OFFSET) + slotIndex + location
-end
-
-function addon:UpdateFreeBagSpace()
-    for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS + GetNumBankSlots() do
-        local _, bagType = C_Container.GetContainerNumFreeSlots(i)
-        local freeSlots = C_Container.GetContainerFreeSlots(i)
-
-        if freeSlots then
-            addon.bagSlots[i] = addon.bagSlots[i] or {}
-
-            -- Reset all EMPTY bag slots
-            for index, flag in pairs(addon.bagSlots[i]) do
-                if flag == SLOT_EMPTY then
-                    addon.bagSlots[i][index] = nil
-                end
-            end
-
-            if bagType == 0 then
-                for _, slot in ipairs(freeSlots) do
-                    addon.bagSlots[i][slot] = SLOT_EMPTY
-                end
-            end
-        else
-            addon.bagSlots[i] = nil
-        end
-    end
 end
 
 -- Dispel the hex code into its components
@@ -96,19 +72,45 @@ function addon:DispelHex(hex)
     return paperDoll, inBank, inBags, inVoidStorage, hex, nil, tab, voidSlot
 end
 
+function addon:UpdateFreeBagSpace()
+    for i = BANK_CONTAINER, NUM_TOTAL_EQUIPPED_BAG_SLOTS + GetNumBankSlots() do
+        local _, bagType = C_Container.GetContainerNumFreeSlots(i)
+        local freeSlots = C_Container.GetContainerFreeSlots(i)
+
+        if freeSlots then
+            addon.bagSlots[i] = addon.bagSlots[i] or {}
+
+            -- Reset all EMPTY bag slots
+            for index, flag in pairs(addon.bagSlots[i]) do
+                if flag == SLOT_EMPTY then
+                    addon.bagSlots[i][index] = nil
+                end
+            end
+
+            if bagType == 0 then
+                for _, slot in ipairs(freeSlots) do
+                    addon.bagSlots[i][slot] = SLOT_EMPTY
+                end
+            end
+        else
+            addon.bagSlots[i] = nil
+        end
+    end
+end
+
 -- Setup the action for equipping an item
-function addon:SetupEquipAction(hex, slotId)
+function addon:SetupEquipAction(hex, invSlot)
     local player, bank, bags, _, slot, bag = self:DispelHex(hex)
     ClearCursor()
 
-    if not bags and slot == slotId then
+    if not bags and slot == invSlot then
         return nil
     end
 
-    local slotVacancy = GetInventoryItemID("player", slotId)
+    local slotVacancy = GetInventoryItemID("player", invSlot)
     return {
         type = (slotVacancy and ITEM_SWAPBLAST) or ITEM_EQUIP,
-        slotId = slotId,
+        invSlot = invSlot,
         player = player,
         bank = bank,
         bags = bags,
@@ -117,55 +119,67 @@ function addon:SetupEquipAction(hex, slotId)
     }
 end
 
--- Equip an item from the container
-function addon:EquipContainerItem(action)
-    ClearCursor()
-    C_Container.PickupContainerItem(action.bag, action.slot)
-
-    if not CursorHasItem() or IsInventoryItemLocked(action.slotId) then
-        return false
-    end
-
-    PickupInventoryItem(action.slotId)
-
-    if StaticPopup1 and StaticPopup1:IsShown() then
-        if self.db.profile.autoBind then
-            self:ClickStaticPopupButton()
-        else
-            self.pendingAction = action
-            self:RegisterEvent("STATICPOPUP_HIDDEN", "OnStaticPopupHidden")
-            return false
-        end
-    end
-
-    self:FinalizeEquip(action)
-    return true
-end
-
 -- Helper function to click the static popup button
-function addon:ClickStaticPopupButton()
+local function ClickStaticPopupButton()
     local button1 = _G["StaticPopup1Button1"]
     if button1 then
         button1:Click()
     end
 end
 
--- Finalize the equipping process
-function addon:FinalizeEquip(action)
-    local bagSlots = self.bagSlots[action.bag]
-    bagSlots[action.slot] = action.slotId
-    self.invSlots[action.slotId] = SLOT_LOCKED
+-- Map the changes after running action
+function addon:MapChanges(action)
+    self.bagSlots[action.bag][action.slot] = action.invSlot
+    self.invSlots[action.invSlot] = SLOT_LOCKED
 end
 
 -- Event handler for when the static popup is hidden
 function addon:OnStaticPopupHidden()
-    self:UnregisterEvent("STATICPOPUP_HIDDEN")
+    print("static popup")
+    EventRegistry:UnregisterCallback("EZQUIP_AUTOBIND", self.OnStaticPopupHidden, self)
+
+    -- self:UnregisterEvent("EZQUIP_AUTOBIND")
 
     -- Continue the equipping process once the popup is dismissed
     if self.pendingAction then
-        self:FinalizeEquip(self.pendingAction)
+        print("if pending then finalize...")
+        self:MapChanges(self.pendingAction)
+        print("pendingAction set to nil")
         self.pendingAction = nil
     end
+end
+
+-- Equip an item from the container
+function addon:EquipContainerItem(action)
+    ClearCursor();
+
+    -- 🤖Pick up item
+    C_Container.PickupContainerItem(action.bag, action.slot);
+
+    if (not CursorHasItem()) then
+        return false;
+    end
+
+    if (not C_PaperDollInfo.CanCursorCanGoInSlot(action.invSlot)) then
+        return false;
+    elseif (IsInventoryItemLocked(action.invSlot)) then
+        return false;
+    end
+
+    -- 🤖Place item
+    PickupInventoryItem(action.invSlot);
+
+    -- Handle item confirmation popup
+    if StaticPopup1 and StaticPopup1:IsShown() then
+        if self.db.profile.options.AutoBindToggle then
+            ClickStaticPopupButton()
+        else
+            return false
+        end
+    end
+
+    self:MapChanges(action)
+    return true
 end
 
 -- Equip an item from the inventory
@@ -173,30 +187,30 @@ function addon:EquipInventoryItem(action)
     ClearCursor()
     PickupInventoryItem(action.slot)
 
-    if (self.game == "RETAIL" and not C_PaperDollInfo.CanCursorCanGoInSlot(action.slotId)) or
-        IsInventoryItemLocked(action.slotId) then
+    if (self.game == "RETAIL" and not C_PaperDollInfo.CanCursorCanGoInSlot(action.invSlot)) or
+        IsInventoryItemLocked(action.invSlot) then
         -- print("EquipInventoryItem: Item cannot go in slot or slot is locked")
         return false
     end
 
-    PickupInventoryItem(action.slotId)
+    PickupInventoryItem(action.invSlot)
     self.invSlots[action.slot] = SLOT_LOCKED
-    self.invSlots[action.slotId] = SLOT_LOCKED
+    self.invSlots[action.invSlot] = SLOT_LOCKED
 
     return true
 end
 
 -- Unequip an item from the specified slot
-function addon:UnequipItemInSlot(slotId)
-    local itemID = GetInventoryItemID("player", slotId)
+--[[ function addon:UnequipItemInSlot(invSlot)
+    local itemID = GetInventoryItemID("player", invSlot)
     if not itemID then
         return nil
     end
     return {
         type = ITEM_UNEQUIP,
-        slotId = slotId
+        invSlot = invSlot
     }
-end
+end ]]
 
 -- Put an item in the inventory
 function addon:PutItemInInventory(action)
@@ -282,7 +296,7 @@ function addon:PutItemInInventory(action)
 end
 
 -- Get item information by hex code
-function addon:GetItemInfoByHex(hex)
+--[[ function addon:GetItemInfoByHex(hex)
     local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = self:DispelHex(hex)
     if not player and not bank and not bags and not voidStorage then
         return
@@ -328,22 +342,22 @@ function addon:GetItemInfoByHex(hex)
 
     return itemID, name, textureName, count, durability, maxDurability, invType, locked, start, duration, enable,
         setTooltip, quality, isUpgrade, isBound
-end
+end ]]
 
 -- Equip a set of items
-function addon:EquipSet(setID)
+--[[ function addon:EquipSet(setID)
     if C_EquipmentSet.EquipmentSetContainsLockedItems(setID) or UnitCastingInfo("player") then
         UIErrorsFrame:AddMessage(ERR_CLIENT_LOCKED_OUT, 1.0, 0.1, 0.1, 1.0)
         return
     end
 
     C_EquipmentSet.UseEquipmentSet(setID)
-end
+end ]]
 
 -- Run an equip or unequip action
 -- Run an equip or unequip action
 function addon:RunAction(action)
-    if UnitAffectingCombat("player") and not INVSLOTS_EQUIPABLE_IN_COMBAT[action.slotId] then
+    if UnitAffectingCombat("player") and not INVSLOTS_EQUIPABLE_IN_COMBAT[action.invSlot] then
         return true
     end
 
@@ -355,21 +369,21 @@ function addon:RunAction(action)
         if not action.bags then
             return self:EquipInventoryItem(action)
         else
-            local hasItem = action.slotId and GetInventoryItemID("player", action.slotId)
+            local hasItem = action.invSlot and GetInventoryItemID("player", action.invSlot)
             local pending = self:EquipContainerItem(action)
 
             if pending and not hasItem then
                 self.bagSlots[action.bag][action.slot] = SLOT_EMPTY
             end
 
-            return pending
+            return pending -- true or false
         end
     elseif action.type == ITEM_UNEQUIP then
         ClearCursor()
-        if IsInventoryItemLocked(action.slotId) then
+        if IsInventoryItemLocked(action.invSlot) then
             return false
         else
-            PickupInventoryItem(action.slotId)
+            PickupInventoryItem(action.invSlot)
             return self:PutItemInInventory(action)
         end
     end

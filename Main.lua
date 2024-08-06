@@ -96,8 +96,8 @@ function addon:PutTheseOn(theoreticalSet)
     end
 
     for _, item in pairs(theoreticalSet) do
-        if item and item.hex and item.slotId then
-            local action = self:SetupEquipAction(item.hex, item.slotId)
+        if item and item.hex and item.invSlot then
+            local action = self:SetupEquipAction(item.hex, item.invSlot)
             if action then
                 self:RunAction(action)
             end

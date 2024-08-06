@@ -13,7 +13,7 @@ addon.defaults = {
     }
 }
 
-local function createSlotToggleOption(slotId, slotName, order, description, hidden)
+local function createSlotToggleOption(invSlot, slotName, order, description, hidden)
     return {
         type = "toggle",
         name = slotName,
@@ -21,10 +21,10 @@ local function createSlotToggleOption(slotId, slotName, order, description, hidd
         desc = description,
         hidden = hidden,
         get = function(info)
-            return addon.db.profile.paperDoll[slotId]
+            return addon.db.profile.paperDoll[invSlot]
         end,
         set = function(info, value)
-            addon.db.profile.paperDoll[slotId] = value
+            addon.db.profile.paperDoll[invSlot] = value
         end
     }
 end
