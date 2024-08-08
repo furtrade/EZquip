@@ -133,7 +133,7 @@ function addon:MapChanges(action)
     self.invSlots[action.invSlot] = SLOT_LOCKED
 end
 
--- Event handler for when the static popup is hidden
+--[[ -- Event handler for when the static popup is hidden
 function addon:OnStaticPopupHidden()
     print("static popup")
     EventRegistry:UnregisterCallback("EZQUIP_AUTOBIND", self.OnStaticPopupHidden, self)
@@ -148,6 +148,7 @@ function addon:OnStaticPopupHidden()
         self.pendingAction = nil
     end
 end
+ ]]
 
 -- Equip an item from the container
 function addon:EquipContainerItem(action)

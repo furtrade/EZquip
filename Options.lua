@@ -4,6 +4,8 @@ addon.defaults = {
     profile = {
         options = {
             AutoBindToggle = false,
+            SaveSharedLootToggle = true,
+            SaveRefundableLootToggle = true,
             -- selectedScale = nil,
             selectedScales = {}
         },
@@ -52,6 +54,30 @@ function addon:InitializeOptions()
                 end,
                 set = function(info, value)
                     self.db.profile.options.AutoBindToggle = value
+                end
+            },
+            SaveSharedLootToggle = {
+                order = 2.3,
+                type = "toggle",
+                name = "Guard Shared",
+                desc = 'Save shared loot like items found in dungeons from being equipped',
+                get = function(info)
+                    return self.db.profile.options.SaveSharedLootToggle
+                end,
+                set = function(info, value)
+                    self.db.profile.options.SaveSharedLootToggle = value
+                end
+            },
+            SaveRefundableLootToggle = {
+                order = 2.3,
+                type = "toggle",
+                name = "Guard Refundable",
+                desc = 'Save purchased items from being equipped',
+                get = function(info)
+                    return self.db.profile.options.SaveRefundableLootToggle
+                end,
+                set = function(info, value)
+                    self.db.profile.options.SaveRefundableLootToggle = value
                 end
             }
         }

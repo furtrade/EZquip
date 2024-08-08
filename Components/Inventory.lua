@@ -1,7 +1,8 @@
-local addonName, addon = ...
+local _, addon = ...
 
 addon.myArmory = addon.myArmory or {}
-local function GetSlotIdsForEquipLoc(equipLoc)
+
+local function GetInvSlotsForEquipLoc(equipLoc)
     if not equipLoc or not addon.ItemEquipLocToInvSlotID[equipLoc] then
         return nil
     end
@@ -9,8 +10,8 @@ local function GetSlotIdsForEquipLoc(equipLoc)
     return addon.ItemEquipLocToInvSlotID[equipLoc]
 end
 
-local function SetSlotIdForEquipLoc(equipLoc)
-    local invSlots = GetSlotIdsForEquipLoc(equipLoc)
+local function SetInvSlotForEquipLoc(equipLoc)
+    local invSlots = GetInvSlotsForEquipLoc(equipLoc)
     if not invSlots then
         return nil
     end
@@ -29,7 +30,48 @@ local function SetSlotIdForEquipLoc(equipLoc)
     return nil
 end
 
+local function FilterOptions(dollOrBagIndex, slotIndex, isEquipped)
+    local options = addon.db.profile.options
+
+    -- Check if the item is sharable (blue text in tooltip)
+    --[[ if options.SaveSharedLootToggle then
+        -- isShared = ???
+        if not isShared then
+            return nil, nil
+        end
+    end ]] -- Check if the item is refundable
+
+    if options.SaveRefundableLootToggle then
+        -- preparing slots for this wonky api function: ❄️GetContainerItemPurchaseInfo
+        local slot1, slot2 = slotIndex and dollOrBagIndex or 0, slotIndex or dollOrBagIndex
+
+        local info = C_Container.GetContainerItemPurchaseInfo(slot1, slot2, isEquipped)
+        local refundTimeLeft = info and info.refundSeconds;
+
+        -- If there is a timer, then the item is refundable
+        if refundTimeLeft and (refundTimeLeft > 0) then
+            return nil
+        end
+    end
+end
+
+local function ItemLocationValidity(dollOrBagIndex, slotIndex)
+    -- Retrieve the addon options
+    local itemLocation = slotIndex and ItemLocation:CreateFromBagAndSlot(dollOrBagIndex, slotIndex) or
+                             ItemLocation:CreateFromEquipmentSlot(dollOrBagIndex)
+    -- Return the itemLocation and the results of the checks
+    return itemLocation -- , isShared, isRefundable
+end
+
 function addon:EvaluateItem(dollOrBagIndex, slotIndex)
+    local equipped = (not slotIndex) and dollOrBagIndex or false -- returns the invSlot or false
+
+    --[[ -- Get itemLocation if we need it.
+    local itemLocation = ItemLocationValidity(dollOrBagIndex, slotIndex)
+    if not itemLocation then
+        return nil
+    end ]]
+
     local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex) or
                          GetInventoryItemLink("player", dollOrBagIndex)
     if not itemLink then
@@ -50,7 +92,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local itemType, _, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
-        local invSlot = SetSlotIdForEquipLoc(equipLoc)
+        local invSlot = SetInvSlotForEquipLoc(equipLoc)
         if not invSlot then
             return nil
         end
@@ -67,7 +109,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             score = score,
             hex = addon:HexItem(dollOrBagIndex, slotIndex),
             slotEnabled = true,
-            equipped = (not slotIndex) and dollOrBagIndex or false
+            equipped = equipped
         }
 
         return itemInfo

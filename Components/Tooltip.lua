@@ -102,3 +102,20 @@ function addon:TableOfContents(aTooltip, retryCount, prevLength)
         return atyp
     end
 end
+
+function addon:TooltipContent(entry, byType)
+    local byType = byType or "item"
+
+    if not entry.id or type(entry.id) ~= "number" then
+        return 0
+    end
+
+    local tooltip = self:GetTooltipByType(entry.id, byType)
+    if not tooltip then
+        return 0
+    end
+
+    local _, combinedText = self:TableOfContents(tooltip)
+
+    return combinedText
+end
