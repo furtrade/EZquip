@@ -1,16 +1,67 @@
 -- Tooltip.lua
 local addonName, addon = ...
 
+-- Create a hidden tooltip for scanning once, outside the function
+local scanningTooltip = CreateFrame("GameTooltip", addonName .. "Tooltip", nil, "GameTooltipTemplate")
+scanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+
+function addon:FindTextInTooltip(pattern, dollOrBagIndex, slotIndex)
+    -- Validate the pattern
+    if not pattern or type(pattern) ~= "string" then
+        return nil, "Invalid pattern: A valid string pattern must be provided."
+    end
+
+    -- Clear previous lines (reuse the same tooltip)
+    scanningTooltip:ClearLines()
+
+    if slotIndex and dollOrBagIndex then
+        -- If both indices are provided, assume it's a bag item
+        scanningTooltip:SetBagItem(dollOrBagIndex, slotIndex)
+    elseif dollOrBagIndex and not slotIndex then
+        -- If only one index is provided, assume it's an inventory item slot
+        scanningTooltip:SetInventoryItem("player", dollOrBagIndex)
+    else
+        -- Invalid input
+        return nil, "Invalid input: Provide either both bag and slot indices, or just a slot index."
+    end
+
+    -- Scan tooltip lines to find the text matching the pattern
+    for i = 1, scanningTooltip:NumLines() do
+        local leftLine = _G[scanningTooltip:GetName() .. "TextLeft" .. i]
+        if leftLine then
+            local text = leftLine:GetText()
+            if text and string.find(text, pattern) then
+                return text -- Return the text matching the pattern
+            end
+        end
+    end
+
+    return nil -- If no matching text is found
+end
+
+--[[ -- Example usage with a bag item and a pattern to find the refund policy text
+local dollOrBagIndex = 0 -- Bag ID
+local slotIndex = 1 -- Slot ID in the bag
+local pattern = "You may sell this item to a vendor" -- Pattern to search for
+local foundText, error = FindTextInTooltip(dollOrBagIndex, slotIndex, pattern)
+if foundText then
+    print("Found Text: " .. foundText)
+elseif error then
+    print(error)
+else
+    print("No text matching the pattern was found.")
+end
+ ]]
+-- ================================================================================================================================
+-- Previous version of Tooltip scanning
+-- ================================================================================================================================
 -- `GetTooltipByType(id, type)`: Creates/uses a tooltip for a given item or spell ID.
 -- `type` can be "item" or "spell". Returns the tooltip object.
-
 -- `TableOfContents(tooltip)`: Extracts text from the given tooltip object.
 -- If initially empty, retries a few times before giving up. Hides the tooltip after extraction.
-
 -- Usage Example:
 -- local myTooltip = GetTooltipByType(12345, "item")  -- Get tooltip for item with ID 12345
 -- local tooltipContent = TableOfContents(myTooltip)  -- Extract text from this tooltip
-
 -- Global or persistent tooltip frame
 local persistentTooltip = persistentTooltip or
                               CreateFrame("GameTooltip", addonName .. "PersistentTooltip", nil, "GameTooltipTemplate")
@@ -155,9 +206,9 @@ function addon:TooltipContent(entry, byType)
         return 0
     end ]]
 
-    
     -- local _, combinedText = self:TableOfContents(tooltip)
     local combinedText = GetItemTooltipText(entry.id)
-    
+
     return combinedText
 end
+-- ================================================================================================================================

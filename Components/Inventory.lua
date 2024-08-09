@@ -30,27 +30,16 @@ local function SetInvSlotForEquipLoc(equipLoc)
     return nil
 end
 
-local function IsLootTradableFromTooltip(tooltipContent)
-    -- Define the pattern to search for
-    local tradablePattern =
-        "You may trade this item with players that were also eligible to loot this item for the next"
-    -- Search the tooltip content for the pattern
-    if tooltipContent:find(tradablePattern) then
-        return true
-    end
-
-    return false
-end
-
-local function FilterOptions(item, dollOrBagIndex, slotIndex, isEquipped)
+local function FilterOptions(item, dollOrBagIndex, slotIndex)
     local options = addon.db.profile.options
 
     -- Check if the item is sharable (blue text in tooltip)
     if options.SaveSharedLootToggle then
-        local content = addon:TooltipContent(item)
+        local pattern = "You may trade this item with players"
+        local text = addon:FindTextInTooltip(pattern, dollOrBagIndex, slotIndex)
 
-        if IsLootTradableFromTooltip(content) then
-            print(item.link .. " " .. tostring(content))
+        if text then
+            print(item.link .. " can be traded with eligible players")
             return false
         end
     end
@@ -60,7 +49,7 @@ local function FilterOptions(item, dollOrBagIndex, slotIndex, isEquipped)
         -- preparing slots for this wonky api function: ❄️GetContainerItemPurchaseInfo
         local slot1, slot2 = slotIndex and dollOrBagIndex or 0, slotIndex or dollOrBagIndex
 
-        local info = C_Container.GetContainerItemPurchaseInfo(slot1, slot2, isEquipped)
+        local info = C_Container.GetContainerItemPurchaseInfo(slot1, slot2, false)
         local refundTimeLeft = info and info.refundSeconds;
 
         -- If there is a timer, then the item is refundable
@@ -129,7 +118,8 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             equipped = equipped
         }
 
-        if not FilterOptions(itemInfo, dollOrBagIndex, slotIndex, equipped) then
+        -- Check unequipped items against filter options
+        if (not equipped) and (not FilterOptions(itemInfo, dollOrBagIndex, slotIndex)) then
             return nil
         end
 
