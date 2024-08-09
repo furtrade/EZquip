@@ -98,9 +98,49 @@ function addon:TableOfContents(aTooltip, retryCount, prevLength)
 
         -- Hide the tooltip after extracting its contents
         aTooltip:Hide()
-
-        return atyp
+        local combinedText = (atyp.onLeftSide or "") .. " " .. (atyp.onRightSide or "")
+        return atyp, combinedText
     end
+end
+
+local function GetItemTooltipText(itemID)
+    -- Initialize an empty string to hold the complete tooltip text
+    local tooltipText = ""
+
+    -- Fetch the tooltip info for the given itemID
+    local tooltipData = C_TooltipInfo.GetItemByID(itemID)
+
+    -- Check if tooltip data is available
+    if tooltipData then
+        -- Iterate through each line of the tooltip
+        for _, line in ipairs(tooltipData.lines) do
+            local lineText = ""
+
+            -- Extract the left and right text if present
+            if line.leftText then
+                lineText = lineText .. line.leftText
+            end
+            if line.rightText then
+                lineText = lineText .. " " .. line.rightText
+            end
+
+            -- Check if there's a single text field that may represent additional or bottom text
+            if line.args and #line.args > 0 then
+                for _, arg in ipairs(line.args) do
+                    if arg.stringVal then
+                        lineText = lineText .. " " .. arg.stringVal
+                    end
+                end
+            end
+
+            -- Append the line text to the complete tooltip text
+            if lineText ~= "" then
+                tooltipText = tooltipText .. lineText .. "\n"
+            end
+        end
+    end
+
+    return tooltipText
 end
 
 function addon:TooltipContent(entry, byType)
@@ -110,12 +150,14 @@ function addon:TooltipContent(entry, byType)
         return 0
     end
 
-    local tooltip = self:GetTooltipByType(entry.id, byType)
+    --[[  local tooltip = self:GetTooltipByType(entry.id, byType)
     if not tooltip then
         return 0
-    end
+    end ]]
 
-    local _, combinedText = self:TableOfContents(tooltip)
-
+    
+    -- local _, combinedText = self:TableOfContents(tooltip)
+    local combinedText = GetItemTooltipText(entry.id)
+    
     return combinedText
 end

@@ -30,17 +30,32 @@ local function SetInvSlotForEquipLoc(equipLoc)
     return nil
 end
 
-local function FilterOptions(dollOrBagIndex, slotIndex, isEquipped)
+local function IsLootTradableFromTooltip(tooltipContent)
+    -- Define the pattern to search for
+    local tradablePattern =
+        "You may trade this item with players that were also eligible to loot this item for the next"
+    -- Search the tooltip content for the pattern
+    if tooltipContent:find(tradablePattern) then
+        return true
+    end
+
+    return false
+end
+
+local function FilterOptions(item, dollOrBagIndex, slotIndex, isEquipped)
     local options = addon.db.profile.options
 
     -- Check if the item is sharable (blue text in tooltip)
-    --[[ if options.SaveSharedLootToggle then
-        -- isShared = ???
-        if not isShared then
-            return nil, nil
-        end
-    end ]] -- Check if the item is refundable
+    if options.SaveSharedLootToggle then
+        local content = addon:TooltipContent(item)
 
+        if IsLootTradableFromTooltip(content) then
+            print(item.link .. " " .. tostring(content))
+            return false
+        end
+    end
+
+    -- Check if the item is refundable
     if options.SaveRefundableLootToggle then
         -- preparing slots for this wonky api function: ❄️GetContainerItemPurchaseInfo
         local slot1, slot2 = slotIndex and dollOrBagIndex or 0, slotIndex or dollOrBagIndex
@@ -50,18 +65,20 @@ local function FilterOptions(dollOrBagIndex, slotIndex, isEquipped)
 
         -- If there is a timer, then the item is refundable
         if refundTimeLeft and (refundTimeLeft > 0) then
-            return nil
+            return false
         end
     end
+
+    return true
 end
 
-local function ItemLocationValidity(dollOrBagIndex, slotIndex)
+--[[ local function ItemLocationValidity(dollOrBagIndex, slotIndex)
     -- Retrieve the addon options
     local itemLocation = slotIndex and ItemLocation:CreateFromBagAndSlot(dollOrBagIndex, slotIndex) or
                              ItemLocation:CreateFromEquipmentSlot(dollOrBagIndex)
     -- Return the itemLocation and the results of the checks
     return itemLocation -- , isShared, isRefundable
-end
+end ]]
 
 function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local equipped = (not slotIndex) and dollOrBagIndex or false -- returns the invSlot or false
@@ -111,6 +128,10 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             slotEnabled = true,
             equipped = equipped
         }
+
+        if not FilterOptions(itemInfo, dollOrBagIndex, slotIndex, equipped) then
+            return nil
+        end
 
         return itemInfo
     end
