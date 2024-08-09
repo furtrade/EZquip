@@ -61,22 +61,8 @@ local function FilterOptions(item, dollOrBagIndex, slotIndex)
     return true
 end
 
---[[ local function ItemLocationValidity(dollOrBagIndex, slotIndex)
-    -- Retrieve the addon options
-    local itemLocation = slotIndex and ItemLocation:CreateFromBagAndSlot(dollOrBagIndex, slotIndex) or
-                             ItemLocation:CreateFromEquipmentSlot(dollOrBagIndex)
-    -- Return the itemLocation and the results of the checks
-    return itemLocation -- , isShared, isRefundable
-end ]]
-
 function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local equipped = (not slotIndex) and dollOrBagIndex or false -- returns the invSlot or false
-
-    --[[ -- Get itemLocation if we need it.
-    local itemLocation = ItemLocationValidity(dollOrBagIndex, slotIndex)
-    if not itemLocation then
-        return nil
-    end ]]
 
     local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex) or
                          GetInventoryItemLink("player", dollOrBagIndex)
