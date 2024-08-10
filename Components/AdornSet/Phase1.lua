@@ -32,7 +32,6 @@ function addon:FindBestItemsAndEquip()
     if self.processing then
         return false -- Prevent re-entry if already processing
     end
-
     self.processing = true -- Mark as processing
 
     -- Phase 1

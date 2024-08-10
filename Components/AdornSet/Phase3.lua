@@ -7,7 +7,8 @@ addon.currentIndex = 1 -- Index to track the current item being processed
 -- Function to handle entering combat
 function addon:OnCombatStart()
     self.inCombat = true
-    if self.currentIndex <= #self.QueuedItems then
+    -- Only set the interrupted flag if the process was actually ongoing
+    if self.processing and (self.currentIndex <= #self.QueuedItems) then
         self.interrupted = true -- Mark that the process was interrupted
     end
 end
@@ -15,12 +16,13 @@ end
 -- Function to handle leaving combat
 function addon:OnCombatEnd()
     self.inCombat = false
-    if self.interrupted then
-        self:ResumeEquipQueuedItems() -- Resume processing if it was interrupted
+    -- Resume processing only if it was interrupted and the process was actually started
+    if self.interrupted and self.processing then
+        self:ResumeEquipQueuedItems()
     end
 end
 
--- Registering the events using EventRegistry
+--[[ -- Registering the events using EventRegistry
 EventRegistry:RegisterCallback("PLAYER_REGEN_DISABLED", function()
     addon:OnCombatStart()
 end, addon)
@@ -28,6 +30,7 @@ end, addon)
 EventRegistry:RegisterCallback("PLAYER_REGEN_ENABLED", function()
     addon:OnCombatEnd()
 end, addon)
+ ]]
 
 -- Function to equip all queued items with pausing and resuming
 function addon:EquipQueuedItems()

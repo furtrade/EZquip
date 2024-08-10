@@ -58,12 +58,14 @@ function addon:InitSpecsAndScales()
 end
 
 function addon:OnEnable()
-    local events = {"PLAYER_ENTERING_WORLD", "PLAYER_LEVEL_UP", "QUEST_TURNED_IN", "LOOT_CLOSED",
-                    "ZONE_CHANGED_NEW_AREA", "PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED"}
+    local events = {"BAG_UPDATE", "PLAYER_LEVEL_UP", "ZONE_CHANGED_NEW_AREA"}
 
     for _, event in ipairs(events) do
         self:RegisterEvent(event, "OnEventThrottle")
     end
+
+    self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnCombatStart")
+    self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnCombatEnd")
 
     if self.game == "RETAIL" then
         self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "GetPlayerClassAndSpec")
