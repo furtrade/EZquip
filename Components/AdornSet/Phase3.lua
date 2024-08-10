@@ -32,6 +32,7 @@ end, addon)
 -- Function to equip all queued items with pausing and resuming
 function addon:EquipQueuedItems()
     if not self.QueuedItems or #self.QueuedItems == 0 then
+        self:CompleteProcessing()
         return
     end
 
@@ -52,12 +53,13 @@ function addon:EquipQueuedItems()
     -- Reset the index after processing all items
     self.currentIndex = 1
     self.interrupted = false -- Reset interrupted flag after successful completion
-    if not self.interrupted then
-        -- Snapshot of queue for later comparison post process
-        self.PreviousQueuedItems = self.QueuedItems
-        -- Clear Queue
-        self.QueuedItems = {}
-    end
+
+    -- Snapshot of queue for later comparison post process
+    self.PreviousQueuedItems = self.QueuedItems
+    -- Clear Queue
+    self.QueuedItems = {}
+
+    self:CompleteProcessing() -- Mark processing as complete
 end
 
 -- Function to resume equipping items after combat
@@ -65,24 +67,13 @@ function addon:ResumeEquipQueuedItems()
     -- Only continue if there's something left to process
     if self.currentIndex <= #self.QueuedItems then
         self:EquipQueuedItems()
+    else
+        self:CompleteProcessing() -- Ensure processing is marked complete if there's nothing left
     end
 end
 
--- Phase 1, 2, and 3
--- Function to update armory and equip the best sets
-function addon:FindBestItemsAndEquip()
-    -- Phase 1
-    self:GetPawnCommonName()
-    self:UpdateArmory()
-
-    -- Phase 2
-    local weaponSet, armorSet, ringSet, trinketSet = self:TheorizeSet(self.myArmory)
-    -- Queue the items from all sets
-    self:QueueSets({weaponSet, armorSet, ringSet, trinketSet})
-
-    -- Phase 3
-    -- Equip all queued items
-    self:EquipQueuedItems()
-
-    ClearCursor()
+-- Function to mark processing as complete
+function addon:CompleteProcessing()
+    self.processing = false -- Reset the processing flag
+    -- EventRegistry:TriggerEvent("EZQUIP_QUEUE_PROCESSED")
 end

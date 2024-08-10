@@ -50,8 +50,6 @@ addon.gameVersionLookup = {
     [20000] = "TBC"
 }
 
-addon.timeThreshold = 7 -- in seconds
-
 addon.pawn = false
 
 local gameVersion = select(4, GetBuildInfo())

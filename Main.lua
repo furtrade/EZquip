@@ -62,7 +62,7 @@ function addon:OnEnable()
                     "ZONE_CHANGED_NEW_AREA", "PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED"}
 
     for _, event in ipairs(events) do
-        self:RegisterEvent(event, "autoTrigger")
+        self:RegisterEvent(event, "OnEventThrottle")
     end
 
     if self.game == "RETAIL" then
