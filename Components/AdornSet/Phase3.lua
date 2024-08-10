@@ -12,8 +12,8 @@ function addon:EquipQueuedItems()
         self:RunAction(item.action)
     end
 
-    -- Clear the queue after equipping
-    self.QueueItems = {}
+    -- snapshot of queue for later comparison post process
+    addon.PreviousQueueItems = addon.QueueItems
 end
 
 -- Phase 1,2, and 3

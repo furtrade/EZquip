@@ -17,6 +17,7 @@ end
 
 -- Table to hold queued items to be equipped
 addon.QueueItems = {}
+addon.PreviousQueueItems = {}
 
 -- Function to queue items from a theoretical set
 function addon:QueueItemsFromSet(theoreticalSet)
@@ -25,8 +26,10 @@ function addon:QueueItemsFromSet(theoreticalSet)
     end
 
     for _, item in pairs(theoreticalSet) do
-        if item and item.hex and item.invSlot then
+        if item and item.hex and item.invSlot and -- No need to equip items that are already in the right slot
+        (not item.equipped or item.equipped ~= item.invSlot) then
             -- Setup the equip action and store it in the item table
+            -- see EquipmentManager.lua about action
             item.action = self:SetupEquipAction(item.hex, item.invSlot)
             if item.action then
                 -- Add the entire item (with action) to the queue
@@ -38,6 +41,9 @@ end
 
 -- Function to queue items from multiple sets
 function addon:QueueSets(sets)
+    -- Clear the queue after equipping
+    self.QueueItems = {}
+
     if not sets or #sets == 0 then
         return
     end
