@@ -1,28 +1,19 @@
 local _, addon = ...
 
--- Phase 3: RunAction for each item in set
-function addon:EquipEachItemInSet(theoreticalSet)
-    if not theoreticalSet or next(theoreticalSet) == nil then
+-- Function to equip all queued items
+function addon:EquipQueuedItems()
+    if not self.QueueItems or #self.QueueItems == 0 then
         return
     end
 
-    for _, item in pairs(theoreticalSet) do
-        if item and item.hex and item.invSlot then
-            local action = self:SetupEquipAction(item.hex, item.invSlot)
-            if action then
-                self:RunAction(action)
-            end
-        end
+    for _, item in ipairs(self.QueueItems) do
+        -- Execute the stored action for each item
+        -- see EquipmentManager.lua
+        self:RunAction(item.action)
     end
-end
 
--- Function to equip the given sets
-function addon:EquipSets(sets)
-    for _, set in ipairs(sets) do
-        if set then
-            self:EquipEachItemInSet(set)
-        end
-    end
+    -- Clear the queue after equipping
+    self.QueueItems = {}
 end
 
 -- Phase 1,2, and 3
@@ -34,8 +25,12 @@ function addon:FindBestItemsAndEquip()
 
     -- Phase 2
     local weaponSet, armorSet, ringSet, trinketSet = self:TheorizeSet(self.myArmory)
+    -- Queue the items from all sets
+    self:QueueSets({weaponSet, armorSet, ringSet, trinketSet})
 
     -- Phase 3
-    self:EquipSets({weaponSet, armorSet, ringSet, trinketSet})
+    -- Equip all queued items
+    self:EquipQueuedItems()
+
     ClearCursor()
 end
