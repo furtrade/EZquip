@@ -29,11 +29,12 @@ addon.ItemEquipLocToInvSlotID = {
     ["INVTYPE_WEAPONOFFHAND"] = {16},
     ["INVTYPE_SHIELD"] = {17},
     ["INVTYPE_HOLDABLE"] = {17},
+    ["INVTYPE_TABARD"] = {19},
+    -- ❄️CLASSIC spaghetti
     ["INVTYPE_RANGED"] = {18},
     ["INVTYPE_RANGEDRIGHT"] = {18}, -- This should be 18 for classic
     ["INVTYPE_THROWN"] = {0}, -- wasn't this equipped like ammo?
-    ["INVTYPE_AMMO"] = {0},
-    ["INVTYPE_TABARD"] = {19}
+    ["INVTYPE_AMMO"] = {0}
 }
 
 addon.gameVersionLookup = {

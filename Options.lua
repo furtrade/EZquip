@@ -42,7 +42,7 @@ function addon:InitializeOptions()
                 type = "execute",
                 name = "Equip!",
                 desc = "Scan your bags and equip the best items according to the stat weights of the selected scale",
-                func = "AdornSet"
+                func = "FindBestItemsAndEquip"
             },
             AutoBindToggle = {
                 order = 2.3,

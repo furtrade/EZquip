@@ -15,7 +15,7 @@ function addon:autoTrigger(event)
     local currentTime = GetTime()
 
     if not lastEventTime[event] or (currentTime - lastEventTime[event] > addon.timeThreshold) then
-        self:AdornSet()
+        self:FindBestItemsAndEquip()
         lastEventTime[event] = currentTime
     end
 end

@@ -1,7 +1,7 @@
 local _, addon = ...
 
 -- Phase 3: RunAction for each item in set
-function addon:PutTheseOn(theoreticalSet)
+function addon:EquipEachItemInSet(theoreticalSet)
     if not theoreticalSet or next(theoreticalSet) == nil then
         return
     end
@@ -20,18 +20,22 @@ end
 function addon:EquipSets(sets)
     for _, set in ipairs(sets) do
         if set then
-            self:PutTheseOn(set)
+            self:EquipEachItemInSet(set)
         end
     end
 end
 
+-- Phase 1,2, and 3
 -- Function to update armory and equip the best sets
-function addon:AdornSet()
+function addon:FindBestItemsAndEquip()
+    -- Phase 1
     self:GetPawnCommonName()
     self:UpdateArmory()
 
+    -- Phase 2
     local weaponSet, armorSet, ringSet, trinketSet = self:TheorizeSet(self.myArmory)
 
+    -- Phase 3
     self:EquipSets({weaponSet, armorSet, ringSet, trinketSet})
     ClearCursor()
 end

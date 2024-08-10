@@ -65,10 +65,12 @@ function WeaponHandler:SetHandedness(myArmory)
             end
         elseif invSlot == 18 then -- CLASSIC
             if addon.gameVersion < 40000 then
+                -- ❄️CLASSIC RANGED SLOT == 18
                 for _, item in ipairs(items) do
                     table.insert(handedness.ranged, item)
                 end
             else
+                -- ❄️RETAIL RANGED SLOT == 16
                 for _, item in ipairs(items) do
                     table.insert(handedness.twoHanders, item)
                 end
@@ -114,6 +116,20 @@ function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     return configs
 end
 
+function WeaponHandler:assignSlotIdsAndInsertRanged(weaponSet, rangedClassic)
+    if weaponSet[1] then
+        weaponSet[1].invSlot = 16
+    end
+    if weaponSet[2] then
+        weaponSet[2].invSlot = 17
+    end
+    -- optional rangedClassic
+    if rangedClassic[1] then
+        table.insert(weaponSet, rangedClassic[1])
+        weaponSet[#weaponSet].invSlot = 18
+    end
+end
+
 function WeaponHandler:getBestConfigs(weaponHand)
     -- select best weapons By Handedness and count
     -- the count should probably be 2 for dual wielders
@@ -131,17 +147,4 @@ function WeaponHandler:getBestConfigs(weaponHand)
     self:assignSlotIdsAndInsertRanged(bestConfig, ranged)
 
     return bestConfig
-end
-
-function WeaponHandler:assignSlotIdsAndInsertRanged(weaponSet, rangedClassic)
-    if weaponSet[1] then
-        weaponSet[1].invSlot = 16
-    end
-    if weaponSet[2] then
-        weaponSet[2].invSlot = 17
-    end
-    if rangedClassic[1] then
-        table.insert(weaponSet, rangedClassic[1])
-        weaponSet[#weaponSet].invSlot = 18
-    end
 end

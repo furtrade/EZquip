@@ -34,7 +34,7 @@ function addon:SlashCommand(input)
             self:Print("Disabled.")
         end,
         run = function()
-            self:AdornSet()
+            self:FindBestItemsAndEquip()
             self:Print("Running...")
         end,
         default = function()
