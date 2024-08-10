@@ -16,8 +16,8 @@ function addon:TheorizeSet(myArmory)
 end
 
 -- Table to hold queued items to be equipped
-addon.QueueItems = {}
-addon.PreviousQueueItems = {}
+addon.QueuedItems = {}
+addon.PreviousQueuedItems = {}
 
 -- Function to queue items from a theoretical set
 function addon:QueueItemsFromSet(theoreticalSet)
@@ -33,7 +33,7 @@ function addon:QueueItemsFromSet(theoreticalSet)
             item.action = self:SetupEquipAction(item.hex, item.invSlot)
             if item.action then
                 -- Add the entire item (with action) to the queue
-                table.insert(self.QueueItems, item)
+                table.insert(self.QueuedItems, item)
             end
         end
     end
@@ -42,7 +42,7 @@ end
 -- Function to queue items from multiple sets
 function addon:QueueSets(sets)
     -- Clear the queue after equipping
-    self.QueueItems = {}
+    self.QueuedItems = {}
 
     if not sets or #sets == 0 then
         return
