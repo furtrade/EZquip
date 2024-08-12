@@ -38,11 +38,16 @@ function addon:InitializeOptions()
         handler = self,
         args = {
             runCodeButton = {
-                order = 2.2,
+                order = 2.1,
                 type = "execute",
                 name = "Equip!",
                 desc = "Scan your bags and equip the best items according to the stat weights of the selected scale",
                 func = "FindBestItemsAndEquip"
+            },
+            spacer1 = {
+                type = "header",
+                order = 2.11,
+                name = ""
             },
             AutoBindToggle = {
                 order = 2.3,
