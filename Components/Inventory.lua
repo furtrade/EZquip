@@ -115,10 +115,12 @@ end
 
 local function SortTableByScore(items)
     table.sort(items, function(a, b)
-        if a.score and b.score then
+        if a.score ~= b.score then
             return a.score > b.score
+        elseif a.equipped ~= b.equipped then
+            return a.equipped
         else
-            return a.score ~= nil
+            return false
         end
     end)
 end

@@ -16,7 +16,7 @@ local function collectItemsForSlots(myArmory, slots)
 end
 
 -- Function to select the best items based on scores
-local function selectBestItems(items)
+local function selectTwoBestItems(items)
     table.sort(items, function(a, b)
         return a.score > b.score
     end)
@@ -53,7 +53,7 @@ end
 -- Main function to select and assign best items across specified slots
 local function selectAndAssignBestItems(myArmory, slots)
     local items = collectItemsForSlots(myArmory, slots)
-    local bestItem, secondBestItem = selectBestItems(items)
+    local bestItem, secondBestItem = selectTwoBestItems(items)
 
     local activeSlots = {}
     for _, invSlot in ipairs(slots) do
