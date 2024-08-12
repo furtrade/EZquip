@@ -52,3 +52,40 @@ function addon:ScoreItem(itemLink)
 
     return PawnGetSingleValueFromItem(pawnDat, addon.pawnCommonName) or 0
 end
+
+-- Function to compare an item score to an equipped item
+function addon:CompareItemScores(newItem, threshold)
+    -- Access the equipped items directly from addon.EquippedItems
+    local invSlotItems = self.EquippedItems[newItem.invSlot]
+
+    -- Check if there are items in the specified inventory slot
+    if not invSlotItems then
+        return false, "No items in this slot"
+    end
+
+    local equippedItem = nil
+
+    -- Find the equipped item in this slot
+    for _, item in ipairs(invSlotItems) do
+        if item.equipped == true then
+            equippedItem = item
+            break
+        end
+    end
+
+    -- If there's no equipped item, assume the new item is better
+    if not equippedItem then
+        return true, "No equipped item in this slot"
+    end
+
+    -- Calculate the percentage difference between scores
+    local scoreDifference = newItem.score - equippedItem.score
+    local percentageDifference = (scoreDifference / equippedItem.score) * 100
+
+    -- Check if the new item's score is greater by the threshold percentage
+    if percentageDifference > threshold then
+        return true, "New item is better by at least " .. threshold .. "%"
+    else
+        return false, "Equipped item is still better"
+    end
+end
