@@ -180,7 +180,31 @@ local function FilterUniqueEquippedItems(items)
     end
 end
 -- ==========================================================================
+function addon:shallowCopy(original)
+    local copy = {}
+    for key, value in pairs(original) do
+        copy[key] = value
+    end
+    return copy
+end
 
+local function processItem(dollOrBagIndex, slotIndex)
+    local itemInfo = addon:EvaluateItem(dollOrBagIndex, slotIndex)
+
+    if itemInfo then
+        -- Check if an equipped item is in an ignored slot so it doesnt get moved.
+        -- this is mainly for rings/trinkets which span multiple slots with the same equiploc info.
+        if type(itemInfo.equipped) == "number" and not addon.db.profile.paperDoll["slot" .. itemInfo.equipped] then
+            -- print("Skipping " .. itemInfo.link .. " because its in an ignored slot")
+        else
+            table.insert(addon.myArmory[itemInfo.invSlot], itemInfo)
+        end
+    end
+end
+
+addon.EquippedItems = {}
+
+-- Scan the inventory and bags for items
 function addon:UpdateArmory()
     local myArmory = addon.myArmory
 
@@ -189,25 +213,18 @@ function addon:UpdateArmory()
         myArmory[n] = {}
     end
 
-    local function processItem(dollOrBagIndex, slotIndex)
-        local itemInfo = addon:EvaluateItem(dollOrBagIndex, slotIndex)
-        if itemInfo then
-            -- Check if an equipped item is in an ignored slot so it doesnt get moved.
-            -- this is mainly for rings/trinkets which span multiple slots with the same equiploc info.
-            if type(itemInfo.equipped) == "number" and not addon.db.profile.paperDoll["slot" .. itemInfo.equipped] then
-                -- print("Skipping " .. itemInfo.link .. " because its in an ignored slot")
-            else
-                table.insert(myArmory[itemInfo.invSlot], itemInfo)
-            end
-        end
-    end
-
     -- Process inventory slots
     for bagOrSlotIndex = 1, 19 do
         processItem(bagOrSlotIndex)
     end
 
-    -- Process bag slots
+    -- Capture only the equipped items (armory slots)
+    self.EquippedItems = {}
+    for n = 1, 19 do
+        self.EquippedItems[n] = self:shallowCopy(myArmory[n])
+    end
+
+    -- Process bag slots (but this won't affect EquippedItems)
     for bagOrSlotIndex = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
         local numSlots = C_Container.GetContainerNumSlots(bagOrSlotIndex)
         if numSlots > 0 then
