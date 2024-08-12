@@ -8,13 +8,13 @@ function addon:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New(addon.title .. "DB", self.defaults)
 
     self:InitializeOptions()
-    self:InitializePaperDoll()
 
     AceConfig:RegisterOptionsTable(self.title .. "_Options", self.options)
     self.optionsFrame = AceConfigDialog:AddToBlizOptions(self.title .. "_Options", self.title)
 
-    AceConfig:RegisterOptionsTable(self.title .. "_paperDoll", self.paperDoll)
-    AceConfigDialog:AddToBlizOptions(self.title .. "_paperDoll", "Paper Doll", self.title)
+    -- self:InitializePaperDoll()
+    -- AceConfig:RegisterOptionsTable(self.title .. "_paperDoll", self.paperDoll)
+    -- AceConfigDialog:AddToBlizOptions(self.title .. "_paperDoll", "Paper Doll", self.title)
 
     self:RegisterChatCommand(self.title, "SlashCommand")
     self:RegisterChatCommand("EZ", "SlashCommand")
@@ -53,6 +53,7 @@ function addon:InitSpecsAndScales()
     -- Setting the scaleName to the current specId
     self:UpdateScaleName()
 
+    self:InitializePaperDollSlots()
     -- Unregister the event after initialization
     self:UnregisterEvent("PLAYER_LOGIN")
 end
