@@ -29,15 +29,7 @@ end
 
 local function selectBestItems(itemList, count)
     -- Sort the itemList by score first, and by equipped status second
-    table.sort(itemList, function(a, b)
-        if a.score ~= b.score then
-            return a.score > b.score
-        elseif a.equipped ~= b.equipped then
-            return a.equipped
-        else
-            return false
-        end
-    end)
+    addon:SortTableByScore(itemList)
 
     -- Select the top 'count' items after sorting
     local selectedItems = {}

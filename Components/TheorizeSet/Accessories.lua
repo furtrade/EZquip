@@ -17,36 +17,32 @@ end
 
 -- Function to select the best items based on scores
 local function selectTwoBestItems(items)
-    table.sort(items, function(a, b)
-        return a.score > b.score
-    end)
+    addon:SortTableByScore(items)
+
     return items[1], items[2] -- Return best and second best items
 end
 
 -- Function to assign items to active slots
 local function assignItemsToSlots(bestItem, secondBestItem, activeSlots)
     local selectedItems = {}
-    if #activeSlots == 2 then
-        if bestItem then
-            bestItem.invSlot = activeSlots[1]
-            table.insert(selectedItems, bestItem)
-        else
-            -- print("No best item found for first slot.")
-        end
-        if secondBestItem then
-            secondBestItem.invSlot = activeSlots[2]
-            table.insert(selectedItems, secondBestItem)
-        else
-            -- print("No second best item found for second slot.")
-        end
-    elseif #activeSlots == 1 then
-        if bestItem then
-            bestItem.invSlot = activeSlots[1]
-            table.insert(selectedItems, bestItem)
-        else
-            -- print("No best item found for single active slot.")
-        end
+
+    -- Early exit if no slots are available
+    if #activeSlots == 0 then
+        return selectedItems
     end
+
+    -- Assign best item to the first slot if available
+    if bestItem and #activeSlots >= 1 then
+        bestItem.invSlot = activeSlots[1]
+        table.insert(selectedItems, bestItem)
+    end
+
+    -- Assign second best item to the second slot if available
+    if secondBestItem and #activeSlots == 2 then
+        secondBestItem.invSlot = activeSlots[2]
+        table.insert(selectedItems, secondBestItem)
+    end
+
     return selectedItems
 end
 

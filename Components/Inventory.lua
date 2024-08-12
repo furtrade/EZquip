@@ -113,7 +113,8 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     end
 end
 
-local function SortTableByScore(items)
+-- Function to sort by primarily by score but also has a fallback
+function addon:SortTableByScore(items)
     table.sort(items, function(a, b)
         if a.score ~= b.score then
             return a.score > b.score
@@ -160,7 +161,7 @@ local function FilterUniqueEquippedItems(items)
         local isUnique = C_Item.GetItemUniquenessByID(itemList[1].id) -- Assume it returns only a boolean for isUnique
 
         if isUnique then
-            SortTableByScore(itemList)
+            addon:SortTableByScore(itemList)
             itemList = HandleUniquenessConstraints(itemList, isUnique, 1)
         end
 
@@ -239,6 +240,6 @@ function addon:UpdateArmory()
     -- Sort items by score in each slot
     for _, slotItems in pairs(myArmory) do
         FilterUniqueEquippedItems(slotItems)
-        SortTableByScore(slotItems)
+        addon:SortTableByScore(slotItems)
     end
 end
