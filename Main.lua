@@ -5,6 +5,25 @@ local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 function addon:OnInitialize()
+    -- Check if Pawn is already loaded
+    if IsAddOnLoaded("Pawn") then
+        self:OnPawnLoaded()
+    else
+        -- Register the ADDON_LOADED event to wait for Pawn to load
+        self:RegisterEvent("ADDON_LOADED", "OnAddonLoaded")
+    end
+end
+
+function addon:OnAddonLoaded(event, loadedAddonName)
+    if loadedAddonName == "Pawn" then
+        self:OnPawnLoaded()
+        -- Unregister ADDON_LOADED since we no longer need it
+        self:UnregisterEvent("ADDON_LOADED")
+    end
+end
+
+function addon:OnPawnLoaded()
+    -- Now that Pawn is loaded, proceed with your addon's initialization
     self.db = LibStub("AceDB-3.0"):New(addon.title .. "DB", self.defaults)
 
     self:InitializeOptions()
@@ -16,7 +35,6 @@ function addon:OnInitialize()
     self:RegisterChatCommand("EZ", "SlashCommand")
 
     self:RegisterEvent("PLAYER_LOGIN", "InitSpecsAndScales")
-
 end
 
 function addon:SlashCommand(input)
