@@ -5,7 +5,16 @@ addon.WeaponHandler = addon.WeaponHandler or {}
 local WeaponHandler = addon.WeaponHandler
 
 local function addConfig(configs, ...)
-    table.insert(configs, {...})
+    local config = {}
+    for i = 1, select("#", ...) do
+        local item = select(i, ...)
+        if item then
+            table.insert(config, item)
+        end
+    end
+    if #config > 0 then
+        table.insert(configs, config)
+    end
 end
 
 local function calculateConfigScore(config)
@@ -87,36 +96,36 @@ end
 function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     local configs = {}
 
-    -- 🗡️CONFIG1: Mainhand, No Offhand
-    if twoHanders[1] then
+    -- check slotToggled for mainhand and offhand
+    local mainhand = not addon:slotToggled(16) and addon:EvaluateItem(16) or nil
+    local offhand = not addon:slotToggled(17) and addon:EvaluateItem(17) or nil
+
+    -- If both slots are already filled, return an empty config list
+    if mainhand and offhand then
+        return configs
+    end
+
+    -- 🗡️CONFIG1: Mainhand, No Offhand (Two-Hander scenario)
+    if not (mainhand or offhand) and twoHanders[1] then
         addConfig(configs, twoHanders[1])
     end
 
-    -- ⚔️CONFIG2: Dualwielding Mainhand and Mainhand, No Offhand
+    -- ⚔️CONFIG2: Dualwielding Mainhand and Offhand (Mainhand + OneHander scenario)
     if CanDualWield() then
-        --[[ -- Titan's Grip Config 1
-        if IsPlayerSpell(46917) then
-            if twoHanders[1] and twoHanders[2] then
-                addConfig(configs, twoHanders[1], twoHanders[2])
+        if mainhand or (offhand and offhand.invSlot == 16 and offhand.equipped == 17) then
+            -- Dualwielding with existing mainhand or offhand equipped in the mainhand slot
+            addConfig(configs, mainhand or oneHanders[1], offhand or offHanders[1])
+        else
+            -- Regular Dualwielding without any existing mainhand
+            if oneHanders[1] and oneHanders[2] then
+                addConfig(configs, oneHanders[1], oneHanders[2])
             end
-            -- Titan's Grip Config 2 for weaklings
-            if twoHanders[1] and oneHanders[1] then
-                addConfig(configs, twoHanders[1], oneHanders[1])
-                addConfig(configs, oneHanders[1], twoHanders[1])
-            end
-        end ]]
-        -- Regular DualWield Config
-        if oneHanders[1] and oneHanders[2] then
-            addConfig(configs, oneHanders[1], oneHanders[2])
         end
     end
 
     -- 🗡️🛡️CONFIG3: Mainhand, and Offhand (if available)
-    if oneHanders[1] then
-        if offHanders[1] then
-            addConfig(configs, oneHanders[1], offHanders[1])
-        end
-        addConfig(configs, oneHanders[1])
+    if oneHanders[1] or offHanders[1] then
+        addConfig(configs, mainhand or oneHanders[1], offhand or offHanders[1])
     end
 
     return configs

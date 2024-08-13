@@ -75,3 +75,7 @@ addon.bagSlots = {}
 addon.scaleName = nil
 addon.pawnCommonName = nil
 addon.classOrSpec = nil
+
+function addon:slotToggled(invSlot)
+    return addon.db.profile.paperDoll["slot" .. invSlot]
+end

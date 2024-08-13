@@ -201,7 +201,7 @@ local function processItem(dollOrBagIndex, slotIndex)
     if itemInfo then
         -- Check if an equipped item is in an ignored slot so it doesnt get moved.
         -- this is mainly for rings/trinkets which span multiple slots with the same equiploc info.
-        if type(itemInfo.equipped) == "number" and not addon.db.profile.paperDoll["slot" .. itemInfo.equipped] then
+        if type(itemInfo.equipped) == "number" and not addon:slotToggled(itemInfo.equipped) then
             -- print("Skipping " .. itemInfo.link .. " because its in an ignored slot")
         else
             table.insert(addon.myArmory[itemInfo.invSlot], itemInfo)
