@@ -44,35 +44,38 @@ end
 
 function WeaponHandler:SetHandedness(myArmory)
     local handedness = {
-        twoHanders = {}, -- invSlot = 16; also includes staves and ranged(non-classic)
-        oneHanders = {}, -- invSlot = 16;
-        offHanders = {}, -- invSlot = 17
-        ranged = {} -- slotID = 18 for gameVersion < 40000. "CLASSIC"
+        twoHanders = {},
+        oneHanders = {},
+        offHanders = {},
+        ranged = {}
     }
+
+    local isClassic = addon.gameVersion < 40000
 
     for invSlot, items in pairs(myArmory) do
         if invSlot == 16 then
             for _, item in ipairs(items) do
                 if item.equipLoc == "INVTYPE_2HWEAPON" then
-                    table.insert(handedness.twoHanders, item)
+                    if not IsPlayerSpell(46917) then
+                        handedness.oneHanders[#handedness.oneHanders + 1] = item
+                    else
+                        -- TITANGRIP means Twohanders are onehanders
+                        handedness.twoHanders[#handedness.twoHanders + 1] = item
+                    end
                 else
-                    table.insert(handedness.oneHanders, item)
+                    handedness.oneHanders[#handedness.oneHanders + 1] = item
                 end
             end
         elseif invSlot == 17 then
             for _, item in ipairs(items) do
-                table.insert(handedness.offHanders, item)
+                handedness.offHanders[#handedness.offHanders + 1] = item
             end
-        elseif invSlot == 18 then -- CLASSIC
-            if addon.gameVersion < 40000 then
-                -- ❄️CLASSIC RANGED SLOT == 18
-                for _, item in ipairs(items) do
-                    table.insert(handedness.ranged, item)
-                end
-            else
-                -- ❄️RETAIL RANGED SLOT == 16
-                for _, item in ipairs(items) do
-                    table.insert(handedness.twoHanders, item)
+        elseif invSlot == 18 then
+            for _, item in ipairs(items) do
+                if isClassic then
+                    handedness.ranged[#handedness.ranged + 1] = item
+                else
+                    handedness.twoHanders[#handedness.twoHanders + 1] = item
                 end
             end
         end
@@ -84,12 +87,14 @@ end
 function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     local configs = {}
 
+    -- 🗡️CONFIG1: Mainhand, No Offhand
     if twoHanders[1] then
         addConfig(configs, twoHanders[1])
     end
 
+    -- ⚔️CONFIG2: Dualwielding Mainhand and Mainhand, No Offhand
     if CanDualWield() then
-        -- Titan's Grip Config 1
+        --[[ -- Titan's Grip Config 1
         if IsPlayerSpell(46917) then
             if twoHanders[1] and twoHanders[2] then
                 addConfig(configs, twoHanders[1], twoHanders[2])
@@ -99,13 +104,14 @@ function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
                 addConfig(configs, twoHanders[1], oneHanders[1])
                 addConfig(configs, oneHanders[1], twoHanders[1])
             end
-        end
+        end ]]
         -- Regular DualWield Config
         if oneHanders[1] and oneHanders[2] then
             addConfig(configs, oneHanders[1], oneHanders[2])
         end
     end
 
+    -- 🗡️🛡️CONFIG3: Mainhand, and Offhand (if available)
     if oneHanders[1] then
         if offHanders[1] then
             addConfig(configs, oneHanders[1], offHanders[1])
