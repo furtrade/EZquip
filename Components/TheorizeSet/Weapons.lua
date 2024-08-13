@@ -4,17 +4,30 @@ addon.WeaponHandler = addon.WeaponHandler or {}
 
 local WeaponHandler = addon.WeaponHandler
 
-local function addConfig(configs, ...)
+local function createDummyItem()
+    return {
+        score = 0
+    }
+end
+
+local function addConfig(configs, slot1, slot2)
     local config = {}
-    for i = 1, select("#", ...) do
-        local item = select(i, ...)
-        if item then
-            table.insert(config, item)
-        end
+
+    -- Ensure slot1 is never nil; provide a dummy item if it is
+    if not slot1 then
+        slot1 = createDummyItem()
     end
-    if #config > 0 then
-        table.insert(configs, config)
+
+    -- Add slot1 to the config
+    table.insert(config, slot1)
+
+    -- Add slot2 if it is not nil; otherwise, skip it
+    if slot2 then
+        table.insert(config, slot2)
     end
+
+    -- Add the configuration to the configs table
+    table.insert(configs, config)
 end
 
 local function calculateConfigScore(config)
@@ -97,8 +110,11 @@ function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     local configs = {}
 
     -- check slotToggled for mainhand and offhand
-    local mainhand = not addon:slotToggled(16) and addon:EvaluateItem(16) or nil
-    local offhand = not addon:slotToggled(17) and addon:EvaluateItem(17) or nil
+    local mainhandToggled = addon:slotToggled(16)
+    local offhandToggled = addon:slotToggled(17)
+
+    local mainhand = not mainhandToggled and addon:EvaluateItem(16) or nil
+    local offhand = not offhandToggled and addon:EvaluateItem(17) or nil
 
     -- If both slots are already filled, return an empty config list
     if mainhand and offhand then
@@ -106,12 +122,12 @@ function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     end
 
     -- 🗡️CONFIG1: Mainhand, No Offhand (Two-Hander scenario)
-    if not (mainhand or offhand) and twoHanders[1] then
+    if mainhandToggled and not (mainhand or offhand) and twoHanders[1] then
         addConfig(configs, twoHanders[1])
     end
 
     -- ⚔️CONFIG2: Dualwielding Mainhand and Offhand (Mainhand + OneHander scenario)
-    if CanDualWield() then
+    if mainhandToggled and offhandToggled and CanDualWield() then
         if mainhand or (offhand and offhand.invSlot == 16 and offhand.equipped == 17) then
             -- Dualwielding with existing mainhand or offhand equipped in the mainhand slot
             addConfig(configs, mainhand or oneHanders[1], offhand or offHanders[1])
@@ -125,7 +141,8 @@ function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
 
     -- 🗡️🛡️CONFIG3: Mainhand, and Offhand (if available)
     if oneHanders[1] or offHanders[1] then
-        addConfig(configs, mainhand or oneHanders[1], offhand or offHanders[1])
+        addConfig(configs, mainhand or (mainhandToggled and oneHanders[1]) or nil,
+            offhand or (offhandToggled and offHanders[1]))
     end
 
     return configs
