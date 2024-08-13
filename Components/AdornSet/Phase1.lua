@@ -6,6 +6,11 @@ addon.processing = false -- Flag to indicate if FindBestItemsAndEquip is current
 
 -- Throttle the event triggered equip action
 function addon:OnEventThrottle(event)
+    -- Prevent equipping items if the player is in an instance
+    if self.db.profile.options.isInstanceToggle and self.isInstance then
+        return
+    end
+
     if event == "PLAYER_REGEN_DISABLED" or InCombatLockdown() then
         return
     end

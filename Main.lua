@@ -79,8 +79,13 @@ function addon:OnEnable()
         self:RegisterEvent(event, "OnEventThrottle")
     end
 
+    -- Combat State
     self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnCombatStart")
     self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnCombatEnd")
+
+    -- Instance State
+    self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "OnZoneChange")
+    self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnZoneChange")
 
     if self.game == "RETAIL" then
         self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "GetPlayerClassAndSpec")

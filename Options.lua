@@ -6,6 +6,7 @@ addon.defaults = {
             AutoBindToggle = false,
             SaveSharedLootToggle = true,
             SaveRefundableLootToggle = true,
+            isInstanceToggle = true,
             -- selectedScale = nil,
             selectedScales = {}
         },
@@ -84,7 +85,20 @@ function addon:InitializeOptions()
                 set = function(info, value)
                     self.db.profile.options.SaveRefundableLootToggle = value
                 end
+            },
+            isInstanceToggle = {
+                order = 2.3,
+                type = "toggle",
+                name = "Instance",
+                desc = "Avoid auto equipping while in a dungeon or raid",
+                get = function(info)
+                    return self.db.profile.options.isInstanceToggle
+                end,
+                set = function(info, value)
+                    self.db.profile.options.isInstanceToggle = value
+                end
             }
+
         }
     }
 end
