@@ -64,6 +64,11 @@ local function selectBestItems(itemList, count)
     return selectedItems
 end
 
+local function HasTitanGrip()
+    local titanGripSpellID = 46917
+    return C_Spell.IsSpellUsable(titanGripSpellID)
+end
+
 function WeaponHandler:SetHandedness(myArmory)
     local handedness = {
         twoHanders = {},
@@ -73,12 +78,14 @@ function WeaponHandler:SetHandedness(myArmory)
     }
 
     local isClassic = addon.gameVersion < 40000
+    local isTitan = HasTitanGrip()
 
     for invSlot, items in pairs(myArmory) do
         if invSlot == 16 then
             for _, item in ipairs(items) do
                 if item.equipLoc == "INVTYPE_2HWEAPON" then
-                    if not IsPlayerSpell(46917) then
+                    if not isTitan then
+                        print(item.link .. "adding to onehanders, TITAN!")
                         handedness.oneHanders[#handedness.oneHanders + 1] = item
                     else
                         -- TITANGRIP means Twohanders are onehanders
@@ -100,6 +107,14 @@ function WeaponHandler:SetHandedness(myArmory)
                     handedness.twoHanders[#handedness.twoHanders + 1] = item
                 end
             end
+        end
+    end
+
+    -- Loop through each category and list the items with their scores and links
+    for category, items in pairs(handedness) do
+        print("Category: " .. category)
+        for _, item in ipairs(items) do
+            print("Item Score: " .. (item.score or "N/A") .. ", Item Link: " .. (item.link or "N/A"))
         end
     end
 
@@ -140,9 +155,12 @@ function WeaponHandler:getWeaponConfigs(twoHanders, oneHanders, offHanders)
     end
 
     -- 🗡️🛡️CONFIG3: Mainhand, and Offhand (if available)
-    if oneHanders[1] or offHanders[1] then
-        addConfig(configs, mainhand or (mainhandToggled and oneHanders[1]) or nil,
-            offhand or (offhandToggled and offHanders[1]))
+    if (mainhandToggled and offhandToggled) and (oneHanders[1] and offHanders[1]) then
+        addConfig(configs, oneHanders[1], offHanders[1])
+    elseif offhand or not offHanders[1] then
+        addConfig(configs, oneHanders[1], offhand)
+    elseif mainhand or not oneHanders[1] then
+        addConfig(configs, mainhand, offHanders[1])
     end
 
     return configs
