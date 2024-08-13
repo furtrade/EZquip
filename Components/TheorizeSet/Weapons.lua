@@ -85,7 +85,7 @@ function WeaponHandler:SetHandedness(myArmory)
             for _, item in ipairs(items) do
                 if item.equipLoc == "INVTYPE_2HWEAPON" then
                     if not isTitan then
-                        print(item.link .. "adding to onehanders, TITAN!")
+                        -- print(item.link .. "adding to onehanders, TITAN!")
                         handedness.oneHanders[#handedness.oneHanders + 1] = item
                     else
                         -- TITANGRIP means Twohanders are onehanders
@@ -107,14 +107,6 @@ function WeaponHandler:SetHandedness(myArmory)
                     handedness.twoHanders[#handedness.twoHanders + 1] = item
                 end
             end
-        end
-    end
-
-    -- Loop through each category and list the items with their scores and links
-    for category, items in pairs(handedness) do
-        print("Category: " .. category)
-        for _, item in ipairs(items) do
-            print("Item Score: " .. (item.score or "N/A") .. ", Item Link: " .. (item.link or "N/A"))
         end
     end
 
