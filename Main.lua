@@ -12,10 +12,6 @@ function addon:OnInitialize()
     AceConfig:RegisterOptionsTable(self.title .. "_Options", self.options)
     self.optionsFrame = AceConfigDialog:AddToBlizOptions(self.title .. "_Options", self.title)
 
-    -- self:InitializePaperDoll()
-    -- AceConfig:RegisterOptionsTable(self.title .. "_paperDoll", self.paperDoll)
-    -- AceConfigDialog:AddToBlizOptions(self.title .. "_paperDoll", "Paper Doll", self.title)
-
     self:RegisterChatCommand(self.title, "SlashCommand")
     self:RegisterChatCommand("EZ", "SlashCommand")
 

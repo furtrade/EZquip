@@ -116,7 +116,11 @@ end
 -- Function to sort by primarily by score but also has a fallback
 function addon:SortTableByScore(items)
     table.sort(items, function(a, b)
-        if a.score ~= b.score then
+        if not b then
+            return true -- if b is nil, a should come first
+        elseif not a then
+            return false -- if a is nil, b should come first
+        elseif a.score ~= b.score then
             return a.score > b.score
         elseif a.equipped ~= b.equipped then
             return a.equipped

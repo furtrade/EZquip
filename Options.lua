@@ -132,49 +132,6 @@ function addon:InitializePaperDollSlots()
     }
 end
 
-function addon:InitializePaperDoll()
-    self.paperDoll = {
-        type = "group",
-        name = "Paper Doll",
-        args = {
-            armorHeader = {
-                type = "header",
-                name = "Armor",
-                order = 1
-            },
-            slot1 = createSlotToggleOption("slot1", "Head", 2.01, "Head slot"),
-            slot2 = createSlotToggleOption("slot2", "Neck", 3.051, "Neck slot"),
-            slot3 = createSlotToggleOption("slot3", "Shoulder", 2.03, "Shoulder slot"),
-            slot15 = createSlotToggleOption("slot15", "Back", 2.04, "Back slot"),
-            slot5 = createSlotToggleOption("slot5", "Chest", 2.05, "Chest slot"),
-            slot9 = createSlotToggleOption("slot9", "Wrist", 2.06, "Wrist slot"),
-            slot10 = createSlotToggleOption("slot10", "Hands", 3.01, "Hands slot"),
-            slot6 = createSlotToggleOption("slot6", "Waist", 3.02, "Waist slot"),
-            slot7 = createSlotToggleOption("slot7", "Legs", 3.03, "Legs slot"),
-            slot8 = createSlotToggleOption("slot8", "Feet", 3.04, "Feet slot"),
-            accessoriesHeader = {
-                type = "header",
-                name = "Accessories",
-                order = 3.05
-            },
-            slot11 = createSlotToggleOption("slot11", "Ring 1", 3.06, "Ring slot 1"),
-            slot12 = createSlotToggleOption("slot12", "Ring 2", 3.07, "Ring slot 2"),
-            slot13 = createSlotToggleOption("slot13", "Trinket 1", 4.01, "Trinket slot 1"),
-            slot14 = createSlotToggleOption("slot14", "Trinket 2", 4.02, "Trinket slot 2"),
-            weaponsHeader = {
-                type = "header",
-                name = "Weapons",
-                order = 5
-            },
-            slot16 = createSlotToggleOption("slot16", "MainHand", 5.03, "MainHand slot"),
-            slot17 = createSlotToggleOption("slot17", "OffHand", 5.04, "OffHand slot"),
-            slot18 = addon.gameVersion < 40000 and createSlotToggleOption("slot18", "Ranged", 5.05, "Ranged slot") or
-                createSlotToggleOption("slot18", "Ranged", 5.05, "Ranged slot", true)
-
-        }
-    }
-end
-
 -- ===============================================================
 -- Function to gather user spec information
 function addon:GetAllPlayerSpecs()
