@@ -6,7 +6,7 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 function addon:OnInitialize()
     -- Check if Pawn is already loaded
-    if IsAddOnLoaded("Pawn") then
+    if C_AddOns.IsAddOnLoaded("Pawn") then
         self:OnPawnLoaded()
     else
         -- Register the ADDON_LOADED event to wait for Pawn to load
