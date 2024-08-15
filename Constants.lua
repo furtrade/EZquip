@@ -1,5 +1,8 @@
 local addonName, addon = ...
 
+addon.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
+addon.pawn = false
+
 -- import some constants from the blizzard API for convenience.
 NUM_BAG_SLOTS = Constants.InventoryConstants.NumBagSlots
 NUM_REAGENTBAG_SLOTS = Constants.InventoryConstants.NumReagentBagSlots
@@ -37,7 +40,8 @@ addon.ItemEquipLocToInvSlotID = {
     ["INVTYPE_AMMO"] = {0}
 }
 
-addon.gameVersionLookup = {
+-- Lookup table for game versions
+local gameVersionLookup = {
     [110000] = "RETAIL",
     [100000] = "DRAGONFLIGHT",
     [90000] = "SHADOWLANDS",
@@ -50,23 +54,28 @@ addon.gameVersionLookup = {
     [20000] = "TBC"
 }
 
-addon.pawn = false
-
 local gameVersion = select(4, GetBuildInfo())
 addon.gameVersion = gameVersion
 
--- Find the appropriate game version
-for version, name in pairs(addon.gameVersionLookup) do
+-- Sort the keys in descending order
+local sortedVersions = {}
+for version in pairs(gameVersionLookup) do
+    table.insert(sortedVersions, version)
+end
+table.sort(sortedVersions, function(a, b)
+    return a > b
+end)
+
+-- Find the correct game version name or default to "UNKNOWN"
+addon.game = "UNKNOWN"
+for _, version in ipairs(sortedVersions) do
     if gameVersion >= version then
-        addon.game = name
+        addon.game = gameVersionLookup[version]
         break
     end
 end
-
 -- Default to CLASSIC if no match found
 addon.game = addon.game or "CLASSIC"
-
-addon.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
 
 addon.myArmory = {}
 addon.invSlots = {}

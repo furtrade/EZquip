@@ -45,6 +45,23 @@ Components\Score.lua
 Components\Tooltip.lua
 Components\Zone.lua
 
+Components\Data\LoadData.lua
+# Load best in slot trinkets data
+Components\Data\Trinkets\death_knight_trinkets.lua
+Components\Data\Trinkets\demon_hunter_trinkets.lua
+Components\Data\Trinkets\druid_trinkets.lua
+Components\Data\Trinkets\evoker_trinkets.lua
+Components\Data\Trinkets\hunter_trinkets.lua
+Components\Data\Trinkets\mage_trinkets.lua
+Components\Data\Trinkets\monk_trinkets.lua
+Components\Data\Trinkets\paladin_trinkets.lua
+Components\Data\Trinkets\priest_trinkets.lua
+Components\Data\Trinkets\rogue_trinkets.lua
+Components\Data\Trinkets\shaman_trinkets.lua
+Components\Data\Trinkets\warlock_trinkets.lua
+Components\Data\Trinkets\warrior_trinkets.lua
+
+# core
 Constants.lua
 Options.lua
 Main.lua

@@ -318,12 +318,14 @@ end
 
 -- Function to get the player class and spec and store them in the database
 function addon:GetPlayerClassAndSpec()
-    local className = UnitClass("player")
+    local className, _, classId = UnitClass("player")
     self.db.char.className = className
+    self.db.char.classId = classId
 
     local specId = addon.gameVersion >= 40000 and GetSpecialization() or nil
     if specId then
         local specName = select(2, GetSpecializationInfo(specId))
+        self.db.char.specId = specId
         self.db.char.specName = specName
 
         return className, specName

@@ -35,6 +35,7 @@ function addon:OnPawnLoaded()
     self:RegisterChatCommand("EZ", "SlashCommand")
 
     self:RegisterEvent("PLAYER_LOGIN", "InitSpecsAndScales")
+
 end
 
 function addon:SlashCommand(input)
@@ -69,6 +70,10 @@ function addon:InitSpecsAndScales()
 
     self:InitializePaperDollSlots()
     -- Unregister the event after initialization
+
+    -- Load Data for the specific version of the game. bis trinkets etc...
+    self:InitializeDataLoader()
+
     self:UnregisterEvent("PLAYER_LOGIN")
 end
 
