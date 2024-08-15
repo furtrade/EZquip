@@ -61,22 +61,59 @@ local function FilterOptions(item, dollOrBagIndex, slotIndex)
     return true
 end
 
+-- Function to create the itemId from the itemLink
+local function CreateItemIdFromItemLink(itemLink)
+    local itemId = tonumber(string.match(itemLink, "item:(%d+):"))
+
+    return itemId
+end
+
+-- Function to get itemLink from bag or inventory
+local function CreateItemLink(dollOrBagIndex, slotIndex)
+    local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex) or
+                         GetInventoryItemLink("player", dollOrBagIndex)
+
+    return itemLink
+end
+
+local function GetItemInfoFromLocation(itemLocation)
+    if itemLocation and itemLocation:IsValid() then
+        local itemLink = C_Item.GetItemLink(itemLocation)
+        local itemID = C_Item.GetItemID(itemLocation)
+        return itemLink, itemID
+    else
+        return nil, nil
+    end
+end
+
+local function CreateItemLocation(dollOrBagIndex, slotIndex)
+    local itemLocation
+
+    if slotIndex then
+        itemLocation = ItemLocation:CreateFromBagAndSlot(dollOrBagIndex, slotIndex)
+    else
+        itemLocation = ItemLocation:CreateFromEquipmentSlot(dollOrBagIndex)
+    end
+
+    if itemLocation and itemLocation:IsValid() then
+        return itemLocation
+    else
+        return nil
+    end
+end
+
 function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local equipped = (not slotIndex) and dollOrBagIndex or false -- returns the invSlot or false
 
-    local itemLink = slotIndex and C_Container.GetContainerItemLink(dollOrBagIndex, slotIndex) or
-                         GetInventoryItemLink("player", dollOrBagIndex)
-    if not itemLink then
+    local itemLocation = CreateItemLocation(dollOrBagIndex, slotIndex)
+    if not itemLocation then
         return nil
     end
 
+    local itemLink, itemID = GetItemInfoFromLocation(itemLocation)
     local score = addon:ScoreItem(itemLink)
-    if not (score > 0) then
-        return nil
-    end
 
-    local itemID = tonumber(string.match(itemLink, "item:(%d+):"))
-    if not itemID then
+    if not (itemLink and itemID) or not (score > 0) then
         return nil
     end
 
@@ -89,19 +126,18 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             return nil
         end
 
-        local setId = select(16, C_Item.GetItemInfo(itemID))
-
         local itemInfo = {
             name = C_Item.GetItemNameByID(itemID),
             link = itemLink,
             id = itemID,
             equipLoc = equipLoc,
             invSlot = invSlot,
-            setId = setId,
+            setId = select(16, C_Item.GetItemInfo(itemID)),
             score = score,
             hex = addon:HexItem(dollOrBagIndex, slotIndex),
-            slotEnabled = true,
-            equipped = equipped
+            equipped = equipped,
+            ilvl = C_Item.GetCurrentItemLevel(itemLocation),
+            isBound = C_Item.IsBound(itemLocation)
         }
 
         -- Check unequipped items against filter options
@@ -126,6 +162,21 @@ function addon:SortTableByScore(items)
             return a.equipped
         else
             return false
+        end
+    end)
+end
+
+function addon:SortTableByLevel(items)
+    table.sort(items, function(a, b)
+        local a_ilvl = tonumber(a.ilvl) or -1
+        local b_ilvl = tonumber(b.ilvl) or -1
+
+        if a_ilvl ~= b_ilvl then
+            return a_ilvl > b_ilvl
+        elseif (a.equipped ~= nil and b.equipped ~= nil) and (a.equipped ~= b.equipped) then
+            return a.equipped and not b.equipped
+        else
+            return tostring(a) < tostring(b)
         end
     end)
 end

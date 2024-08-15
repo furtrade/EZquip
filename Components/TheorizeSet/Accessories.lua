@@ -16,8 +16,20 @@ local function collectItemsForSlots(myArmory, slots)
 end
 
 -- Function to select the best items based on scores
-local function selectTwoBestItems(items)
+local function SelectRings(items)
     addon:SortTableByScore(items)
+
+    return items[1], items[2] -- Return best and second best items
+end
+
+-- Function to select the best items based on ilvl
+local function SelectTrinkets(items)
+    addon:SortTableByLevel(items)
+
+    print("Trinkets(After):\n")
+    for k, v in pairs(items) do
+        print(v.ilvl, v.score, v.link)
+    end
 
     return items[1], items[2] -- Return best and second best items
 end
@@ -49,7 +61,25 @@ end
 -- Main function to select and assign best items across specified slots
 local function selectAndAssignBestItems(myArmory, slots)
     local items = collectItemsForSlots(myArmory, slots)
-    local bestItem, secondBestItem = selectTwoBestItems(items)
+    local RING, TRINKET = 11 or 12, 13 or 14
+
+    --[[ for x, y in pairs(slots) do
+        if y > 12 then
+            print("Trinkets(Before):\n")
+            for k, v in pairs(myArmory[y]) do
+                print(v.ilvl, v.score, v.link)
+            end
+        end
+    end ]]
+
+    local bestItem, secondBestItem
+    if slots[1] == RING or slots[2] == RING then
+        bestItem, secondBestItem = SelectRings(items)
+        -- print("RING: " .. bestItem.link)
+    elseif slots[1] == TRINKET or slots[2] == TRINKET then
+        bestItem, secondBestItem = SelectTrinkets(items)
+        -- print("TRINKET: " .. bestItem.link .. " with ilvl: " .. bestItem.ilvl)
+    end
 
     local activeSlots = {}
     for _, invSlot in ipairs(slots) do
