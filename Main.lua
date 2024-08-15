@@ -93,7 +93,7 @@ function addon:OnEnable()
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnZoneChange")
 
     if self.game == "RETAIL" then
-        self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "GetPlayerClassAndSpec")
+        self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "UpdateDataForSpec")
     end
 end
 
