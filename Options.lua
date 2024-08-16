@@ -322,13 +322,15 @@ function addon:GetPlayerClassAndSpec()
     self.db.char.className = className
     self.db.char.classId = classId
 
-    local specId = addon.gameVersion >= 40000 and GetSpecialization() or nil
-    if specId then
-        local specName = select(2, GetSpecializationInfo(specId))
-        self.db.char.specId = specId
+    local specIndex = addon.gameVersion >= 40000 and GetSpecialization() or nil
+    if specIndex then
+        local specName = select(2, GetSpecializationInfo(specIndex))
+        self.db.char.specIndex = specIndex
         self.db.char.specName = specName
+        local specId = GetSpecializationInfo(specIndex)
+        self.db.char.specId = specId
 
-        return className, specName
+        return className, specName, classId, specIndex, specId
     else
         self.db.char.specName = nil
 

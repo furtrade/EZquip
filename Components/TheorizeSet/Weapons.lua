@@ -79,6 +79,7 @@ function WeaponHandler:SetHandedness(myArmory)
 
     local isClassic = addon.gameVersion < 40000
     local isTitan = HasTitanGrip()
+    local isHunterRetail = addon.game == "RETAIL" and (addon.db.char.classId == 3) and (addon.db.char.specId ~= 255)
 
     for invSlot, items in pairs(myArmory) do
         if invSlot == 16 then
@@ -99,11 +100,11 @@ function WeaponHandler:SetHandedness(myArmory)
             for _, item in ipairs(items) do
                 handedness.offHanders[#handedness.offHanders + 1] = item
             end
-        elseif invSlot == 18 then
+        elseif invSlot == 18 and isClassic or isHunterRetail then
             for _, item in ipairs(items) do
                 if isClassic then
                     handedness.ranged[#handedness.ranged + 1] = item
-                else
+                elseif isHunterRetail then
                     handedness.twoHanders[#handedness.twoHanders + 1] = item
                 end
             end

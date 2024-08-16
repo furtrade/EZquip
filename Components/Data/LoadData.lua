@@ -27,8 +27,7 @@ function addon:InitializeDataLoader()
     end
 
     local classId = self.db.char.classId
-    local specIndex = self.db.char.specId
-    local specId = GetSpecializationInfo(specIndex)
+    local specId = self.db.char.specId
 
     if not specId then
         -- print("Error: specId is missing.")
