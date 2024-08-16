@@ -89,30 +89,3 @@ function addon:CompareItemScores(newItem, threshold)
         return false, "Equipped item is still better"
     end
 end
-
--- Function to lookup DPS based on itemId and ilvl
-function addon:LookupBisTrinkets(itemId, ilvl)
-    local trinket = self.BisTrinkets[itemId]
-
-    if not trinket then
-        return nil, "Item ID not found"
-    end
-
-    local closest_ilvl = nil
-    local closest_dps = nil
-
-    for trinket_ilvl, dps in pairs(trinket.dps_by_ilvl) do
-        if trinket_ilvl == ilvl then
-            return dps -- Exact match found
-        elseif trinket_ilvl < ilvl and (not closest_ilvl or (trinket_ilvl > closest_ilvl)) then
-            closest_ilvl = trinket_ilvl
-            closest_dps = dps
-        end
-    end
-
-    if closest_dps then
-        return closest_dps -- Return DPS for closest ilvl found
-    else
-        return nil, "No suitable ilvl found"
-    end
-end

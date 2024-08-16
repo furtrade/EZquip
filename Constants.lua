@@ -88,3 +88,74 @@ addon.classOrSpec = nil
 function addon:slotToggled(invSlot)
     return addon.db.profile.paperDoll["slot" .. invSlot]
 end
+
+addon.priorities = {{
+    -- Sort by bisScore in descending order
+    getValue = function(item)
+        return tonumber(item.bisScore) or 0
+    end,
+    descending = true
+}, {
+    -- Sort by item score in descending order
+    getValue = function(item)
+        return tonumber(item.score) or 0
+    end,
+    descending = true
+}, {
+    -- Sort by item level (ilvl) in descending order
+    getValue = function(item)
+        return tonumber(item.ilvl) or -1
+    end,
+    descending = true
+}, {
+    -- Sort by whether the item is equipped or not in descending order
+    getValue = function(item)
+        -- Normalize to 1 (for equipped) or 0 (for not equipped)
+        return item.equipped and 1 or 0
+    end,
+    descending = true
+}, {
+    -- Sort by whether the item is bound or not in descending order
+    getValue = function(item)
+        -- Normalize to 1 (for bound) or 0 (for not bound)
+        return item.isBound and 1 or 0
+    end,
+    descending = true
+}, {
+    -- Sort by item name as a fallback, in ascending alphabetical order
+    getValue = function(item)
+        return tostring(item) or ""
+    end,
+    descending = false
+}}
+
+function addon:SortTable(items, sortOrder)
+    sortOrder = sortOrder or self.priorities
+
+    table.sort(items, function(a, b)
+        for _, criteria in ipairs(sortOrder) do
+            local a_value = criteria.getValue(a)
+            local b_value = criteria.getValue(b)
+
+            -- Normalize types to avoid type conversion issues
+            if type(a_value) == "string" then
+                a_value = tonumber(a_value) or a_value
+            end
+            if type(b_value) == "string" then
+                b_value = tonumber(b_value) or b_value
+            end
+
+            -- Handle comparison based on criteria
+            if a_value ~= b_value then
+                if criteria.descending then
+                    return a_value > b_value
+                else
+                    return a_value < b_value
+                end
+            end
+        end
+
+        -- Fallback to a default comparison if all criteria are equal
+        return tostring(a) < tostring(b)
+    end)
+end

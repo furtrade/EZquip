@@ -17,18 +17,95 @@ end
 
 -- Function to select the best items based on scores
 local function SelectRings(items)
-    addon:SortTableByScore(items)
+    addon:SortTable(items)
 
     return items[1], items[2] -- Return best and second best items
 end
 
+-- Function to lookup DPS based on itemId and ilvl
+function addon:LookupBisTrinkets(itemId, ilvl)
+    local trinket = self.BisTrinkets[itemId]
+
+    if not trinket then
+        -- not on bis trinket list
+        return 0, "Item ID not found"
+    end
+
+    local closest_ilvl = nil
+    local closest_dps = nil
+
+    for trinket_ilvl, dps in pairs(trinket.dps_by_ilvl) do
+        if trinket_ilvl == ilvl then
+            return dps -- Exact match found
+        elseif trinket_ilvl < ilvl and (not closest_ilvl or (trinket_ilvl > closest_ilvl)) then
+            closest_ilvl = trinket_ilvl
+            closest_dps = dps
+        end
+    end
+
+    if closest_dps then
+        return closest_dps -- Return DPS for closest ilvl found
+    else
+        return 0, "No suitable ilvl found"
+    end
+end
+
 -- Function to select the best items based on ilvl
 local function SelectTrinkets(items)
-    addon:SortTableByLevel(items)
+    -- iterate over items to find bis and add its DPS value
+    for _, item in pairs(items) do
+        local bisScore, err = addon:LookupBisTrinkets(item.id, item.ilvl)
+        if bisScore then
+            item.bisScore = bisScore
+        end
+    end
 
+    -- This determines the best items based on our priorities
+    -- Prioritising ilvl because score/bisScore are unreliable
+    local sortOrder = {{
+        -- Sort by item level (ilvl) in descending order
+        getValue = function(item)
+            return tonumber(item.ilvl) or -1
+        end,
+        descending = true
+    }, {
+        -- Sort by bisScore in descending order
+        getValue = function(item)
+            return tonumber(item.bisScore) or 0
+        end,
+        descending = true
+    }, {
+        -- Sort by item score in descending order
+        getValue = function(item)
+            return tonumber(item.score) or 0
+        end,
+        descending = true
+    }, {
+        -- Sort by whether the item is equipped or not in descending order
+        getValue = function(item)
+            return item.equipped and 1 or 0 -- Normalize to 1 for equipped, 0 for not equipped
+        end,
+        descending = true
+    }, {
+        -- Sort by whether the item is bound or not in descending order
+        getValue = function(item)
+            return item.isBound and 1 or 0 -- Normalize to 1 for bound, 0 for not bound
+        end,
+        descending = true
+    }, {
+        -- Sort by item name as a fallback, in ascending alphabetical order
+        getValue = function(item)
+            return tostring(item)
+        end,
+        descending = false
+    }}
+
+    addon:SortTable(items, sortOrder)
+
+    -- debug
     print("Trinkets(After):\n")
     for k, v in pairs(items) do
-        print(v.ilvl, v.score, v.link)
+        print(v.ilvl, v.score, v.link, v.bisScore)
     end
 
     return items[1], items[2] -- Return best and second best items

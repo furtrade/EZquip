@@ -51,7 +51,7 @@ end
 
 local function selectBestItems(itemList, count)
     -- Sort the itemList by score first, and by equipped status second
-    addon:SortTableByScore(itemList)
+    addon:SortTable(itemList)
 
     -- Select the top 'count' items after sorting
     local selectedItems = {}
