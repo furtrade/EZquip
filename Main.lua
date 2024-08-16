@@ -77,6 +77,12 @@ function addon:InitSpecsAndScales()
     self:UnregisterEvent("PLAYER_LOGIN")
 end
 
+function addon:OnSpecChange()
+    self:UpdateDataForSpec()
+
+    self:OnEventThrottle("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
+end
+
 function addon:OnEnable()
     local events = {"BAG_UPDATE", "PLAYER_LEVEL_UP", "ZONE_CHANGED_NEW_AREA"}
 
@@ -93,7 +99,7 @@ function addon:OnEnable()
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnZoneChange")
 
     if self.game == "RETAIL" then
-        self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "UpdateDataForSpec")
+        self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "OnSpecChange")
     end
 end
 
