@@ -102,11 +102,11 @@ local function SelectTrinkets(items)
 
     addon:SortTable(items, sortOrder)
 
-    -- debug
+    --[[ -- debug
     print("Trinkets(After):\n")
     for k, v in pairs(items) do
         print(v.ilvl, v.score, v.link, v.bisScore)
-    end
+    end ]]
 
     return items[1], items[2] -- Return best and second best items
 end

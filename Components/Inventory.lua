@@ -113,7 +113,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     local itemLink, itemID = GetItemInfoFromLocation(itemLocation)
     local score = addon:ScoreItem(itemLink)
 
-    if not (itemLink and itemID) or not (score > 0) then
+    if not (itemLink and itemID) --[[ or not (score > 0) ]] then
         return nil
     end
 
@@ -137,7 +137,8 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
             hex = addon:HexItem(dollOrBagIndex, slotIndex),
             equipped = equipped,
             ilvl = C_Item.GetCurrentItemLevel(itemLocation),
-            isBound = C_Item.IsBound(itemLocation)
+            isBound = C_Item.IsBound(itemLocation),
+            isUnique = C_Item.GetItemUniquenessByID(itemID)
         }
 
         -- Check unequipped items against filter options
@@ -163,48 +164,44 @@ local function GroupItemsById(items)
     return itemsGroupedById
 end
 
--- Function to handle item uniqueness constraints
-local function HandleUniquenessConstraints(itemList, isUnique, limitMax)
-    if isUnique and limitMax == 1 then
-        -- print("Keeping " .. itemList[1].link)
-        return {itemList[1]} -- Keep only the top item if it's unique
-    elseif limitMax > 1 and (#itemList > limitMax) then
-        for i = #itemList, limitMax + 1, -1 do
-            itemList[i] = nil -- Trim excess items
-        end
+-- Optimized function to handle item uniqueness constraints
+local function HandleUniquenessConstraints(itemList, limitMax)
+    if limitMax == 1 then
+        -- If only one item is allowed, return the first item (no need to sort)
+        return {itemList[1]}
+    elseif limitMax > 1 and #itemList > limitMax then
+        -- Sort only if necessary (more than limitMax items)
+        addon:SortTable(itemList)
+        return {unpack(itemList, 1, limitMax)} -- Use table.unpack to return only the top 'limitMax' items
     end
     return itemList
 end
 
--- Main function to filter and retain items based on score and uniqueness constraints
+-- Optimized main function to filter and retain items based on score and uniqueness constraints
 local function FilterUniqueEquippedItems(items)
     local itemsGroupedById = GroupItemsById(items)
+    local insertIndex = 1
 
     for itemId, itemList in pairs(itemsGroupedById) do
-        local isUnique = C_Item.GetItemUniquenessByID(itemList[1].id) -- Assume it returns only a boolean for isUnique
+        local isUnique = itemList[1].isUnique -- Directly use the isUnique attribute from the item
 
         if isUnique then
-            addon:SortTable(itemList)
-            itemList = HandleUniquenessConstraints(itemList, isUnique, 1)
+            itemList = HandleUniquenessConstraints(itemList, 1)
         end
 
-        itemsGroupedById[itemId] = itemList
-    end
-
-    -- Update the original items list with only the retained items
-    local insertIndex = 1
-    for _, itemList in pairs(itemsGroupedById) do
+        -- Insert filtered items back into the original list in place
         for _, item in ipairs(itemList) do
             items[insertIndex] = item
             insertIndex = insertIndex + 1
         end
     end
 
-    -- Remove any excess items in the original list
+    -- Trim any excess items in the original list after processing
     for i = insertIndex, #items do
         items[i] = nil
     end
 end
+
 -- ==========================================================================
 function addon:shallowCopy(original)
     local copy = {}
