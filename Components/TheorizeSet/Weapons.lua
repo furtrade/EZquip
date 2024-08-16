@@ -77,8 +77,11 @@ function WeaponHandler:SetHandedness(myArmory)
         ranged = {}
     }
 
-    local isClassic = addon.gameVersion < 40000
+    -- Warrior with TitanGrip handling
     local isTitan = HasTitanGrip()
+    -- Classic specific handling
+    local isClassic = addon.gameVersion < 40000
+    -- Hunter (Survival) handling
     local isHunterRetail = addon.game == "RETAIL" and (addon.db.char.classId == 3) and (addon.db.char.specId ~= 255)
 
     for invSlot, items in pairs(myArmory) do
@@ -86,10 +89,8 @@ function WeaponHandler:SetHandedness(myArmory)
             for _, item in ipairs(items) do
                 if item.equipLoc == "INVTYPE_2HWEAPON" then
                     if not isTitan then
-                        -- print(item.link .. "adding to onehanders, TITAN!")
                         handedness.oneHanders[#handedness.oneHanders + 1] = item
                     else
-                        -- TITANGRIP means Twohanders are onehanders
                         handedness.twoHanders[#handedness.twoHanders + 1] = item
                     end
                 else
