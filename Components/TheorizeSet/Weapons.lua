@@ -82,7 +82,8 @@ function WeaponHandler:SetHandedness(myArmory)
     -- Classic specific handling
     local isClassic = addon.gameVersion < 40000
     -- Hunter (Survival) handling
-    local isHunterRetail = addon.game == "RETAIL" and (addon.db.char.classId == 3) and (addon.db.char.specId ~= 255)
+    local isHunterRetail = (addon.gameVersion >= 40000) and (addon.db.char.classId == 3) and
+                               (addon.db.char.specId ~= 255)
 
     for invSlot, items in pairs(myArmory) do
         if invSlot == 16 then
