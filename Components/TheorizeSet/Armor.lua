@@ -5,8 +5,6 @@ addon.ArmorHandler = addon.ArmorHandler or {}
 local ArmorHandler = addon.ArmorHandler
 
 function ArmorHandler:getBestArmor(myArmory)
-    local bestArmor = {}
-
     -- Define the valid slots to check (1-10 and 15)
     local ArmorSlots = { -- slot mappings
     1, -- Head
@@ -22,14 +20,17 @@ function ArmorHandler:getBestArmor(myArmory)
     -- Skipping 11-14
     15 -- Back
     }
+    local bestArmor = {}
 
     for _, invSlot in ipairs(ArmorSlots) do
         if myArmory[invSlot] and #myArmory[invSlot] > 0 then
-            local item = myArmory[invSlot][1] -- Only consider the item at the first index
-
+            -- select the best item (at index 1)
+            local item = myArmory[invSlot][1]
             -- Only consider non-equipped items
-            if not item.equipped then
-                local isBetter = addon:CompareItemScores(item)
+            if item.equipped then
+                -- print("Item equipped, next...")
+            else -- item not equipped
+                local isBetter = addon:CompareItemScores(item, 1)
 
                 -- If the item passes the comparison check, add it to bestArmor
                 if isBetter then

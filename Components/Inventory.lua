@@ -111,6 +111,7 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     end
 
     local itemLink, itemID = GetItemInfoFromLocation(itemLocation)
+
     local score = addon:ScoreItem(itemLink)
 
     if not (itemLink and itemID) --[[ or not (score > 0) ]] then
@@ -259,7 +260,7 @@ function addon:UpdateArmory()
 
     -- Sort items by score in each slot
     for _, slotItems in pairs(myArmory) do
-        FilterUniqueEquippedItems(slotItems)
+        -- FilterUniqueEquippedItems(slotItems)
 
         addon:SortTable(slotItems)
     end
