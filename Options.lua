@@ -3,6 +3,7 @@ local addonName, addon = ...
 addon.defaults = {
     profile = {
         options = {
+            EZquipAutomationToggle = true,
             AutoBindToggle = false,
             SaveSharedLootToggle = true,
             SaveRefundableLootToggle = true,
@@ -45,6 +46,18 @@ function addon:InitializeOptions()
                 desc = "Scan your bags and equip the best items according to the stat weights of the selected scale",
                 func = "FindBestItemsAndEquip"
             },
+            EZquipAutomationToggle = {
+                order = 2.101,
+                type = "toggle",
+                name = "Automation",
+                desc = "Toggle EZquip automation",
+                get = function(info)
+                    return self.db.profile.options.EZquipAutomationToggle
+                end,
+                set = function(info, value)
+                    self.db.profile.options.EZquipAutomationToggle = value
+                end
+            },
             spacer1 = {
                 type = "header",
                 order = 2.11,
@@ -53,8 +66,8 @@ function addon:InitializeOptions()
             AutoBindToggle = {
                 order = 2.3,
                 type = "toggle",
-                name = "Auto Bind",
-                desc = 'Automatically CONFIRM "Bind on Equip" and "Tradeable" items, etc. Not recommended for crafters/farmers/goblins.',
+                name = "Bind for Me",
+                desc = 'CONFIRMS "Bind on Equip" and "Tradeable" items, etc. Not recommended for crafters/farmers/goblins.',
                 get = function(info)
                     return self.db.profile.options.AutoBindToggle
                 end,

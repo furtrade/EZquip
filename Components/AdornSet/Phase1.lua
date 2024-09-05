@@ -6,8 +6,13 @@ addon.processing = false -- Flag to indicate if FindBestItemsAndEquip is current
 
 -- Throttle the event triggered equip action
 function addon:OnEventThrottle(event)
-    -- Prevent equipping items if the player is in an instance
-    if self.db.profile.options.isInstanceToggle and self.isInstance then
+    local enableAutomation = self.db.profile.options.EZquipAutomationToggle
+    local pauseInDungeon = self.db.profile.options.isInstanceToggle
+
+    if (not enableAutomation) then
+        return
+    elseif (pauseInDungeon and self.isInstance) then
+        -- Prevent equipping items if the player is in an instance
         return
     end
 
