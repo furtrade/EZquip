@@ -74,6 +74,9 @@ function addon:InitSpecsAndScales()
     -- Load Data for the specific version of the game. bis trinkets etc...
     self:InitializeDataLoader()
 
+    -- add UI toggle to character frame
+    self.AddCharacterFrameToggleButton()
+
     self:UnregisterEvent("PLAYER_LOGIN")
 end
 

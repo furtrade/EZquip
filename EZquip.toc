@@ -60,6 +60,8 @@ Components\Data\Trinkets\rogue_trinkets.lua
 Components\Data\Trinkets\shaman_trinkets.lua
 Components\Data\Trinkets\warlock_trinkets.lua
 Components\Data\Trinkets\warrior_trinkets.lua
+# UI elements
+Components\UI\CharFrameToggle.lua
 
 # core
 Constants.lua

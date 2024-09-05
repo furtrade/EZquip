@@ -260,7 +260,7 @@ function addon:UpdateArmory()
 
     -- Sort items by score in each slot
     for _, slotItems in pairs(myArmory) do
-        -- FilterUniqueEquippedItems(slotItems)
+        FilterUniqueEquippedItems(slotItems)
 
         addon:SortTable(slotItems)
     end
