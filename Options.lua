@@ -89,7 +89,7 @@ function addon:InitializeOptions()
             isInstanceToggle = {
                 order = 2.3,
                 type = "toggle",
-                name = "Instance",
+                name = "Pause in Dungeons",
                 desc = "Avoid auto equipping while in a dungeon or raid",
                 get = function(info)
                     return self.db.profile.options.isInstanceToggle
