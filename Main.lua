@@ -75,7 +75,7 @@ function addon:InitSpecsAndScales()
     self:InitializeDataLoader()
 
     -- add UI toggle to character frame
-    self.AddCharacterFrameToggleButton()
+    self.AddCharFrameUIElements()
 
     self:UnregisterEvent("PLAYER_LOGIN")
 end
