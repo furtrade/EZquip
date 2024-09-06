@@ -86,12 +86,21 @@ function addon:OnSpecChange()
     self:OnEventThrottle("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
 end
 
-function addon:OnEnable()
-    local events = {"BAG_UPDATE", "PLAYER_LEVEL_UP", "ZONE_CHANGED_NEW_AREA"}
+function addon:OnEnteringWorld(event)
+    local events = {"BAG_UPDATE", "PLAYER_LEVEL_UP"}
 
     for _, event in ipairs(events) do
         self:RegisterEvent(event, "OnEventThrottle")
     end
+
+    self:OnZoneChange()
+    self:OnEventThrottle(event)
+
+    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+end
+
+function addon:OnEnable()
+    self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEnteringWorld")
 
     -- Combat State
     self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnCombatStart")
@@ -99,7 +108,6 @@ function addon:OnEnable()
 
     -- Instance State
     self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "OnZoneChange")
-    self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnZoneChange")
 
     if self.game == "RETAIL" then
         self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "OnSpecChange")
