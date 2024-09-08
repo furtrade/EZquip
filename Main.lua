@@ -86,15 +86,33 @@ function addon:OnSpecChange()
     self:OnEventThrottle("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
 end
 
-function addon:OnEnteringWorld(event)
-    local events = {"BAG_UPDATE", "PLAYER_LEVEL_UP"}
+function addon:OnEverythingLoaded(event)
+    self:UnregisterEvent("PLAYER_STARTED_MOVING")
 
+    -- Regisster events for ezquipping
+    local events = {"BAG_UPDATE", "PLAYER_LEVEL_UP", "PLAYER_STOPPED_MOVING", "PLAYER_STARTED_MOVING"}
     for _, event in ipairs(events) do
         self:RegisterEvent(event, "OnEventThrottle")
     end
 
+    if self.game == "RETAIL" then
+        self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "OnSpecChange")
+    end
+
+end
+
+function addon:OnEnteringWorld(event)
+    -- Combat State
+    self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnCombatStart")
+    self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnCombatEnd")
+
+    -- Instance State
+    self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "OnZoneChange")
     self:OnZoneChange()
-    self:OnEventThrottle(event)
+
+    -- Register the auto throttle function last. We want this to only trigger if pawn is fully initialized tbh.
+    -- PLAYER_STARTED_MOVING is just a lazy way of doing this for now.
+    self:RegisterEvent("PLAYER_STARTED_MOVING", "OnEverythingLoaded")
 
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end
@@ -102,16 +120,6 @@ end
 function addon:OnEnable()
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEnteringWorld")
 
-    -- Combat State
-    self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnCombatStart")
-    self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnCombatEnd")
-
-    -- Instance State
-    self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "OnZoneChange")
-
-    if self.game == "RETAIL" then
-        self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "OnSpecChange")
-    end
 end
 
 _G["EZquip"] = addon
