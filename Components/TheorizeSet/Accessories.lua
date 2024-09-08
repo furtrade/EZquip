@@ -22,7 +22,7 @@ local function SelectRings(items)
     return items[1], items[2] -- Return best and second best items
 end
 
--- Function to lookup DPS based on itemId and ilvl
+-- Function to lookup DPS value based on itemId and ilvl
 function addon:LookupBisTrinkets(itemId, ilvl)
     local trinket = self.BisTrinkets[itemId]
 
@@ -53,12 +53,13 @@ end
 -- Function to select the best items based on ilvl
 local function SelectTrinkets(items)
     -- iterate over items to find bis and add its DPS value
-    for _, item in pairs(items) do
+    -- FIX: We dont really have bistrinket data atm
+    --[[ for _, item in pairs(items) do
         local bisScore, err = addon:LookupBisTrinkets(item.id, item.ilvl)
         if bisScore then
             item.bisScore = bisScore
         end
-    end
+    end ]]
 
     -- This determines the best items based on our priorities
     -- Prioritising ilvl because score/bisScore are unreliable
