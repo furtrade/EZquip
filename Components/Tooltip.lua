@@ -112,3 +112,23 @@ function addon:GetItemLevelFromTooltip(dollOrBagIndex, slotIndex)
     return nil
 end
 
+function addon:GetRequiredLevelFromTooltip(dollOrBagIndex, slotIndex)
+    local tooltipData = slotIndex and C_TooltipInfo.GetBagItem(dollOrBagIndex, slotIndex) or
+                            C_TooltipInfo.GetInventoryItem("player", dollOrBagIndex, false)
+
+    if not tooltipData then
+        return nil
+    end
+
+    for _, line in ipairs(tooltipData.lines) do
+        if line.leftText then
+            -- Match the "Requires Level" pattern and extract the number
+            local requiredLevel = line.leftText:match("Requires Level (%d+)")
+            if requiredLevel then
+                return tonumber(requiredLevel) -- Return the required level as a number
+            end
+        end
+    end
+
+    return nil
+end

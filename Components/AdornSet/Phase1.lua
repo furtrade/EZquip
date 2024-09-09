@@ -6,6 +6,10 @@ addon.processing = false -- Flag to indicate if FindBestItemsAndEquip is current
 
 -- Throttle the event triggered equip action
 function addon:OnEventThrottle(event)
+    if event == "PLAYER_LEVEL_UP" then
+        addon.playerLevel = UnitLevel("player")
+    end
+
     local enableAutomation = self.db.profile.options.EZquipAutomationToggle
     local pauseInDungeon = self.db.profile.options.isInstanceToggle
 

@@ -61,6 +61,8 @@ function addon:SlashCommand(input)
 end
 
 function addon:InitSpecsAndScales()
+    self.playerLevel = self.playerLevel or UnitLevel("player")
+
     self:GetPlayerClassAndSpec()
     self:GetAllPlayerSpecs()
     self:InitializeDefaultScales()

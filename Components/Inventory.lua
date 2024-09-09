@@ -118,7 +118,20 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
         return nil
     end
 
-    local canUse = C_PlayerInfo.CanUseItem(itemID)
+    local function canUseThisItem(itemID, dollOrBagIndex, slotIndex)
+        local canUse = C_PlayerInfo.CanUseItem(itemID)
+        local requiredLevel = addon:GetRequiredLevelFromTooltip(dollOrBagIndex, slotIndex)
+
+        requiredLevel = tonumber(requiredLevel)
+        if requiredLevel ~= nil then
+            local playerLevel = addon.playerLevel
+            -- print(playerLevel, requiredLevel)
+            return canUse and (playerLevel >= requiredLevel) or false
+        end
+        return canUse or false
+    end
+
+    local canUse = canUseThisItem(itemID, dollOrBagIndex, slotIndex)
     local itemType, _, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
