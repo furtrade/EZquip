@@ -132,12 +132,23 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
     end
 
     local canUse = canUseThisItem(itemID, dollOrBagIndex, slotIndex)
-    local itemType, _, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
+    local itemType, itemSubType, _, equipLoc = select(6, C_Item.GetItemInfo(itemID))
+    -- print(itemSubType)
 
     if canUse and (itemType == "Armor" or itemType == "Weapon") then
         local invSlot = SetInvSlotForEquipLoc(equipLoc)
         if not invSlot then
             return nil
+        end
+
+        -- ❄️ensure that we only consider class appropriate armor in RETAIL.
+        if (addon.gameVersion > 4000) and itemType == "Armor" and (invSlot ~= 2) and not (invSlot > 10) then
+            local playerClass = addon.db.char.className
+            local isClassArmor = addon.classArmorTypeLookup[playerClass]
+
+            if isClassArmor ~= itemSubType then
+                return nil
+            end
         end
 
         local itemInfo = {

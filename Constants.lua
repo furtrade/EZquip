@@ -40,6 +40,30 @@ addon.ItemEquipLocToInvSlotID = {
     ["INVTYPE_AMMO"] = {0}
 }
 
+-- lookup table that maps desired armor type to classic
+addon.classArmorTypeLookup = {
+    -- Cloth wearers
+    ["Mage"] = "Cloth",
+    ["Priest"] = "Cloth",
+    ["Warlock"] = "Cloth",
+
+    -- Leather wearers
+    ["Druid"] = "Leather",
+    ["Rogue"] = "Leather",
+    ["Monk"] = "Leather",
+    ["Demon Hunter"] = "Leather",
+
+    -- Mail wearers
+    ["Hunter"] = "Mail",
+    ["Shaman"] = "Mail",
+    ["Evoker"] = "Mail", -- New class added with Dragonflight
+
+    -- Plate wearers
+    ["Warrior"] = "Plate",
+    ["Paladin"] = "Plate",
+    ["Death Knight"] = "Plate"
+}
+
 -- Lookup table for game versions
 local gameVersionLookup = {
     [110000] = "RETAIL",
