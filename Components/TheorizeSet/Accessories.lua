@@ -69,13 +69,13 @@ local function SelectTrinkets(items)
             return tonumber(item.ilvl) or -1
         end,
         descending = true
-    }, {
+    }, --[[ {
         -- Sort by bisScore in descending order
         getValue = function(item)
             return tonumber(item.bisScore) or 0
         end,
         descending = true
-    }, {
+    }, ]] {
         -- Sort by item score in descending order
         getValue = function(item)
             return tonumber(item.score) or 0
@@ -94,7 +94,13 @@ local function SelectTrinkets(items)
         end,
         descending = true
     }, {
-        -- Sort by item name as a fallback, in ascending alphabetical order
+        -- Sort by item ID in ascending order (as a secondary fallback after other conditions)
+        getValue = function(item)
+            return tonumber(item.id) or 0
+        end,
+        descending = false -- Ascending order for item IDs
+    }, {
+        -- Sort by item name as a final fallback, in ascending alphabetical order
         getValue = function(item)
             return tostring(item)
         end,

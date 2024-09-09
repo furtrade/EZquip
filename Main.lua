@@ -89,10 +89,9 @@ function addon:OnSpecChange()
 end
 
 function addon:OnEverythingLoaded(event)
-    self:UnregisterEvent("PLAYER_STARTED_MOVING")
 
     -- Regisster events for ezquipping
-    local events = {"BAG_UPDATE", "PLAYER_LEVEL_UP", "PLAYER_STOPPED_MOVING", "PLAYER_STARTED_MOVING"}
+    local events = {"BAG_UPDATE", "PLAYER_LEVEL_UP"}
     for _, event in ipairs(events) do
         self:RegisterEvent(event, "OnEventThrottle")
     end
@@ -101,6 +100,7 @@ function addon:OnEverythingLoaded(event)
         self:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "OnSpecChange")
     end
 
+    self:UnregisterEvent("PLAYER_STARTED_MOVING")
 end
 
 function addon:OnEnteringWorld(event)
