@@ -176,54 +176,56 @@ function addon:EvaluateItem(dollOrBagIndex, slotIndex)
 end
 
 -- ==========================================================================
--- Function to group items by their ID
-local function GroupItemsById(items)
-    local itemsGroupedById = {}
+-- Comparison function to determine if item 'a' is better than item 'b'
+local function IsItemBetter(a, b, sortOrder)
+    sortOrder = sortOrder or addon.priorities
+    for _, criteria in ipairs(sortOrder) do
+        local a_value = criteria.getValue(a)
+        local b_value = criteria.getValue(b)
+
+        if a_value ~= b_value then
+            if criteria.descending then
+                return a_value > b_value
+            else
+                return a_value < b_value
+            end
+        end
+    end
+    return false -- Items are equal based on sorting criteria
+end
+
+-- Optimized function to filter and retain items based on uniqueness constraints
+local function FilterUniqueEquippedItems(items)
+    local bestUniqueItems = {} -- To store the best unique item per ID
+    local nonUniqueItems = {} -- To store non-unique items
+
     for _, item in ipairs(items) do
         local itemId = item.id
-        if not itemsGroupedById[itemId] then
-            itemsGroupedById[itemId] = {}
-        end
-        table.insert(itemsGroupedById[itemId], item)
-    end
-    return itemsGroupedById
-end
-
--- Optimized function to handle item uniqueness constraints
-local function HandleUniquenessConstraints(itemList, limitMax)
-    if limitMax == 1 then
-        -- If only one item is allowed, return the first item (no need to sort)
-        return {itemList[1]}
-    elseif limitMax > 1 and #itemList > limitMax then
-        -- Sort only if necessary (more than limitMax items)
-        addon:SortTable(itemList)
-        return {unpack(itemList, 1, limitMax)} -- Use table.unpack to return only the top 'limitMax' items
-    end
-    return itemList
-end
-
--- Optimized main function to filter and retain items based on score and uniqueness constraints
-local function FilterUniqueEquippedItems(items)
-    local itemsGroupedById = GroupItemsById(items)
-    local insertIndex = 1
-
-    for itemId, itemList in pairs(itemsGroupedById) do
-        local isUnique = itemList[1].isUnique -- Directly use the isUnique attribute from the item
-
-        if isUnique then
-            itemList = HandleUniquenessConstraints(itemList, 1)
-        end
-
-        -- Insert filtered items back into the original list in place
-        for _, item in ipairs(itemList) do
-            items[insertIndex] = item
-            insertIndex = insertIndex + 1
+        if item.isUnique then
+            local existingItem = bestUniqueItems[itemId]
+            if not existingItem or IsItemBetter(item, existingItem) then
+                bestUniqueItems[itemId] = item -- Keep the better item
+            end
+        else
+            table.insert(nonUniqueItems, item)
         end
     end
 
-    -- Trim any excess items in the original list after processing
-    for i = insertIndex, #items do
-        items[i] = nil
+    -- Combine the best unique items and non-unique items into a new list
+    local filteredItems = {}
+    for _, item in pairs(bestUniqueItems) do
+        table.insert(filteredItems, item)
+    end
+    for _, item in ipairs(nonUniqueItems) do
+        table.insert(filteredItems, item)
+    end
+
+    -- Clear the original items list and insert the filtered items
+    for i = #items, 1, -1 do
+        table.remove(items, i)
+    end
+    for _, item in ipairs(filteredItems) do
+        table.insert(items, item)
     end
 end
 

@@ -102,7 +102,7 @@ local function SelectTrinkets(items)
     }, {
         -- Sort by item name as a final fallback, in ascending alphabetical order
         getValue = function(item)
-            return tostring(item)
+            return tostring(item.name)
         end,
         descending = false
     }}

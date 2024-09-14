@@ -113,13 +113,13 @@ function addon:slotToggled(invSlot)
     return addon.db.profile.paperDoll["slot" .. invSlot]
 end
 
-addon.priorities = {{
+addon.priorities = { --[[ {
     -- Sort by bisScore in descending order
     getValue = function(item)
         return tonumber(item.bisScore) or 0
     end,
     descending = true
-}, {
+},  ]] {
     -- Sort by item score in descending order
     getValue = function(item)
         return tonumber(item.score) or 0
@@ -148,28 +148,32 @@ addon.priorities = {{
 }, {
     -- Sort by item name as a fallback, in ascending alphabetical order
     getValue = function(item)
-        return tostring(item) or ""
+        return tostring(item.name) or ""
     end,
     descending = false
 }}
 
 function addon:SortTable(items, sortOrder)
-    sortOrder = sortOrder or self.priorities
+    local sortOrder = sortOrder or self.priorities
 
-    table.sort(items, function(a, b)
+    -- Precompute sort keys for each item
+    local sortKeys = {}
+    for _, item in ipairs(items) do
+        local keys = {}
         for _, criteria in ipairs(sortOrder) do
-            local a_value = criteria.getValue(a)
-            local b_value = criteria.getValue(b)
+            local value = criteria.getValue(item)
+            table.insert(keys, value)
+        end
+        sortKeys[item] = keys
+    end
 
-            -- Normalize types to avoid type conversion issues
-            if type(a_value) == "string" then
-                a_value = tonumber(a_value) or a_value
-            end
-            if type(b_value) == "string" then
-                b_value = tonumber(b_value) or b_value
-            end
-
-            -- Handle comparison based on criteria
+    -- Sort using precomputed keys
+    table.sort(items, function(a, b)
+        local a_keys = sortKeys[a]
+        local b_keys = sortKeys[b]
+        for idx, criteria in ipairs(sortOrder) do
+            local a_value = a_keys[idx]
+            local b_value = b_keys[idx]
             if a_value ~= b_value then
                 if criteria.descending then
                     return a_value > b_value
@@ -178,8 +182,7 @@ function addon:SortTable(items, sortOrder)
                 end
             end
         end
-
-        -- Fallback to a default comparison if all criteria are equal
+        -- Fallback to comparing item names
         return tostring(a) < tostring(b)
     end)
 end
